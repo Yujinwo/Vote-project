@@ -19,22 +19,17 @@ public class UserService {
 
     @Transactional(readOnly = true)
     public Optional<User> login(UserLoginDto userLoginDto) {
-
        Optional<User> user = userRepository.Login(userLoginDto.getUser_id(), userLoginDto.getUser_pw());
        return user;
     }
 
     @Transactional
     public Optional<User> join(UserJoinDto userJoinDto) {
-
-
         Optional<User> user = Optional.of(userRepository.save(userJoinDto.createUser()));
         return user;
     }
     @Transactional(readOnly = true)
     public Optional<User> getUserId(String userid) {
         return userRepository.findByuserId(userid);
-
-
     }
 }

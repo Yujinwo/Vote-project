@@ -1,12 +1,14 @@
 package com.react.voteproject.entity;
 
 import jakarta.persistence.*;
-import lombok.AccessLevel;
-import lombok.NoArgsConstructor;
+import lombok.*;
 
 
 @Entity
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
+@AllArgsConstructor
+@Builder
+@Getter
 public class VoteOption extends BaseTime{
 
     @Id

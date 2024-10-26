@@ -1,6 +1,7 @@
 package com.react.voteproject.controller;
 
 
+import com.react.voteproject.context.AuthContext;
 import com.react.voteproject.dto.UserJoinDto;
 import com.react.voteproject.dto.UserLoginDto;
 import com.react.voteproject.entity.User;
@@ -41,12 +42,22 @@ public class UserController {
         Optional<User> user = userService.login(userLoginDto);
         if(user.isPresent())
         {
+            AuthContext.setAuth(user.get());
             return ResponseHelper.createSuccessMessage("result","로그인 성공");
         }
 
         return ResponseHelper.createErrorMessage("result","아이디와 비밀번호를 확인해주세요");
-        
     }
+    @PostMapping("/logout")
+    public ResponseEntity<Map<String,Object>> Logout()
+    {
+        if(AuthContext.checkAuth()) {
+            AuthContext.deleteAuth();
+            return ResponseHelper.createSuccessMessage("result","로그아웃 성공");
+        }
+        return ResponseHelper.createErrorMessage("result","로그아웃 실패");
+    }
+
     @GetMapping("/users")
     public ResponseEntity<Map<String,Object>> GetUserId(@RequestParam("user_id") @NotBlank @Size(min = 4, max = 10,message = "최소 4자 이상, 최대 10자 이하로 입력해주세요") String user_id) {
         if(!alphanumericPattern.matcher(user_id).matches())
@@ -87,6 +98,7 @@ public class UserController {
         Optional<User> user = userService.join(userJoinDto);
         if(user.isPresent())
         {
+            AuthContext.setAuth(user.get());
             return ResponseHelper.createSuccessMessage("result","회원가입 성공");
         }
 
