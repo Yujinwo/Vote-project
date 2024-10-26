@@ -1,0 +1,105 @@
+diff --git a/node_modules/react-card-slider-component/dist/ReactCardSlider.js b/node_modules/react-card-slider-component/dist/ReactCardSlider.js
+index 442f684..05771a2 100644
+--- a/node_modules/react-card-slider-component/dist/ReactCardSlider.js
++++ b/node_modules/react-card-slider-component/dist/ReactCardSlider.js
+@@ -12,18 +12,20 @@ var _react = _interopRequireDefault(require("react"));
+ require("./Slider.css");
+ 
+ var _md = require("react-icons/md");
+-
++const { LikeOutlined,CommentOutlined,BulbOutlined,CalendarOutlined,UserOutlined,ExclamationCircleOutlined } = require('@ant-design/icons');
++const { Progress } = require('antd');
++const { Link } = require('react-router-dom');
+ function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
+ 
+ const ReactCardSlider = props => {
+   const slideLeft = () => {
+     var slider = document.getElementById("slider");
+-    slider.scrollLeft = slider.scrollLeft + 500;
++    slider.scrollLeft = slider.scrollLeft - 500;
+   };
+ 
+   const slideRight = () => {
+     var slider = document.getElementById("slider");
+-    slider.scrollLeft = slider.scrollLeft - 500;
++    slider.scrollLeft = slider.scrollLeft + 500;
+   };
+ 
+   return /*#__PURE__*/_react.default.createElement("div", {
+@@ -35,22 +37,47 @@ const ReactCardSlider = props => {
+   }), /*#__PURE__*/_react.default.createElement("div", {
+     id: "slider"
+   }, props.slides.map((slide, index) => {
+-    return /*#__PURE__*/_react.default.createElement("div", {
++    return /*#__PURE__*/_react.default.createElement(
++    Link, 
++    { to: '/votedatail/' + slide.id },/*#__PURE__*/_react.default.createElement("div", {
+       className: "slider-card",
+-      key: index,
+-      onClick: () => slide.clickEvent()
++      key: index
+     }, /*#__PURE__*/_react.default.createElement("div", {
+       className: "slider-card-image",
+       style: {
+-        backgroundImage: "url(".concat(slide.image, ")"),
+         backgroundSize: 'cover'
+       }
+-    }), /*#__PURE__*/_react.default.createElement("p", {
++    }, /*#__PURE__*/_react.default.createElement("span", {
++      className: "slider-card-cetagory",
++    }, slide.category)),/*#__PURE__*/_react.default.createElement(BulbOutlined,null), 
++      /*#__PURE__*/_react.default.createElement("p", {
+       className: "slider-card-title"
+-    }, slide.title), /*#__PURE__*/_react.default.createElement("p", {
+-      className: "slider-card-description"
+-    }, slide.description));
+-  })), /*#__PURE__*/_react.default.createElement(_md.MdChevronRight, {
++    }, slide.title), /*#__PURE__*/_react.default.createElement(CalendarOutlined,null),
++      /*#__PURE__*/_react.default.createElement("div", {
++      className: "slider-card-day"
++    }, /*#__PURE__*/_react.default.createElement("p", {
++      className: "slider-card-staryday"
++    }, slide.staryday), /*#__PURE__*/_react.default.createElement("p", {
++      className: "slider-card-to"
++    }, "~"), /*#__PURE__*/_react.default.createElement("p", {
++      className: "slider-card-endday"
++    }, slide.endday)), /*#__PURE__*/_react.default.createElement(UserOutlined,null),
++      /*#__PURE__*/_react.default.createElement("p", {
++      className: "slider-card-writer"
++    }, slide.writer), _react.default.createElement("p", { className: "slider-card-rate" },
++  _react.default.createElement(Progress, {
++    percent: 100,
++    size: "small",
++    format: () => `${slide.rate}명`
++  })),/*#__PURE__*/_react.default.createElement("div", {
++      className: "slider-card-voteadd"
++    }, /*#__PURE__*/_react.default.createElement(LikeOutlined,null),
++      /*#__PURE__*/_react.default.createElement("span", {
++      className: "slider-card-up"
++    },slide.up), /*#__PURE__*/_react.default.createElement(CommentOutlined,null),
++       /*#__PURE__*/_react.default.createElement("span", {
++      className: "slider-card-comment"
++    },slide.commentcount))))})), /*#__PURE__*/_react.default.createElement(_md.MdChevronRight, {
+     size: 40,
+     className: "slider-icon right",
+     onClick: slideRight
+diff --git a/node_modules/react-card-slider-component/dist/Slider.css b/node_modules/react-card-slider-component/dist/Slider.css
+index 861a0ca..8e9c086 100644
+--- a/node_modules/react-card-slider-component/dist/Slider.css
++++ b/node_modules/react-card-slider-component/dist/Slider.css
+@@ -1,5 +1,5 @@
+ #main-slider-container{
+-    width: 90%;
++    width: 100%;
+     height: 305px;
+ }
+ 
+@@ -67,7 +67,7 @@
+ }
+ 
+ .slider-card{
+-    width: 320px;
++   width: 320px;
+     height: 300px;
+     background: white;
+     border-radius: 10px;
