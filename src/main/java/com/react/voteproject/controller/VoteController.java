@@ -27,6 +27,13 @@ public class VoteController {
 
     private final VoteService voteService;
 
+
+    @GetMapping("/votes")
+    public ResponseEntity<VoteDetailDataDto> findVote(@RequestParam("id") Long id) {
+        VoteDetailDataDto vote = voteService.findVote(id);
+
+        return ResponseEntity.status(HttpStatus.OK).body(vote);
+    }
     @PostMapping("/votes")
     public ResponseEntity<Map<String,Object>> writeVote(@Valid @RequestBody VoteWriteDto voteWriteDto) {
 
@@ -44,15 +51,20 @@ public class VoteController {
             return ResponseHelper.createErrorMessage("result","투표 작성 실패");
         }
         return ResponseHelper.createSuccessMessage("result","투표 작성 성공");
+    }
+    @PostMapping("/voteoptions")
+    public ResponseEntity<Map<String,Object>> changeVoteOption(@RequestParam("id") Long id) {
 
+        if(!AuthContext.checkAuth())
+        {
+            return ResponseHelper.createErrorMessage("result","로그인을 해주세요");
+        }
+        Boolean status = voteService.changeVoteOption(id);
+        if(!status)
+        {
+            return ResponseHelper.createErrorMessage("result","선택 실패");
+        }
+        return ResponseHelper.createSuccessMessage("result","선택 성공");
     }
 
-    @GetMapping("/votes")
-    public ResponseEntity<VoteDetailDataDto> findVote(@RequestParam("id") Long id) {
-        VoteDetailDataDto vote = voteService.findVote(id);
-
-        return ResponseEntity.status(HttpStatus.OK).body(vote);
-
-
-    }
 }

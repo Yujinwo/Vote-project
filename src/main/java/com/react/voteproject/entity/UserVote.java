@@ -2,11 +2,13 @@ package com.react.voteproject.entity;
 
 
 import jakarta.persistence.*;
-import lombok.AccessLevel;
-import lombok.NoArgsConstructor;
+import lombok.*;
 
 @Entity
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
+@AllArgsConstructor
+@Builder
+@Getter
 public class UserVote extends BaseTime{
 
     @Id
@@ -20,4 +22,6 @@ public class UserVote extends BaseTime{
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "user_id")
     private User user;
+
+
 }

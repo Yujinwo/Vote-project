@@ -40,6 +40,12 @@ public class VoteWriteDto {
         LocalDateTime startDay = LocalDateTime.parse(days.get(0), formatter);
         LocalDateTime endDay = LocalDateTime.parse(days.get(1), formatter);
 
-        return Vote.builder().user(AuthContext.getAuth()).title(title).category(category).startDay(startDay).endDay(endDay).build();
+        return Vote.builder()
+                .user(AuthContext.getAuth())
+                .title(title)
+                .category(category)
+                .startDay(startDay)
+                .endDay(endDay)
+                .build();
     }
 }

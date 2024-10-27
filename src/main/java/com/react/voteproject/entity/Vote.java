@@ -36,17 +36,21 @@ public class Vote extends BaseTime{
     private int commentCount;
 
     @Column
+    private int view;
+
+    @Column
     private LocalDateTime startDay;
 
     @Column
     private LocalDateTime endDay;
 
-    @OneToMany(mappedBy = "vote",fetch = FetchType.LAZY)
+    @OneToMany(mappedBy = "vote",fetch = FetchType.LAZY,orphanRemoval = true,cascade = CascadeType.ALL)
     private List<VoteOption> options;
 
     @PrePersist
     public void prePersist() {
         if (up == 0) up = 0;
+        if (view == 0) view = 0;
         if (commentCount == 0) commentCount = 0;
         if (startDay == null) startDay = LocalDateTime.now();
         if (endDay == null) endDay = LocalDateTime.now().plusDays(7);

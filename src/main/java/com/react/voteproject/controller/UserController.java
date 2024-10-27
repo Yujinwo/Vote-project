@@ -19,6 +19,7 @@ import org.springframework.web.bind.annotation.*;
 
 import java.util.Map;
 import java.util.Optional;
+import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.regex.Pattern;
 
 @RestController
@@ -56,6 +57,16 @@ public class UserController {
             return ResponseHelper.createSuccessMessage("result","로그아웃 성공");
         }
         return ResponseHelper.createErrorMessage("result","로그아웃 실패");
+    }
+    @GetMapping("/sessions")
+    public ResponseEntity<Map<String,Object>> getSession() {
+
+        if(AuthContext.checkAuth())
+        {
+            return ResponseHelper.createSuccessMessage("result","세션 유효");
+        }
+
+        return ResponseHelper.createErrorMessage("result","세션 무효");
     }
 
     @GetMapping("/users")

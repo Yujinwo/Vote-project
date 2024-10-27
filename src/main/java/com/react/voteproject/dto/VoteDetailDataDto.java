@@ -16,7 +16,10 @@ import java.util.List;
 public class VoteDetailDataDto {
 
     VoteResponseDto vote;
+    Long selectedOptionId;
 
-
-
+    public static VoteDetailDataDto createVoteDetailDataDto(VoteResponseDto voteResponseDto,Long selectedOptionId)
+    {
+        return VoteDetailDataDto.builder().vote(voteResponseDto).selectedOptionId(selectedOptionId).build();
+    }
 }
