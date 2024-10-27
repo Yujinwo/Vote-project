@@ -31,12 +31,12 @@ const ReactCardSlider = (props) => {
 
      setIsLoading(true);
 
-     // 1초 후에 추가 슬라이드를 로드
+     // 0.2초 후에 추가 슬라이드를 로드
      setTimeout(() => {
        const newSlides = props.slides.slice(visibleSlides.length, visibleSlides.length + 5); // 다음 5개 슬라이드 로드
        setVisibleSlides((prevSlides) => [...prevSlides, ...newSlides]); // 기존 슬라이드에 추가
        setIsLoading(false);
-     }, 500);
+     }, 200);
    };
 
   // 슬라이드의 scroll 이벤트 리스너 등록

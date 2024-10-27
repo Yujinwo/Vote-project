@@ -1,16 +1,23 @@
 
 import React, { useState } from "react";
 import { Flex, Input, Typography,DatePicker, Space,Form, Button, Row, Col,message,Select } from 'antd';
-import { MinusCircleOutlined, PlusOutlined } from "@ant-design/icons";
+import { DeleteOutlined, PlusOutlined ,ExclamationCircleOutlined} from "@ant-design/icons";
 import { EditOutlined } from '@ant-design/icons';
+import { useNavigate } from 'react-router-dom';
+import axios from 'axios';
+import { useAuth } from './AuthContext';
 const { RangePicker } = DatePicker;
-
+const { Text, Link } = Typography;
 function VoteWrite() {
+       const { isLoggedIn, login  } = useAuth();
+       const navigate = useNavigate();
        const [title,setTitle] = useState('');
+       const [titleError, settitleError] = useState('');
        const [day,setDay] = useState('');
-       const [choices, setChoices] = useState([ { value: "" }, { value: "" } ]);
+       const [choices, setChoices] = useState(["",""]);
        const [titleisExceeded, settitleIsExceeded] = useState(true);
        const [choiceOneisExceeded, setchoiceOneIsExceeded] = useState(true);
+       const [choiceError, setchoiceError] = useState('');
        const [choiceTwoisExceeded, setchoiceTwoIsExceeded] = useState(true);
        const [CategoryValue, setCategoryValue] = useState(null);
        const categorys = [
@@ -43,52 +50,119 @@ function VoteWrite() {
                                  label: '교육 및 학습',
                               },
        ]
-      // 선택지 추가 함수
-      const addChoice = () => {
-        if (choices.length < 2) {
-          setChoices([...choices, { value: "" }]);
-        }
-      };
 
-      // 선택지 삭제 함수
+
+      // 선택지 내용 지우기 함수
       const removeChoice = (index) => {
-        const newChoices = choices.filter((_, i) => i !== index);
+        const newChoices = [...choices];
+        console.log(newChoices);
+        newChoices[index]= '';
         setChoices(newChoices);
       };
 
       // 선택지 값 변경 함수
       const handleChange = (index, event) => {
         const newChoices = [...choices];
-        newChoices[index].value = event.target.value;
+        console.log(newChoices);
+        newChoices[index] = event.target.value;
+
         setChoices(newChoices);
-        const maxLength = 10;
+        const minLength = 5;
+        const maxLength = 20;
         const value = event.target.value;
         if(index == 1)
         {
-         setchoiceOneIsExceeded(value.length >= maxLength || ( value === null && value.length <= maxLength) || value.trim() === '');
+             if( ( value.length < minLength || value.length > maxLength ) &&  ( !/^[ㄱ-ㅎ]*$/.test(value) && !/[ㄱ-ㅎ]/.test(value) ) )
+               {
+                       setchoiceOneIsExceeded(true);
+                       setchoiceError("최소 5자 이상, 최대 20자 이하로 입력해주세요")
+               }
+               else if (value === null || value.trim() === '') {
+                      setchoiceOneIsExceeded(true);
+                      setchoiceError("선택지를 입력해주세요");
+               }
+               // 한글 초성 불가능 규칙 확인
+               else if ( /^[ㄱ-ㅎ]*$/.test(value) || /[ㄱ-ㅎ]/.test(value) ) {
+                       setchoiceOneIsExceeded(true);
+                       setchoiceError("한글 초성은 불가능합니다");
+               }
+               else {
+                       setchoiceOneIsExceeded(false);
+                       setchoiceError('');
+               }
         }
         else {
-         setchoiceTwoIsExceeded(value.length >= maxLength || ( value === null && value.length <= maxLength) || value.trim() === '');
-        }
-
-      };
+             if( ( value.length < minLength || value.length > maxLength ) &&  ( !/^[ㄱ-ㅎ]*$/.test(value) && !/[ㄱ-ㅎ]/.test(value) ))
+                   {
+                       setchoiceTwoIsExceeded(true);
+                       setchoiceError("최소 5자 이상, 최대 20자 이하로 입력해주세요")
+                   }
+                   else if (value === null || value.trim() === '') {
+                       setchoiceTwoIsExceeded(true);
+                       setchoiceError("선택지를 입력해주세요");
+                   }
+                   // 한글 초성 불가능 규칙 확인
+                   else if ( /^[ㄱ-ㅎ]*$/.test(value) || /[ㄱ-ㅎ]/.test(value) ) {
+                       setchoiceTwoIsExceeded(true);
+                       setchoiceError("한글 초성은 불가능합니다");
+                   }
+                   else {
+                       setchoiceTwoIsExceeded(false);
+                       setchoiceError('');
+                   }
+            }
+      }
       // 투표 작성 함수
       const writeVote = () => {
-          if (titleisExceeded || choiceOneisExceeded || choiceTwoisExceeded || day.length != 2) {
+          if (titleisExceeded || choiceOneisExceeded || choiceTwoisExceeded || day.length != 2 || choices.length != 2) {
             message.error("입력을 확인해주세요");
           } else {
-            message.success('작성 성공!');
+
+            axios.post('/api/votes',{
+                                  title:title,
+                                  category:CategoryValue,
+                                  days : day,
+                                  choices : choices
+                                },{
+                                   headers: {
+                                      'Content-Type': 'application/json'
+                                   }
+                                })
+                                .then((res) => {
+                                  navigate('/votelist');
+                                  message.success('투표 작성 완료');
+                                })
+                                .catch((err) => {
+                                  message.error(err.response.data.result);
+                                })
           }
-         console.log(title);
-         console.log(day);
-         console.log(choices);
+
+
       }
       // 제목 변경 함수
       const changeTitle = (e) => {
-         setTitle(e.target.value)
-         const maxLength = 10;
+
+         const minLength = 5;
+         const maxLength = 20;
          const value = e.target.value;
-         settitleIsExceeded(value.length >= maxLength || ( value === null && value.length <= maxLength) || value.trim() === '');
+         settitleIsExceeded( ( value === null && value.length <= maxLength) || value.trim() === '');
+         if( (value.length < minLength || value.length > maxLength ) && ( !/^[ㄱ-ㅎ]*$/.test(value) && !/[ㄱ-ㅎ]/.test(value) )){
+           settitleIsExceeded(true);
+           settitleError("최소 5자 이상, 최대 20자 이하로 입력해주세요");
+         }
+         else if (value === null || value.trim() === '') {
+           settitleIsExceeded(true);
+           settitleError("제목을 입력해주세요");
+         }
+         else if(/^[ㄱ-ㅎ]*$/.test(value) || /[ㄱ-ㅎ]/.test(value)) {
+           settitleIsExceeded(true);
+           settitleError("한글 초성은 불가능합니다");
+         }
+         else {
+           settitleIsExceeded(false);
+           setTitle(value);
+           settitleError('');
+         }
       }
       const changeDay =(data,dataString) => {
          setDay(dataString);
@@ -97,7 +171,8 @@ function VoteWrite() {
       const handleChangecategory = (value) => {
               setCategoryValue(value); // 선택된 값 저장
               console.log('Selected category:', value); // 선택된 값 콘솔에 출력
-      };
+      }
+
       return (
         <Flex align="center" style={{height:'1000px'}}>
             <div style={{margin:'0 auto' , width:450,border:'1px solid',borderRadius:10,padding:30}}>
@@ -117,16 +192,24 @@ function VoteWrite() {
                       <Input
                         count={{
                           show: true,
-                          max: 10,
+                          max: 20,
                         }}
                         style={{width:'100%'}}
                         placeholder="제목을 입력해주세요"
                         onBlur={changeTitle}
                       />
                 </div>
+                {  titleError != '' ? (
+                        <Flex align="center">
+                            <ExclamationCircleOutlined style={{marginBottom:10,marginRight:10}}/>
+                            <Text type="danger">{titleError}</Text>
+                        </Flex>
+                    ) : ''
+                }
                 <div>
                     <Typography.Title level={5}>날짜</Typography.Title>
                     <RangePicker
+                          showTime
                           id={{
                             start: 'startInput',
                             end: 'endInput',
@@ -136,8 +219,9 @@ function VoteWrite() {
                           style={{width:'100%'}}
                         />
                 </div>
+
                 <div>
-                  <Form style={{height:150}}>
+                  <Form style={{height:130}}>
                       <Typography.Title level={5}>선택 의견</Typography.Title>
                        {choices.map((choice, index) => (
                               <Row key={index} gutter={16} >
@@ -145,19 +229,19 @@ function VoteWrite() {
                                   <Form.Item>
                                     <Input
                                       placeholder={`Choice ${index + 1}`}
-                                      value={choice.value}
+                                      value={choice}
                                       onChange={(event) => handleChange(index, event)}
                                       style={{width:'100%'}}
                                       count={{
                                               show: true,
-                                              max: 10,
+                                              max: 20,
                                       }}
                                     />
                                   </Form.Item>
                                 </Col>
                                 <Col span={4}>
                                   {choices.length > 1 && (
-                                    <MinusCircleOutlined
+                                    <DeleteOutlined
                                       onClick={() => removeChoice(index)}
                                       style={{ fontSize: "20px", color: "red",marginTop:5 }}
                                     />
@@ -165,21 +249,14 @@ function VoteWrite() {
                                 </Col>
                               </Row>
                             ))}
-
-                      <Form.Item>
-                        {choices.length < 2 && (
-                          <Button
-                            type="dashed"
-                            onClick={addChoice}
-                            icon={<PlusOutlined />}
-                          >
-                            Add Choice
-                          </Button>
-                        )}
-                      </Form.Item>
-
-
                     </Form>
+                          {  choiceError != '' ? (
+                                                                <Flex align="center">
+                                                                     <ExclamationCircleOutlined style={{marginBottom:4,marginRight:10}}/>
+                                                                     <Text type="danger">{choiceError}</Text>
+                                                                </Flex>
+                                                    ) : ''
+                          }
                      <Button onClick={writeVote}
                      style={{width:'100%'}}type="primary" shape="round" icon={<EditOutlined />} size={20}>
                                                        투표 작성

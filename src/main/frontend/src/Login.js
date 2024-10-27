@@ -3,9 +3,11 @@ import { Flex, Input, Typography,Button, message } from 'antd';
 import { CheckOutlined,ExclamationCircleOutlined } from '@ant-design/icons';
 import { useAuth } from './AuthContext';
 import axios from "axios";
+import { useNavigate } from 'react-router-dom';
 const { Text, Link } = Typography;
 function Login() {
         const {isLoggedIn,login } = useAuth();
+        const navigate = useNavigate();
         const [idValue, setIdValue] = useState('');
         const [pwValue, setPwValue] = useState('');
         const [idisExceeded, setidIsExceeded] = useState(true);
@@ -16,13 +18,16 @@ function Login() {
         const minLength = 4;
         const maxLength = 10;
         const value = e.target.value.trim();
-        setidIsExceeded(value === null || value === '');
-        if( (value.length < minLength || value.length > maxLength ) && (/^[a-zA-Z0-9]*$/.test(value) && !/^[ㄱ-ㅎ]*$/.test(value)) )
+        if( (value.length < minLength || value.length > maxLength ) && (/^[a-zA-Z0-9]*$/.test(value) && !/^[ㄱ-ㅎ]*$/.test(value) && !/[ㄱ-ㅎ]/.test(value) ) )
         {
            setidIsExceeded(true)
            setidError("최소 4자 이상, 최대 10자 이하로 입력해주세요")
         }
-        else if(!(/^[a-zA-Z0-9]*$/.test(value) && !/^[ㄱ-ㅎ]*$/.test(value)))
+        else if (value === null || value.trim() === '') {
+           setidIsExceeded(true);
+           setidError("선택지를 입력해주세요");
+        }
+        else if(!(/^[a-zA-Z0-9]*$/.test(value) && !/^[ㄱ-ㅎ]*$/.test(value) && !/[ㄱ-ㅎ]/.test(value)))
         {
            setidIsExceeded(true)
            setidError("알파벳, 숫자 조합으로 입력해주세요")
@@ -39,11 +44,14 @@ function Login() {
              const maxLength = 15;
              const value = e.target.value.trim();
              setPwValue(value);
-             setpwIsExceeded(value === null || value === '');
              if(value.length < minLength || value.length > maxLength)
              {
                          setpwIsExceeded(true)
                          setpwError("최소 7자 이상, 최대 15자 이하로 입력해주세요")
+             }
+             else if (value === null || value.trim() === '') {
+                         setpwIsExceeded(true);
+                         setpwError("선택지를 입력해주세요");
              }
              else {
                          setpwIsExceeded(false)
@@ -55,16 +63,17 @@ function Login() {
               message.error("입력과 규칙을 확인해주세요");
             } else {
               // 회원가입 처리 로직 추가
-              axios.post('/api/login',JSON.stringify({
+              axios.post('/api/login',{
                            user_id:idValue,
                            user_pw:pwValue
-                          }),{
+                          },{
                                 headers: {
                                     'Content-Type': 'application/json'
                                 }
                             })
                             .then((res) => {
                                     login();
+                                    navigate('/');
                                     message.success('로그인 성공!');
                             })
                             .catch((err) => {

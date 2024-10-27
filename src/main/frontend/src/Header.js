@@ -6,20 +6,25 @@ import { notification } from 'antd';
 import './Header.css';  // 스타일 파일
 import { useAuth } from './AuthContext';
 import { UserOutlined } from '@ant-design/icons';
+import axios from 'axios'
 function Header() {
   const { isLoggedIn, logout,login  } = useAuth();
-  const handleLogin = () => {
-    login();
-    notification.success({
-      message: '로그인 성공',
-    });
-  };
-
   const handleLogout = () => {
     logout();
-    notification.info({
-      message: '로그아웃 성공',
-    });
+    axios.post('/api/logout')
+              .then((res) => {
+              console.log(res)
+                 notification.info({
+                      message: res.data.result,
+                 });
+              })
+              .catch((err) => {
+              console.log(err)
+                 notification.info({
+                      message: err.response.data.result,
+                 });
+              })
+
   };
 
   return (

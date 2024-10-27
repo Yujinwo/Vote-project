@@ -1,11 +1,40 @@
-import React, { useState } from 'react';
-import { Card, Space,Flex, Progress, List,Button, Dropdown, Menu,Input } from 'antd';
+import React, { useState,useEffect } from 'react';
+import { Card, Space,Flex, Progress, List,Button, Dropdown, Menu,Input,message } from 'antd';
 import { MenuOutlined } from '@ant-design/icons';
 import { useParams,Link } from 'react-router-dom';
 import { LikeOutlined,CommentOutlined,BookOutlined} from '@ant-design/icons';
-
+import axios from 'axios'
 function VoteDetail() {
             const { id } = useParams();
+            // 선택지 데이터
+            const [options, setoptions] = useState([
+                                     { id: 1, label: '비타민', percent: 70 },
+                                     { id: 2, label: '맥주효소', percent: 30 },
+            ]);
+
+            // 투표 기본 데이터
+            const [voteNormaldata,setvoteNormaldata] = useState('')
+            const [selectedOption, setSelectedOption] = useState(null);
+
+             useEffect(() => {
+                 axios.get('/api/votes?id=' + id)
+                             .then((res) => {
+                                 const vote = res.data.vote;
+                                 // 선택지 설정
+                                 setoptions([
+                                  { id: vote.voteOptions[0].id, label: vote.voteOptions[0].content, percent: vote.voteOptions[0].rate },
+                                  { id: vote.voteOptions[1].id, label: vote.voteOptions[1].content, percent: vote.voteOptions[1].rate },
+                                 ])
+                                 // 투표 기본 데이터 설정
+                                 setvoteNormaldata(
+                                 { title: vote.title, category:vote.category,up:vote.up,commentCount:vote.commentCount}
+                                 )
+                                 // 선택한 투표 데이터 동기화
+                                 setSelectedOption(res.data.selectedOptionId);
+
+
+                             })
+             }, []);
             const [editingCommentId, setEditingCommentId] = useState(null); // 수정 중인 댓글 ID
             const [updatedComment, setUpdatedComment] = useState(''); // 수정된 댓글 내용
 
@@ -44,18 +73,26 @@ function VoteDetail() {
                       <Menu.Item key="2" onClick={() => CommentDeleteClick(commentId)}>삭제</Menu.Item>
                   </Menu>
             );
-            const [selectedOption, setSelectedOption] = useState(null);
-            const options = [
-                  { id: 1, label: '비타민', percent: 70 },
-                  { id: 2, label: '맥주효소', percent: 30 },
-            ];
+
+
+
             const comments = [
                   { id: 1, usernick: '예지', userid:'dwqd2212',content: '반갑습니다' },
                   { id: 2, usernick: '아름', userid:'czafsd12', content: '투표 완료' },
             ];
 
             const handleSelect = (id) => {
-                  setSelectedOption(id); // 선택된 항목 업데이트
+                  if(selectedOption != id)
+                  {
+                       setSelectedOption(id); // 선택된 항목 업데이트
+                       axios.post('/api/voteoptions?id=' + id)
+                                   .then((res) => {
+                                        message.success(res.data.result);
+                                    })
+                                   .catch((err) => {
+                                        message.error(err.response.data.result)
+                                   })
+                  }
             };
             const [visibleData, setVisibleData] = useState(comments.slice(0,1)); // 초기 10개 데이터
             const [dataCount, setDataCount] = useState(1); // 현재 표시된 데이터 개수
@@ -78,7 +115,7 @@ function VoteDetail() {
                       <Flex gap="small" wrap justify="center" align="center" style={{ marginTop: '20px' }}>
                           <Space direction="vertical" size={16}>
                             <Card
-                              title={"나에게 중요한 약은?"} // 데이터 기반 제목 출력
+                              title={voteNormaldata.title} // 데이터 기반 제목 출력
                               extra={
 
                                   <Dropdown overlay={VoteMenu} trigger={['click']}>
@@ -117,12 +154,12 @@ function VoteDetail() {
                                         <div style={{marginTop:10}}>
                                                <Button>
                                                    <LikeOutlined />
-                                                   <span> 0 </span>
+                                                   <span> {voteNormaldata.up} </span>
                                                </Button>
 
                                                <Button>
                                                    <CommentOutlined style={{}}/>
-                                                    <span> 0 </span>
+                                                    <span> {voteNormaldata.commentCount} </span>
                                                </Button>
 
                                                <Button>

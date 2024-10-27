@@ -13,8 +13,11 @@ import VoteUpdate from './VoteUpdate'
 import Mypage from './Mypage'
 import UserJoin from './UserJoin'
 import Login from './Login'
+import { AuthProvider } from './AuthContext';
+
 function App() {
     return (
+       <AuthProvider>
         <Router>
           <Routes>
             {/* 공통 레이아웃을 적용 */}
@@ -33,6 +36,7 @@ function App() {
             </Route>
           </Routes>
         </Router>
+      </AuthProvider>
       );
 }
 

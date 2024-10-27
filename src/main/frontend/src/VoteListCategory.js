@@ -4,10 +4,11 @@ import ReactCardSlider from './ReactCardSlider';
 import React, { useState } from 'react';
 import { EditOutlined } from '@ant-design/icons';
 import { Link } from 'react-router-dom';
+import { useAuth } from './AuthContext';
 const { Search } = Input;
 const { Title } = Typography;
 function VoteListCategory() {
-
+     const { isLoggedIn, logout,login  } = useAuth();
      const categorys = [
                        {
                            value: 'ENTERTAINMENT',
@@ -119,15 +120,17 @@ function VoteListCategory() {
                         </Flex>
                         <ReactCardSlider slides={slides}/>
              </div>
-             <Flex justify="center">
-                               <div style={styles.votewritebutton}>
-                                   <Link to="/votewrite">
-                                      <Button type="primary" shape="round" icon={<EditOutlined />} size={20}>
-                                                  투표 작성
-                                      </Button>
-                                   </Link>
-                               </div>
-             </Flex>
+              { isLoggedIn ? (
+                   <Flex justify="center">
+                        <div style={styles.votewritebutton}>
+                           <Link to="/votewrite">
+                             <Button type="primary" shape="round" icon={<EditOutlined />} size={20}>
+                                          투표 작성
+                             </Button>
+                           </Link>
+                        </div>
+                   </Flex>
+              ) : ''}
          </div>
 
     );

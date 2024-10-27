@@ -4,6 +4,7 @@ import { Flex, Input, Typography,Button, message } from 'antd';
 import { UserAddOutlined,ExclamationCircleOutlined } from '@ant-design/icons';
 import { useAuth } from './AuthContext';
 import axios from "axios";
+import { useNavigate } from 'react-router-dom';
 const { Text, Link } = Typography;
 function UserJoin() {
   const { isLoggedIn, login  } = useAuth();
@@ -19,17 +20,23 @@ function UserJoin() {
   const [pwError, setpwError] = useState('');
   const [confirmpwError, setconfirmpwError] = useState('');
   const [nickError, setnickError] = useState('');
+  const navigate = useNavigate();
+
+
   const idChange = (e) => {
     const minLength = 4;
     const maxLength = 10;
     const value = e.target.value.trim();
-    setidIsExceeded(value === null || value === '');
-    if( (value.length < minLength || value.length > maxLength ) && (/^[a-zA-Z0-9]*$/.test(value) && !/^[ㄱ-ㅎ]*$/.test(value)) )
+    if( (value.length < minLength || value.length > maxLength ) && (/^[a-zA-Z0-9]*$/.test(value) && !/^[ㄱ-ㅎ]*$/.test(value) && !/[ㄱ-ㅎ]/.test(value)) )
     {
        setidIsExceeded(true)
        setidError("최소 4자 이상, 최대 10자 이하로 입력해주세요")
     }
-    else if(!(/^[a-zA-Z0-9]*$/.test(value) && !/^[ㄱ-ㅎ]*$/.test(value)))
+    else if (value === null || value.trim() === '') {
+       setidIsExceeded(true);
+       setidError("선택지를 입력해주세요");
+    }
+    else if(!(/^[a-zA-Z0-9]*$/.test(value) && !/^[ㄱ-ㅎ]*$/.test(value) && !/[ㄱ-ㅎ]/.test(value)))
     {
        setidIsExceeded(true)
        setidError("알파벳, 숫자 조합으로 입력해주세요")
@@ -61,33 +68,35 @@ function UserJoin() {
      const maxLength = 15;
      const value = e.target.value.trim();
      setPwValue(value);
-     setpwIsExceeded(value === null || value === '');
      if(value.length < minLength || value.length > maxLength)
      {
             setpwIsExceeded(true)
             setpwError("최소 7자 이상, 최대 15자 이하로 입력해주세요")
      }
+     else if (value === null || value.trim() === '') {
+            setpwIsExceeded(true);
+            setpwError("선택지를 입력해주세요");
+     }
      else {
             setpwIsExceeded(false)
             setpwError('')
-      }
+     }
   };
   const confirmPwChange = (e) => {
      const minLength = 7;
      const maxLength = 15;
      const value = e.target.value.trim();
      setconfirmPwValue(value);
-     setConfirmppwIsExceeded(value === null || value === '');
      if(value.length < minLength || value.length > maxLength)
      {
                  setConfirmppwIsExceeded(true)
                  setconfirmpwError("최소 7자 이상, 최대 15자 이하로 입력해주세요")
      }
-     else {
-                 setConfirmppwIsExceeded(false)
-                 setconfirmpwError('')
+     else if (value === null || value.trim() === '') {
+                 setConfirmppwIsExceeded(true);
+                 setconfirmpwError("선택지를 입력해주세요");
      }
-     if(pwValue != value){
+     else if(pwValue != value){
                  setConfirmppwIsExceeded(true)
                  setconfirmpwError("비밀번호가 일치하지 않습니다")
      }
@@ -100,21 +109,24 @@ function UserJoin() {
       const minLength = 2;
       const maxLength = 6;
       const value = e.target.value.trim();
-      setnickIsExceeded(value === null || value === '');
-      if( ( value.length < minLength || value.length > maxLength ) &&  !/^[ㄱ-ㅎ]*$/.test(value))
+      if( ( value.length < minLength || value.length > maxLength ) &&  ( !/^[ㄱ-ㅎ]*$/.test(value) && !/[ㄱ-ㅎ]/.test(value) ) )
       {
-               setnickIsExceeded(true)
-               setnickError("최소 2자 이상, 최대 6자 이하로 입력해주세요")
+            setnickIsExceeded(true);
+            setnickError("최소 2자 이상, 최대 6자 이하로 입력해주세요")
+      }
+      else if (value === null || value.trim() === '') {
+            setnickIsExceeded(true);
+            setnickError("선택지를 입력해주세요");
       }
       // 한글 초성 불가능 규칙 확인
-      else if (/^[ㄱ-ㅎ]*$/.test(value) ) {
-          setnickIsExceeded(true)
-          setnickError("한글 초성은 불가능합니다");
+      else if (/^[ㄱ-ㅎ]*$/.test(value) || /[ㄱ-ㅎ]/.test(value)) {
+            setnickIsExceeded(true);
+            setnickError("한글 초성은 불가능합니다");
       }
       else {
-           setnickIsExceeded(false)
-           setNickValue(value);
-           setnickError('');
+            setnickIsExceeded(false);
+            setNickValue(value);
+            setnickError('');
       }
 
 };
@@ -124,18 +136,19 @@ function UserJoin() {
       message.error("입력과 규칙을 확인해주세요");
     } else {
       // 회원가입 처리 로직 추가
-     axios.post('/api/users',JSON.stringify({
+     axios.post('/api/users',{
              user_id:idValue,
              user_pw:pwValue,
              user_nick:nickValue,
              user_confirmpw:confirmpwValue
-            }),{
+            },{
                   headers: {
                       'Content-Type': 'application/json'
                   }
               })
               .then((res) => {
                     login();
+                    navigate('/'); // 이동할 페이지 경로
                     message.success('회원가입 성공');
               })
               .catch((err) => {

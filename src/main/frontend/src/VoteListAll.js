@@ -4,10 +4,12 @@ import React, { useState } from 'react';
 import ReactCardSlider from './ReactCardSlider';
 import { EditOutlined } from '@ant-design/icons';
 import { Link } from 'react-router-dom';
+import { useAuth } from './AuthContext';
 const { Search } = Input;
 const { Title } = Typography;
 
 function VoteListAll() {
+    const { isLoggedIn, logout,login  } = useAuth();
     const slides = [
             {id:0,category:"음식",title:"주로 먹방을 즐겨 보시나요?",staryday:"2024.10.17",endday:"2024.10.30",writer:"작성자",rate:"1000 ",up:10,commentcount:10},
             {id:1,category:"패션",title:"아이돌 걸그룹 랭킹 누가 일등? 2019년",staryday:"2024.10.17",endday:"2024.10.30",writer:"테스트",rate:"1002 ",up:10,commentcount:10},
@@ -43,15 +45,18 @@ function VoteListAll() {
                               <Title color="primary" level={3}>투표 참여</Title>
                               <ReactCardSlider slides={slides}/>
               </div>
-              <Flex justify="center">
-                  <div style={styles.votewritebutton}>
-                   <Link to="/votewrite">
-                      <Button type="primary" shape="round" icon={<EditOutlined />} size={20}>
-                                  투표 작성
-                      </Button>
-                   </Link>
-                  </div>
-              </Flex>
+              { isLoggedIn ? (
+                   <Flex justify="center">
+                        <div style={styles.votewritebutton}>
+                           <Link to="/votewrite">
+                             <Button type="primary" shape="round" icon={<EditOutlined />} size={20}>
+                                          투표 작성
+                             </Button>
+                           </Link>
+                        </div>
+                   </Flex>
+              ) : ''}
+
          </div>
 
     );
