@@ -1,10 +1,14 @@
 package com.react.voteproject.entity;
 
+import com.react.voteproject.dto.CommentResponseDto;
+import com.react.voteproject.dto.UserDto;
 import jakarta.persistence.*;
-import lombok.AccessLevel;
-import lombok.NoArgsConstructor;
+import lombok.*;
 
 @Entity
+@AllArgsConstructor
+@Builder
+@Getter
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 public class Comment extends BaseTime {
 
@@ -22,4 +26,6 @@ public class Comment extends BaseTime {
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "user_id")
     private User user;
+
+
 }

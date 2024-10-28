@@ -2,12 +2,15 @@ package com.react.voteproject.service;
 
 
 import com.react.voteproject.context.AuthContext;
+import com.react.voteproject.dto.CommentResponseDto;
 import com.react.voteproject.dto.VoteDetailDataDto;
 import com.react.voteproject.dto.VoteResponseDto;
 import com.react.voteproject.dto.VoteWriteDto;
+import com.react.voteproject.entity.Comment;
 import com.react.voteproject.entity.UserVote;
 import com.react.voteproject.entity.Vote;
 import com.react.voteproject.entity.VoteOption;
+import com.react.voteproject.repository.CommentRepository;
 import com.react.voteproject.repository.UserVoteRepository;
 import com.react.voteproject.repository.VoteOptionRepository;
 import com.react.voteproject.repository.VoteRepository;
@@ -17,6 +20,7 @@ import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
 
@@ -26,6 +30,7 @@ public class VoteService {
      private final VoteRepository voteRepository;
      private final VoteOptionRepository voteOptionRepository;
      private final UserVoteRepository userVoteRepository;
+     private final CommentRepository commentRepository;
      private final EntityManager em;
 
 
@@ -53,20 +58,24 @@ public class VoteService {
 
     }
     @Transactional(readOnly = true)
-    public VoteDetailDataDto findVote(Long id) {
+    public VoteDetailDataDto findvotes(Long id) {
         Optional<Vote> vote = voteRepository.findById(id);
         if(vote.isPresent()) {
+            // 이미 투표 선택했는지 조회
             Optional<UserVote> userVote = userVoteRepository.findByuserID(AuthContext.getAuth());
+            // 투표 데이터 조회
             VoteResponseDto voteResponseDto = vote.map(VoteResponseDto::createVoteResponseDto).get();
+
+            // 투표 댓글 조회
+            List<CommentResponseDto> commentList = commentRepository.findByVote(vote.get()).stream().map(CommentResponseDto::createCommentResponseDto).collect(Collectors.toList());
             if(userVote.isPresent())
             {
-                return VoteDetailDataDto.createVoteDetailDataDto(voteResponseDto,userVote.get().getVoteOption().getId());
+                Long userSelectedId = userVote.get().getVoteOption().getId();
+                return VoteDetailDataDto.createVoteDetailDataDto(voteResponseDto,userSelectedId,commentList);
             }
             else {
-
-                return VoteDetailDataDto.createVoteDetailDataDto(voteResponseDto,null);
+                return VoteDetailDataDto.createVoteDetailDataDto(voteResponseDto,null,commentList);
             }
-
 
         }
         else {

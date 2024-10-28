@@ -11,7 +11,6 @@ export const AuthProvider = ({ children }) => {
   // 토큰 기반으로 수정
   const login = () => {
                  setIsLoggedIn(true);
-
   }
   const logout = () => {
                  setIsLoggedIn(false);

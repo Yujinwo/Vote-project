@@ -3,40 +3,55 @@ import { Card, Space,Flex, Progress, List,Button, Dropdown, Menu,Input,message }
 import { MenuOutlined } from '@ant-design/icons';
 import { useParams,Link } from 'react-router-dom';
 import { LikeOutlined,CommentOutlined,BookOutlined} from '@ant-design/icons';
+import { useAuth } from './AuthContext';
 import axios from 'axios'
 function VoteDetail() {
             const { id } = useParams();
+            const { isLoggedIn } = useAuth();
             // 선택지 데이터
             const [options, setoptions] = useState([
-                                     { id: 1, label: '비타민', percent: 70 },
-                                     { id: 2, label: '맥주효소', percent: 30 },
+                                     { id: 1, label: 'Sample1', percent: 10 },
+                                     { id: 2, label: 'Sample2', percent: 10 },
             ]);
+
+            // 댓글 데이터
+            const [comments,setcomments] = useState([])
 
             // 투표 기본 데이터
             const [voteNormaldata,setvoteNormaldata] = useState('')
             const [selectedOption, setSelectedOption] = useState(null);
 
-             useEffect(() => {
+            const voteRenderingData = () => {
                  axios.get('/api/votes?id=' + id)
-                             .then((res) => {
-                                 const vote = res.data.vote;
-                                 // 선택지 설정
-                                 setoptions([
-                                  { id: vote.voteOptions[0].id, label: vote.voteOptions[0].content, percent: vote.voteOptions[0].rate },
-                                  { id: vote.voteOptions[1].id, label: vote.voteOptions[1].content, percent: vote.voteOptions[1].rate },
-                                 ])
-                                 // 투표 기본 데이터 설정
-                                 setvoteNormaldata(
-                                 { title: vote.title, category:vote.category,up:vote.up,commentCount:vote.commentCount}
-                                 )
-                                 // 선택한 투표 데이터 동기화
-                                 setSelectedOption(res.data.selectedOptionId);
+                                              .then((res) => {
+                                                  const vote = res.data.vote;
+                                                  // 선택지 설정
+                                                  setoptions([
+                                                   { id: vote.voteOptions[0].id, label: vote.voteOptions[0].content, percent: vote.voteOptions[0].rate },
+                                                   { id: vote.voteOptions[1].id, label: vote.voteOptions[1].content, percent: vote.voteOptions[1].rate },
+                                                  ])
+                                                  // 투표 기본 데이터 설정
+                                                  setvoteNormaldata(
+                                                  { title: vote.title, category:vote.category,up:vote.up,commentCount:vote.commentCount}
+                                                  )
+                                                  // 선택한 투표 데이터 동기화
+                                                  setSelectedOption(res.data.selectedOptionId);
 
+                                                  // 댓글 데이터 설정
+                                                  setcomments(res.data.comments);
+                                                  setVisibleData(res.data.comments.slice(0,9))
+                 })
 
-                             })
+            }
+
+             useEffect(() => {
+                        voteRenderingData();
              }, []);
             const [editingCommentId, setEditingCommentId] = useState(null); // 수정 중인 댓글 ID
             const [updatedComment, setUpdatedComment] = useState(''); // 수정된 댓글 내용
+
+
+            const [commentIsExceeded,setcommentIsExceeded] = useState(null);
 
             const CommentEditClick = (commentId, commentText) => {
                 setEditingCommentId(commentId); // 수정 중인 댓글 ID 설정
@@ -74,13 +89,6 @@ function VoteDetail() {
                   </Menu>
             );
 
-
-
-            const comments = [
-                  { id: 1, usernick: '예지', userid:'dwqd2212',content: '반갑습니다' },
-                  { id: 2, usernick: '아름', userid:'czafsd12', content: '투표 완료' },
-            ];
-
             const handleSelect = (id) => {
                   if(selectedOption != id)
                   {
@@ -94,7 +102,7 @@ function VoteDetail() {
                                    })
                   }
             };
-            const [visibleData, setVisibleData] = useState(comments.slice(0,1)); // 초기 10개 데이터
+            const [visibleData, setVisibleData] = useState(comments.slice(0,9)); // 초기 10개 데이터
             const [dataCount, setDataCount] = useState(1); // 현재 표시된 데이터 개수
 
             const handleLoadMore = () => {
@@ -110,6 +118,52 @@ function VoteDetail() {
                         setVisibleData(comments.slice(0, nextDataCount));
                         setDataCount(nextDataCount);
             };
+
+            const handleChange = (e) => {
+
+                 const minLength = 3;
+                 const maxLength = 280;
+                 const value = e.target.value;
+                 setUpdatedComment(value)
+                 if( (value.length < minLength || value.length > maxLength )){
+                        setcommentIsExceeded(true);
+                        message.error("최소 3자 이상, 최대 280자 이하로 입력해주세요");
+                 }
+                 else if (value === null || value.trim() === '') {
+                        setcommentIsExceeded(true);
+                        message.error("내용을 입력해주세요");
+                 }
+                 else {
+                        setcommentIsExceeded(false);
+                 }
+            }
+            const commentSubmit = () => {
+                 if(commentIsExceeded) {
+                    message.error('입력을 확인해주세요');
+                 }
+                 else if (!isLoggedIn){
+                    message.error('로그인을 해주세요');
+                 }
+                 else {
+                    axios.post('/api/comments', {
+                             vote_id:id,
+                             content:updatedComment
+                             }, {
+                             headers: {
+                                      'Content-Type': 'application/json'
+                             }
+                          })
+                          .then((res) => {
+                               message.success(res.data.result);
+                               voteRenderingData();
+                          })
+                          .catch((err) => {
+                               message.error(err.response.data.result);
+                          })
+
+
+                 }
+            }
             return (
                  <div>
                       <Flex gap="small" wrap justify="center" align="center" style={{ marginTop: '20px' }}>
@@ -175,8 +229,8 @@ function VoteDetail() {
                                      height:100
                                    }}
                                    >
-                                   <Input placeholder="댓글을 작성해보세요" />
-                                   <Button style={{height:100}}type="primary">작성</Button>
+                                   <Input placeholder="댓글을 작성해보세요" count={{show:true,max:380}} onBlur={handleChange}/>
+                                   <Button style={{height:100}}type="primary" onClick={commentSubmit}>작성</Button>
                                  </Space.Compact>
 
                             <Card style={{ width: 500}}>
@@ -184,8 +238,9 @@ function VoteDetail() {
                                           <div style={{border:'1px solid',borderRadius:'10px',marginTop:'10px',background:'#f8fafc',padding:'10px'}}>
                                               <Flex justify="space-between">
                                                   <div>
-                                                       <span>{comment.usernick}</span>
-                                                       <span>({comment.userid})</span>
+                                                       <span>{comment.user.user_nick}</span>
+                                                       <span>({comment.user.user_id})</span>
+                                                       <span style={{marginLeft:10,fontSize:11}}>* {comment.created_date}</span>
                                                   </div>
                                                   <div>
                                                        <Dropdown overlay={CommentMenu(comment.id,comment.content)} trigger={['click']}>

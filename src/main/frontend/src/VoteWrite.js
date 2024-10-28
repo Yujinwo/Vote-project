@@ -145,7 +145,6 @@ function VoteWrite() {
          const minLength = 5;
          const maxLength = 20;
          const value = e.target.value;
-         settitleIsExceeded( ( value === null && value.length <= maxLength) || value.trim() === '');
          if( (value.length < minLength || value.length > maxLength ) && ( !/^[ㄱ-ㅎ]*$/.test(value) && !/[ㄱ-ㅎ]/.test(value) )){
            settitleIsExceeded(true);
            settitleError("최소 5자 이상, 최대 20자 이하로 입력해주세요");

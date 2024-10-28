@@ -39,6 +39,8 @@ public class VoteResponseDto {
 
     private List<VoteOptionDto> voteOptions;
 
+    private int total;
+
 
     public static VoteResponseDto createVoteResponseDto(Vote vote) {
 
@@ -50,6 +52,7 @@ public class VoteResponseDto {
                 .up(vote.getUp())
                 .commentCount(vote.getCommentCount())
                 .startDay(vote.getStartDay()).endDay(vote.getEndDay())
+                .total(total)
                 .voteOptions(vote.getOptions().stream().map(o -> VoteOptionDto.createOptionDto(o,total)).collect(Collectors.toList())).build();
 
     }

@@ -3,9 +3,11 @@ package com.react.voteproject.controller;
 
 import com.react.voteproject.category.category_enum;
 import com.react.voteproject.context.AuthContext;
+import com.react.voteproject.dto.CommentWriteDto;
 import com.react.voteproject.dto.VoteDetailDataDto;
 import com.react.voteproject.dto.VoteWriteDto;
 import com.react.voteproject.entity.Vote;
+import com.react.voteproject.service.CommentService;
 import com.react.voteproject.service.VoteService;
 import com.react.voteproject.utility.ResponseHelper;
 import jakarta.validation.Valid;
@@ -26,11 +28,12 @@ import java.util.Optional;
 public class VoteController {
 
     private final VoteService voteService;
+    private final CommentService commentService;
 
 
     @GetMapping("/votes")
     public ResponseEntity<VoteDetailDataDto> findVote(@RequestParam("id") Long id) {
-        VoteDetailDataDto vote = voteService.findVote(id);
+        VoteDetailDataDto vote = voteService.findvotes(id);
 
         return ResponseEntity.status(HttpStatus.OK).body(vote);
     }
@@ -65,6 +68,21 @@ public class VoteController {
             return ResponseHelper.createErrorMessage("result","선택 실패");
         }
         return ResponseHelper.createSuccessMessage("result","선택 성공");
+    }
+
+    @PostMapping("/comments")
+    public ResponseEntity<Map<String,Object>> wrtieComment(@Valid @RequestBody CommentWriteDto commentWriteDto) {
+
+        if(!AuthContext.checkAuth())
+        {
+            return ResponseHelper.createErrorMessage("result","로그인을 해주세요");
+        }
+        Boolean status = commentService.write(commentWriteDto);
+        if(!status)
+        {
+            return ResponseHelper.createErrorMessage("result","댓글 작성 실패");
+        }
+        return ResponseHelper.createSuccessMessage("result","댓글 작성 성공");
     }
 
 }
