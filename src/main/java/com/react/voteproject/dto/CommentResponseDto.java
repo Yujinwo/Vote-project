@@ -19,7 +19,6 @@ public class CommentResponseDto {
     private String content;
     private String created_date;
     private UserDto user;
-
     public static CommentResponseDto createCommentResponseDto(Comment comment){
 
         // 변환 포맷 정의

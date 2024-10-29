@@ -16,6 +16,8 @@ import com.react.voteproject.repository.VoteOptionRepository;
 import com.react.voteproject.repository.VoteRepository;
 import jakarta.persistence.EntityManager;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Slice;
 import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -66,15 +68,18 @@ public class VoteService {
             // 투표 데이터 조회
             VoteResponseDto voteResponseDto = vote.map(VoteResponseDto::createVoteResponseDto).get();
 
-            // 투표 댓글 조회
-            List<CommentResponseDto> commentList = commentRepository.findByVote(vote.get()).stream().map(CommentResponseDto::createCommentResponseDto).collect(Collectors.toList());
+            // 투표 댓글 Slice 조회
+            PageRequest pageRequest = PageRequest.of(0,10);
+            Slice<Comment> comments = commentRepository.findSliceByVote(vote.get(), pageRequest);
+            List<CommentResponseDto> commentList = comments.getContent().stream().map(CommentResponseDto::createCommentResponseDto).collect(Collectors.toList());
+
             if(userVote.isPresent())
             {
                 Long userSelectedId = userVote.get().getVoteOption().getId();
-                return VoteDetailDataDto.createVoteDetailDataDto(voteResponseDto,userSelectedId,commentList);
+                return VoteDetailDataDto.createVoteDetailDataDto(voteResponseDto,userSelectedId,commentList,comments.hasNext());
             }
             else {
-                return VoteDetailDataDto.createVoteDetailDataDto(voteResponseDto,null,commentList);
+                return VoteDetailDataDto.createVoteDetailDataDto(voteResponseDto,null,commentList,comments.hasNext());
             }
 
         }

@@ -28,7 +28,7 @@ import java.util.Optional;
 public class VoteController {
 
     private final VoteService voteService;
-    private final CommentService commentService;
+
 
 
     @GetMapping("/votes")
@@ -38,7 +38,7 @@ public class VoteController {
         return ResponseEntity.status(HttpStatus.OK).body(vote);
     }
     @PostMapping("/votes")
-    public ResponseEntity<Map<String,Object>> writeVote(@Valid @RequestBody VoteWriteDto voteWriteDto) {
+    public ResponseEntity<Map<Object,Object>> writeVote(@Valid @RequestBody VoteWriteDto voteWriteDto) {
 
         Boolean checkCategory = category_enum.fromCode(voteWriteDto.getCategory());
         if(!checkCategory){
@@ -56,7 +56,7 @@ public class VoteController {
         return ResponseHelper.createSuccessMessage("result","투표 작성 성공");
     }
     @PostMapping("/voteoptions")
-    public ResponseEntity<Map<String,Object>> changeVoteOption(@RequestParam("id") Long id) {
+    public ResponseEntity<Map<Object,Object>> changeVoteOption(@RequestParam("id") Long id) {
 
         if(!AuthContext.checkAuth())
         {
@@ -70,19 +70,6 @@ public class VoteController {
         return ResponseHelper.createSuccessMessage("result","선택 성공");
     }
 
-    @PostMapping("/comments")
-    public ResponseEntity<Map<String,Object>> wrtieComment(@Valid @RequestBody CommentWriteDto commentWriteDto) {
 
-        if(!AuthContext.checkAuth())
-        {
-            return ResponseHelper.createErrorMessage("result","로그인을 해주세요");
-        }
-        Boolean status = commentService.write(commentWriteDto);
-        if(!status)
-        {
-            return ResponseHelper.createErrorMessage("result","댓글 작성 실패");
-        }
-        return ResponseHelper.createSuccessMessage("result","댓글 작성 성공");
-    }
 
 }

@@ -35,7 +35,7 @@ public class UserController {
     private static final Pattern koreanInitialPattern = Pattern.compile("^[ㄱ-ㅎ]*$");
 
     @PostMapping("/login")
-    public ResponseEntity<Map<String,Object>> Login(@Valid @RequestBody UserLoginDto userLoginDto) {
+    public ResponseEntity<Map<Object,Object>> Login(@Valid @RequestBody UserLoginDto userLoginDto) {
         if(!alphanumericPattern.matcher(userLoginDto.getUser_id()).matches())
         {
             return ResponseHelper.createErrorMessage("result","알파벳, 숫자 조합으로 입력해주세요");
@@ -50,7 +50,7 @@ public class UserController {
         return ResponseHelper.createErrorMessage("result","아이디와 비밀번호를 확인해주세요");
     }
     @PostMapping("/logout")
-    public ResponseEntity<Map<String,Object>> Logout()
+    public ResponseEntity<Map<Object,Object>> Logout()
     {
         if(AuthContext.checkAuth()) {
             AuthContext.deleteAuth();
@@ -59,7 +59,7 @@ public class UserController {
         return ResponseHelper.createErrorMessage("result","로그아웃 실패");
     }
     @GetMapping("/sessions")
-    public ResponseEntity<Map<String,Object>> getSession() {
+    public ResponseEntity<Map<Object,Object>> getSession() {
 
         if(AuthContext.checkAuth())
         {
@@ -70,7 +70,7 @@ public class UserController {
     }
 
     @GetMapping("/users")
-    public ResponseEntity<Map<String,Object>> GetUserId(@RequestParam("user_id") @NotBlank @Size(min = 4, max = 10,message = "최소 4자 이상, 최대 10자 이하로 입력해주세요") String user_id) {
+    public ResponseEntity<Map<Object,Object>> GetUserId(@RequestParam("user_id") @NotBlank @Size(min = 4, max = 10,message = "최소 4자 이상, 최대 10자 이하로 입력해주세요") String user_id) {
         if(!alphanumericPattern.matcher(user_id).matches())
         {
             return ResponseHelper.createErrorMessage("result","알파벳, 숫자 조합으로 입력해주세요");
@@ -84,7 +84,7 @@ public class UserController {
     }
 
     @PostMapping("/users")
-    public ResponseEntity<Map<String,Object>> Join(@Valid @RequestBody UserJoinDto userJoinDto) {
+    public ResponseEntity<Map<Object,Object>> Join(@Valid @RequestBody UserJoinDto userJoinDto) {
         if(!alphanumericPattern.matcher(userJoinDto.getUser_id()).matches())
         {
             return ResponseHelper.createErrorMessage("result","알파벳, 숫자 조합으로 입력해주세요");

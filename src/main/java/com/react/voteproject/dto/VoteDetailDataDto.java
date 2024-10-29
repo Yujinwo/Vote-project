@@ -15,12 +15,17 @@ import java.util.List;
 @Builder
 public class VoteDetailDataDto {
 
-    VoteResponseDto vote;
-    Long selectedOptionId;
-    List<CommentResponseDto> comments;
+    private VoteResponseDto vote;
+    private List<CommentResponseDto> comments;
 
-    public static VoteDetailDataDto createVoteDetailDataDto(VoteResponseDto voteResponseDto,Long selectedOptionId,List<CommentResponseDto> comments)
+    // 유저가 선택한 항목
+    private Long selectedOptionId;
+
+    // 댓글 더보기 활성화 여부
+    private Boolean hasNext;
+
+    public static VoteDetailDataDto createVoteDetailDataDto(VoteResponseDto voteResponseDto,Long selectedOptionId,List<CommentResponseDto> comments,Boolean hasNext)
     {
-        return VoteDetailDataDto.builder().vote(voteResponseDto).selectedOptionId(selectedOptionId).comments(comments).build();
+        return VoteDetailDataDto.builder().vote(voteResponseDto).selectedOptionId(selectedOptionId).comments(comments).hasNext(hasNext).build();
     }
 }

@@ -16,6 +16,8 @@ function VoteDetail() {
 
             // 댓글 데이터
             const [comments,setcomments] = useState([])
+            const [commentPage,setcommentPage] = useState(1);
+            const [hasNext,sethasNext] = useState(false);
 
             // 투표 기본 데이터
             const [voteNormaldata,setvoteNormaldata] = useState('')
@@ -24,6 +26,7 @@ function VoteDetail() {
             const voteRenderingData = () => {
                  axios.get('/api/votes?id=' + id)
                                               .then((res) => {
+                                                  setcommentPage(1)
                                                   const vote = res.data.vote;
                                                   // 선택지 설정
                                                   setoptions([
@@ -38,11 +41,16 @@ function VoteDetail() {
                                                   setSelectedOption(res.data.selectedOptionId);
 
                                                   // 댓글 데이터 설정
-                                                  setcomments(res.data.comments);
-                                                  setVisibleData(res.data.comments.slice(0,9))
+                                                  setDataCount(res.data.comments.length)
+                                                  setcomments(res.data.comments)
+                                                  setVisibleData(res.data.comments.slice(0,dataCount))
+
+                                                  // 댓글 더보기 활성화 설정
+                                                  sethasNext(res.data.hasNext);
                  })
 
             }
+
 
              useEffect(() => {
                         voteRenderingData();
@@ -103,20 +111,29 @@ function VoteDetail() {
                   }
             };
             const [visibleData, setVisibleData] = useState(comments.slice(0,9)); // 초기 10개 데이터
-            const [dataCount, setDataCount] = useState(1); // 현재 표시된 데이터 개수
+            const [dataCount, setDataCount] = useState(10); // 현재 표시된 데이터 개수
 
             const handleLoadMore = () => {
-                  var nextDataCount = dataCount;
-                  if(comments.length < dataCount + 10)
-                  {
-                        nextDataCount = comments.length; // 10개씩 추가
-                  }
-                  else
-                  {
-                        nextDataCount = dataCount + 10; // 10개씩 추가
-                  }
-                        setVisibleData(comments.slice(0, nextDataCount));
-                        setDataCount(nextDataCount);
+                  const page = commentPage + 1
+                  axios.get('/api/comments?id=' + id + '&page=' + page)
+                        .then((res) => {
+                             if(res.data.hasContent)
+                             {
+
+                                          setcommentPage(page)
+                                          const newComments = res.data.comment;
+                                          const updatedComments = [...comments, ...newComments];
+                                          setcomments(updatedComments); // 기존 데이터에 추가
+
+                                          const nextDataCount = dataCount + res.data.comment.length;
+                                          setVisibleData(updatedComments.slice(0, nextDataCount));
+                                          setDataCount(nextDataCount);
+                             }
+                             sethasNext(res.data.hasNext);
+
+                        })
+
+
             };
 
             const handleChange = (e) => {
@@ -275,7 +292,7 @@ function VoteDetail() {
 
                                           </div>
                                        ))}
-                                       {dataCount < comments.length && (
+                                       {hasNext && (
                                           <div className="button-container"> {/* 가운데 정렬을 위한 버튼 컨테이너 */}
                                                   <Button onClick={handleLoadMore}>
                                                            더보기
