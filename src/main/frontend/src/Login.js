@@ -72,7 +72,7 @@ function Login() {
                                 }
                             })
                             .then((res) => {
-                                    login();
+                                    login(idValue);
                                     navigate('/');
                                     message.success('로그인 성공!');
                             })

@@ -147,7 +147,7 @@ function UserJoin() {
                   }
               })
               .then((res) => {
-                    login();
+                    login(idValue);
                     navigate('/'); // 이동할 페이지 경로
                     message.success('회원가입 성공');
               })

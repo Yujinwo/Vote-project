@@ -7,9 +7,11 @@ const AuthContext = createContext();
 // Context를 제공하는 컴포넌트
 export const AuthProvider = ({ children }) => {
   const [isLoggedIn, setIsLoggedIn] = useState(false);
+  const [userid, setuserid] = useState('');
 
   // 토큰 기반으로 수정
-  const login = () => {
+  const login = (userid) => {
+                 setuserid(userid);
                  setIsLoggedIn(true);
   }
   const logout = () => {
@@ -21,6 +23,7 @@ export const AuthProvider = ({ children }) => {
   useEffect(() => {
             axios.get('/api/sessions')
                    .then((res) => {
+                       setuserid(res.data.result);
                        setIsLoggedIn(true);
                    })
                    .catch((err) => {
@@ -30,7 +33,7 @@ export const AuthProvider = ({ children }) => {
 
 
   return (
-    <AuthContext.Provider value={{ isLoggedIn, login, logout }}>
+    <AuthContext.Provider value={{ isLoggedIn, login, logout,userid }}>
       {children}
     </AuthContext.Provider>
   );

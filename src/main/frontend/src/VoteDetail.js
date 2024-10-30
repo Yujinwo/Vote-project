@@ -7,7 +7,8 @@ import { useAuth } from './AuthContext';
 import axios from 'axios'
 function VoteDetail() {
             const { id } = useParams();
-            const { isLoggedIn } = useAuth();
+            const { isLoggedIn,userid } = useAuth();
+
             // 선택지 데이터
             const [options, setoptions] = useState([
                                      { id: 1, label: 'Sample1', percent: 10 },
@@ -56,27 +57,65 @@ function VoteDetail() {
                         voteRenderingData();
              }, []);
             const [editingCommentId, setEditingCommentId] = useState(null); // 수정 중인 댓글 ID
+            const [initialData,setinitialData] = useState('');
             const [updatedComment, setUpdatedComment] = useState(''); // 수정된 댓글 내용
+            const [createdComment, setcreatedComment] = useState(''); // 수정된 댓글 내용
 
 
             const [commentIsExceeded,setcommentIsExceeded] = useState(null);
 
             const CommentEditClick = (commentId, commentText) => {
                 setEditingCommentId(commentId); // 수정 중인 댓글 ID 설정
-                setUpdatedComment(commentText); // 기존 댓글 내용을 수정 필드에 세팅
+                setUpdatedComment(commentText);
+                setinitialData(commentText); // 기존 댓글 내용을 수정 필드에 세팅
             };
             const CommentSaveClick = () => {
+               if(updatedComment == initialData) {
+                   message.error('기존 내용과 동일합니다.')
+               }
+               // 댓글 수정 APi 호출
+               else {
+
+                    axios.patch('/api/comments',{
+                                               vote_id:id,
+                                               comment_id:editingCommentId,
+                                               content:updatedComment
+                                            },{
+                                               headers:
+                                               {
+                                                    'Content-Type': 'application/json'
+                                               }
+                    })
+                    .then((res) => {
+                      voteRenderingData();
+                      message.success(res.data.result);
+                      setEditingCommentId(null); // 수정 모드 종료
+                      setUpdatedComment(''); // 수정 필드 초기화
+                    })
+                    .catch((err) => {
+                      message.error(err.response.data.result);
+                      setEditingCommentId(null); // 수정 모드 종료
+                      setUpdatedComment(''); // 수정 필드 초기화
+                    })
+
+
+               }
                //onUpdate(editingCommentId, updatedComment); // 수정된 댓글 저장
-               setEditingCommentId(null); // 수정 모드 종료
-               setUpdatedComment(''); // 수정 필드 초기화
+
             };
             const CommentCancelClick = () => {
                setEditingCommentId(null); // 수정 모드 종료
                setUpdatedComment(''); // 수정 필드 초기화
             };
             const CommentDeleteClick = (commentId) => {
-               console.log(commentId);
-
+               axios.delete('/api/comments?id=' + commentId)
+               .then((res) => {
+                         message.success(res.data.result);
+                         voteRenderingData();
+               })
+               .catch((err) => {
+                         message.error(err.response.data.result);
+               });
             };
 
             const VoteDeleteClick = () => {
@@ -137,11 +176,10 @@ function VoteDetail() {
             };
 
             const handleChange = (e) => {
-
                  const minLength = 3;
                  const maxLength = 280;
                  const value = e.target.value;
-                 setUpdatedComment(value)
+                 setcreatedComment(value)
                  if( (value.length < minLength || value.length > maxLength )){
                         setcommentIsExceeded(true);
                         message.error("최소 3자 이상, 최대 280자 이하로 입력해주세요");
@@ -164,7 +202,7 @@ function VoteDetail() {
                  else {
                     axios.post('/api/comments', {
                              vote_id:id,
-                             content:updatedComment
+                             content:createdComment
                              }, {
                              headers: {
                                       'Content-Type': 'application/json'
@@ -259,19 +297,20 @@ function VoteDetail() {
                                                        <span>({comment.user.user_id})</span>
                                                        <span style={{marginLeft:10,fontSize:11}}>* {comment.created_date}</span>
                                                   </div>
+                                                  { comment.user.user_id == userid ? (
                                                   <div>
                                                        <Dropdown overlay={CommentMenu(comment.id,comment.content)} trigger={['click']}>
                                                            <Button type="primary">
                                                                 <MenuOutlined />
                                                            </Button>
                                                        </Dropdown>
-                                                  </div>
+                                                  </div> ) : ''
+                                                  }
                                               </Flex>
                                               { editingCommentId == comment.id ? (
                                                       <div>
                                                         <Input.TextArea
-                                                          value={updatedComment}
-                                                          onChange={(e) => setUpdatedComment(e.target.value)}
+                                                          onBlur={(e) => setUpdatedComment(e.target.value)}
                                                           rows={2}
                                                           style={{marginTop:10}}
                                                           size="large"

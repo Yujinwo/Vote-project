@@ -32,8 +32,8 @@ public class VoteController {
 
 
     @GetMapping("/votes")
-    public ResponseEntity<VoteDetailDataDto> findVote(@RequestParam("id") Long id) {
-        VoteDetailDataDto vote = voteService.findvotes(id);
+    public ResponseEntity<VoteDetailDataDto> findVote(@RequestParam("id") Long vote_id) {
+        VoteDetailDataDto vote = voteService.findvotes(vote_id);
 
         return ResponseEntity.status(HttpStatus.OK).body(vote);
     }

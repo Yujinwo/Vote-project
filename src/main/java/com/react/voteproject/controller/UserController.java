@@ -63,7 +63,7 @@ public class UserController {
 
         if(AuthContext.checkAuth())
         {
-            return ResponseHelper.createSuccessMessage("result","세션 유효");
+            return ResponseHelper.createSuccessMessage("result",AuthContext.getAuth().getUserId());
         }
 
         return ResponseHelper.createErrorMessage("result","세션 무효");

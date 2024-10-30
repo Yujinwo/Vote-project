@@ -27,5 +27,13 @@ public class Comment extends BaseTime {
     @JoinColumn(name = "user_id")
     private User user;
 
+    public void changeContent(String content) {
+
+        this.content = content;
+
+
+
+    }
+
 
 }
