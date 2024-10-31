@@ -1,19 +1,22 @@
 import React, { useState,useEffect } from 'react';
 import { Card, Space,Flex, Progress, List,Button, Dropdown, Menu,Input,message } from 'antd';
 import { MenuOutlined } from '@ant-design/icons';
-import { useParams,Link } from 'react-router-dom';
+import { useParams,Link,useNavigate } from 'react-router-dom';
 import { LikeOutlined,CommentOutlined,BookOutlined} from '@ant-design/icons';
 import { useAuth } from './AuthContext';
 import axios from 'axios'
 function VoteDetail() {
             const { id } = useParams();
             const { isLoggedIn,userid } = useAuth();
+            const navigate = useNavigate();
 
             // 선택지 데이터
             const [options, setoptions] = useState([
                                      { id: 1, label: 'Sample1', percent: 10 },
                                      { id: 2, label: 'Sample2', percent: 10 },
             ]);
+            // 투표 유저 정보
+            const [vote_userId,setuserId] = useState(null)
 
             // 댓글 데이터
             const [comments,setcomments] = useState([])
@@ -29,6 +32,8 @@ function VoteDetail() {
                                               .then((res) => {
                                                   setcommentPage(1)
                                                   const vote = res.data.vote;
+
+                                                  setuserId(vote.user.user_id)
                                                   // 선택지 설정
                                                   setoptions([
                                                    { id: vote.voteOptions[0].id, label: vote.voteOptions[0].content, percent: vote.voteOptions[0].rate },
@@ -119,7 +124,15 @@ function VoteDetail() {
             };
 
             const VoteDeleteClick = () => {
-                console.log(id);
+                axios.delete("/api/votes?id=" + id)
+                         .then((res) => {
+                             message.success(res.data.result);
+                             navigate('/votelist');
+                         })
+                         .catch((err) => {
+                            message.error(err.response.data.result);
+                         })
+
             }
             const VoteMenu = (
                 <Menu>
@@ -226,12 +239,13 @@ function VoteDetail() {
                             <Card
                               title={voteNormaldata.title} // 데이터 기반 제목 출력
                               extra={
-
-                                  <Dropdown overlay={VoteMenu} trigger={['click']}>
-                                       <Button type="primary">
-                                         <MenuOutlined />
-                                       </Button>
-                                     </Dropdown>
+                                 vote_userId == userid ? (
+                                      <Dropdown overlay={VoteMenu} trigger={['click']}>
+                                           <Button type="primary">
+                                             <MenuOutlined />
+                                           </Button>
+                                         </Dropdown>
+                                      ) : ''
                               }
                               style={{ width: 500}}
                             >

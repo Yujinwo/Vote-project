@@ -47,6 +47,9 @@ public class Vote extends BaseTime{
     @OneToMany(mappedBy = "vote",fetch = FetchType.LAZY,orphanRemoval = true,cascade = CascadeType.ALL)
     private List<VoteOption> options;
 
+    @OneToMany(mappedBy = "vote",fetch = FetchType.LAZY,orphanRemoval = true,cascade = CascadeType.ALL)
+    private List<Comment> comments;
+
     @PrePersist
     public void prePersist() {
         if (up == 0) up = 0;
@@ -54,5 +57,15 @@ public class Vote extends BaseTime{
         if (commentCount == 0) commentCount = 0;
         if (startDay == null) startDay = LocalDateTime.now();
         if (endDay == null) endDay = LocalDateTime.now().plusDays(7);
+    }
+
+    // 투표 수정
+    public void changeVoteContent(String title,String category,LocalDateTime startDay,LocalDateTime endDay) {
+        this.title = title;
+        this.category = category;
+        this.startDay = startDay;
+        this.endDay = endDay;
+
+
     }
 }

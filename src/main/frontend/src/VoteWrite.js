@@ -70,7 +70,7 @@ function VoteWrite() {
         const minLength = 5;
         const maxLength = 20;
         const value = event.target.value;
-        if(index == 1)
+        if(index == 0)
         {
              if( ( value.length < minLength || value.length > maxLength ) &&  ( !/^[ㄱ-ㅎ]*$/.test(value) && !/[ㄱ-ㅎ]/.test(value) ) )
                {
@@ -169,7 +169,6 @@ function VoteWrite() {
 
       const handleChangecategory = (value) => {
               setCategoryValue(value); // 선택된 값 저장
-              console.log('Selected category:', value); // 선택된 값 콘솔에 출력
       }
 
       return (

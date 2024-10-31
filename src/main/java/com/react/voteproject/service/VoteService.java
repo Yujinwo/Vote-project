@@ -2,10 +2,7 @@ package com.react.voteproject.service;
 
 
 import com.react.voteproject.context.AuthContext;
-import com.react.voteproject.dto.CommentResponseDto;
-import com.react.voteproject.dto.VoteDetailDataDto;
-import com.react.voteproject.dto.VoteResponseDto;
-import com.react.voteproject.dto.VoteWriteDto;
+import com.react.voteproject.dto.*;
 import com.react.voteproject.entity.Comment;
 import com.react.voteproject.entity.UserVote;
 import com.react.voteproject.entity.Vote;
@@ -22,6 +19,7 @@ import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
@@ -58,6 +56,35 @@ public class VoteService {
 
         return true;
 
+    }
+
+    @Transactional
+    public Boolean update(VoteUpdateDto voteUpdateDto) {
+
+        Optional<Vote> vote = voteRepository.findById(voteUpdateDto.getVote_id());
+        if(vote.isPresent()){
+
+                // 댓글 작성자와 일치하지 않다면
+                if(!vote.get().getUser().getUserId().equals(AuthContext.getAuth().getUserId())) {
+                    return false;
+                }
+                List<LocalDateTime> dateTimeList = voteUpdateDto.changeDayFormat();
+                vote.get().changeVoteContent(voteUpdateDto.getTitle(), voteUpdateDto.getCategory(), dateTimeList.get(0),dateTimeList.get(1));
+                List<VoteOption> voteOption = voteOptionRepository.findByvote(vote.get());
+                if(!voteOption.isEmpty()) {
+
+                    for (int i = 0; i < voteOption.size(); i++) {
+                        String option = voteOption.get(i).getContent();
+                        if(!voteUpdateDto.getChoices().get(i).equals(option)) {
+                            voteOption.get(i).changeContent(voteUpdateDto.getChoices().get(i));
+                        }
+                    }
+
+                    return true;
+
+                }
+        }
+        return false;
     }
     @Transactional(readOnly = true)
     public VoteDetailDataDto findvotes(Long id) {
@@ -118,6 +145,23 @@ public class VoteService {
             }
             return true;
 
+        }
+        return false;
+    }
+
+
+    public Boolean delete(Long voteId) {
+
+        Optional<Vote> vote = voteRepository.findById(voteId);
+        if(vote.isPresent())
+        {
+            // 댓글 작성자와 일치하지 않다면
+            if(!vote.get().getUser().getUserId().equals(AuthContext.getAuth().getUserId())) {
+                return false;
+            }
+            // 투표 삭제
+            voteRepository.delete(vote.get());
+            return true;
         }
         return false;
     }

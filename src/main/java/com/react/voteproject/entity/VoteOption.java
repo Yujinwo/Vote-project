@@ -4,6 +4,8 @@ import com.react.voteproject.context.AuthContext;
 import jakarta.persistence.*;
 import lombok.*;
 
+import java.util.List;
+
 
 @Entity
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
@@ -26,6 +28,9 @@ public class VoteOption extends BaseTime{
     @JoinColumn(name = "vote_id")
     private Vote vote;
 
+    @OneToMany(mappedBy = "voteOption", fetch = FetchType.LAZY,orphanRemoval = true,cascade = CascadeType.ALL)
+    private List<UserVote> uservotes;
+
 
     public void upCount() {
         count = count + 1;
@@ -35,6 +40,11 @@ public class VoteOption extends BaseTime{
         {
             count = count - 1;
         }
+
+    }
+
+    public void changeContent(String content) {
+      this.content = content;
 
     }
     public UserVote createUserVote(){
