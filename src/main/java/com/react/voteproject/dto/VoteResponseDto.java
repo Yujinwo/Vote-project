@@ -29,7 +29,7 @@ public class VoteResponseDto {
     private int up;
 
 
-    private int commentCount;
+    private Long commentCount;
 
 
     private LocalDateTime startDay;
@@ -39,11 +39,11 @@ public class VoteResponseDto {
 
     private List<VoteOptionDto> voteOptions;
 
-    private int total;
+    private int optionCountTotal;
     private UserDto user;
 
 
-    public static VoteResponseDto createVoteResponseDto(Vote vote) {
+    public static VoteResponseDto createVoteResponseDto(Vote vote,Long commentCount) {
 
        int total = vote.getOptions().stream().mapToInt(o -> o.getCount()).sum();
 
@@ -51,9 +51,9 @@ public class VoteResponseDto {
                 .title(vote.getTitle())
                 .category(vote.getCategory())
                 .up(vote.getUp())
-                .commentCount(vote.getCommentCount())
+                .commentCount(commentCount)
                 .startDay(vote.getStartDay()).endDay(vote.getEndDay())
-                .total(total)
+                .optionCountTotal(total)
                 .user(UserDto.createUserDto(vote.getUser()))
                 .voteOptions(vote.getOptions().stream().map(o -> VoteOptionDto.createOptionDto(o,total)).collect(Collectors.toList())).build();
 

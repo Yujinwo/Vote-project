@@ -15,6 +15,7 @@ public class VoteOptionDto {
     private Long id;
     private String content;
     private double rate;
+    private int userCountTotal;
 
     public static VoteOptionDto createOptionDto(VoteOption voteOption, int total) {
         double rate = ((double) voteOption.getCount() / total) * 100; // 비율 계산
@@ -23,6 +24,7 @@ public class VoteOptionDto {
                 .id(voteOption.getId())
                 .content(voteOption.getContent())
                 .rate(percentage)
+                .userCountTotal(voteOption.getCount())
                 .build();
     }
 }

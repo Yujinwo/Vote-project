@@ -104,6 +104,35 @@ public class VoteController {
         return ResponseHelper.createSuccessMessage("result","선택 성공");
     }
 
+    @PostMapping("/ups")
+    public ResponseEntity<Map<Object,Object>> changeUp(@RequestParam("id") Long id) {
+
+        if(!AuthContext.checkAuth())
+        {
+            return ResponseHelper.createErrorMessage("result","로그인을 해주세요");
+        }
+        Boolean status = voteService.changeUp(id);
+        if(!status)
+        {
+            return ResponseHelper.createErrorMessage("result","좋아요 실패");
+        }
+        return ResponseHelper.createSuccessMessage("result","좋아요 성공");
+    }
+
+    @PostMapping("/bookmarks")
+    public ResponseEntity<Map<Object,Object>> changeBookmark(@RequestParam("id") Long id) {
+
+        if(!AuthContext.checkAuth())
+        {
+            return ResponseHelper.createErrorMessage("result","로그인을 해주세요");
+        }
+        Boolean status = voteService.changeBookmark(id);
+        if(!status)
+        {
+            return ResponseHelper.createErrorMessage("result","북마크 실패");
+        }
+        return ResponseHelper.createSuccessMessage("result","북마크 성공");
+    }
 
 
 }

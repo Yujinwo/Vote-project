@@ -33,9 +33,6 @@ public class Vote extends BaseTime{
     private int up;
 
     @Column
-    private int commentCount;
-
-    @Column
     private int view;
 
     @Column
@@ -54,7 +51,6 @@ public class Vote extends BaseTime{
     public void prePersist() {
         if (up == 0) up = 0;
         if (view == 0) view = 0;
-        if (commentCount == 0) commentCount = 0;
         if (startDay == null) startDay = LocalDateTime.now();
         if (endDay == null) endDay = LocalDateTime.now().plusDays(7);
     }
@@ -65,7 +61,11 @@ public class Vote extends BaseTime{
         this.category = category;
         this.startDay = startDay;
         this.endDay = endDay;
+    }
 
+    // 좋아요
+    public void changeUp( int count) {
 
+        this.up = up + count;
     }
 }

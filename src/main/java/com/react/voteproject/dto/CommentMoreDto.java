@@ -16,13 +16,14 @@ import java.util.List;
 public class CommentMoreDto {
 
     private int page;
+    private Long total;
     private Boolean hasContent;
     private Boolean hasNext;
     private List<CommentResponseDto> comment;
 
-    public static CommentMoreDto createCommentMoreDto(int page,Boolean hasContent,Boolean hasNext,List<CommentResponseDto> comment) {
+    public static CommentMoreDto createCommentMoreDto(int page,Long total,Boolean hasContent,Boolean hasNext,List<CommentResponseDto> comment) {
 
-        return CommentMoreDto.builder().page(page).hasContent(hasContent).hasNext(hasNext).comment(comment).build();
+        return CommentMoreDto.builder().page(page).total(total).hasContent(hasContent).hasNext(hasNext).comment(comment).build();
 
     }
 }

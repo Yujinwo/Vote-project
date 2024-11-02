@@ -2,7 +2,7 @@ import React, { useState,useEffect } from 'react';
 import { Card, Space,Flex, Progress, List,Button, Dropdown, Menu,Input,message } from 'antd';
 import { MenuOutlined } from '@ant-design/icons';
 import { useParams,Link,useNavigate } from 'react-router-dom';
-import { LikeOutlined,CommentOutlined,BookOutlined} from '@ant-design/icons';
+import { LikeOutlined,LikeFilled,CommentOutlined,BookOutlined,BookFilled} from '@ant-design/icons';
 import { useAuth } from './AuthContext';
 import axios from 'axios'
 function VoteDetail() {
@@ -12,20 +12,38 @@ function VoteDetail() {
 
             // 선택지 데이터
             const [options, setoptions] = useState([
-                                     { id: 1, label: 'Sample1', percent: 10 },
-                                     { id: 2, label: 'Sample2', percent: 10 },
+                                     { id: 1, label: 'Sample1', percent: 10 , total: 0 },
+                                     { id: 2, label: 'Sample2', percent: 10 , total: 0},
             ]);
+
+            const updatePercent = (id, newPercent) => {
+                setoptions(prevOptions =>
+                    prevOptions.map(option =>
+                        option.id === id ? { ...option, percent: newPercent } : option
+                    )
+                );
+            };
+
             // 투표 유저 정보
             const [vote_userId,setuserId] = useState(null)
+
+            // 투표 선택지 정보
+            const [optionCountTotal,setoptionCountTotal] = useState(0);
+
+
 
             // 댓글 데이터
             const [comments,setcomments] = useState([])
             const [commentPage,setcommentPage] = useState(1);
             const [hasNext,sethasNext] = useState(false);
+            const [commentCount,setcommentCount] = useState(0);
+            const [up,setup] = useState(0);
 
             // 투표 기본 데이터
             const [voteNormaldata,setvoteNormaldata] = useState('')
             const [selectedOption, setSelectedOption] = useState(null);
+            const [hasUp,sethasUp] = useState(false);
+            const [hasBookmark,sethasBookmark] = useState(false);
 
             const voteRenderingData = () => {
                  axios.get('/api/votes?id=' + id)
@@ -36,23 +54,40 @@ function VoteDetail() {
                                                   setuserId(vote.user.user_id)
                                                   // 선택지 설정
                                                   setoptions([
-                                                   { id: vote.voteOptions[0].id, label: vote.voteOptions[0].content, percent: vote.voteOptions[0].rate },
-                                                   { id: vote.voteOptions[1].id, label: vote.voteOptions[1].content, percent: vote.voteOptions[1].rate },
+                                                   { id: vote.voteOptions[0].id, label: vote.voteOptions[0].content, percent: vote.voteOptions[0].rate, userCountTotal: vote.voteOptions[0].userCountTotal },
+                                                   { id: vote.voteOptions[1].id, label: vote.voteOptions[1].content, percent: vote.voteOptions[1].rate, userCountTotal: vote.voteOptions[1].userCountTotal },
                                                   ])
                                                   // 투표 기본 데이터 설정
                                                   setvoteNormaldata(
                                                   { title: vote.title, category:vote.category,up:vote.up,commentCount:vote.commentCount}
                                                   )
+
+                                                  // 투표 좋아요,댓글 수
+                                                  setcommentCount(vote.commentCount)
+                                                  setup(vote.up)
+
                                                   // 선택한 투표 데이터 동기화
                                                   setSelectedOption(res.data.selectedOptionId);
 
                                                   // 댓글 데이터 설정
                                                   setDataCount(res.data.comments.length)
                                                   setcomments(res.data.comments)
-                                                  setVisibleData(res.data.comments.slice(0,dataCount))
+                                                  setVisibleData(res.data.comments)
 
                                                   // 댓글 더보기 활성화 설정
                                                   sethasNext(res.data.hasNext);
+
+                                                  // 좋아요 활성화 설정
+                                                  sethasUp(res.data.hasUp);
+
+                                                  // 북마크 활성화 설정
+                                                  sethasBookmark(res.data.hasBookMark);
+
+                                                  // 투표 선택지 정보 백업
+                                                  setoptionCountTotal(vote.optionCountTotal);
+
+
+
                  })
 
             }
@@ -152,7 +187,22 @@ function VoteDetail() {
             const handleSelect = (id) => {
                   if(selectedOption != id)
                   {
+                      if(selectedOption == null)
+                      {
                        setSelectedOption(id); // 선택된 항목 업데이트
+                       setoptions(prevOptions =>
+                             prevOptions.map(option =>
+                                   option.id === id ? {  ...option, userCountTotal: option.userCountTotal + 1 } : option
+                             )
+                       )
+                       setoptionCountTotal(optionCountTotal + 1)
+
+                       setoptions(prevOptions =>
+                                                    prevOptions.map(option =>
+                                                          option.id === id ? {  ...option, percent: (option.userCountTotal + 1 / optionCountTotal + 1) * 100 } : option
+                                                    )
+                                              )
+
                        axios.post('/api/voteoptions?id=' + id)
                                    .then((res) => {
                                         message.success(res.data.result);
@@ -160,6 +210,35 @@ function VoteDetail() {
                                    .catch((err) => {
                                         message.error(err.response.data.result)
                                    })
+                      }
+                      else {
+
+                             setSelectedOption(id); // 선택된 항목 업데이트
+                             setoptions(prevOptions =>
+                                                          prevOptions.map(option =>
+                                                                option.id === id ? {  ...option, userCountTotal: option.userCountTotal + 1 } : {  ...option, userCountTotal: option.userCountTotal - 1 }
+                                                          )
+                             )
+                             setoptions(prevOptions =>
+                                                          prevOptions.map(option =>
+                                                                 option.id === id ? {  ...option, percent: (option.userCountTotal + 1 / optionCountTotal) * 100 } : {  ...option, percent: (option.userCountTotal - 1 / optionCountTotal) * 100 }
+                                                          )
+                             )
+
+
+
+
+
+                           axios.post('/api/voteoptions?id=' + id)
+                                       .then((res) => {
+                                            message.success(res.data.result);
+                                        })
+                                       .catch((err) => {
+                                            message.error(err.response.data.result)
+                                       })
+
+                      }
+
                   }
             };
             const [visibleData, setVisibleData] = useState(comments.slice(0,9)); // 초기 10개 데이터
@@ -180,6 +259,7 @@ function VoteDetail() {
                                           const nextDataCount = dataCount + res.data.comment.length;
                                           setVisibleData(updatedComments.slice(0, nextDataCount));
                                           setDataCount(nextDataCount);
+                                          setcommentCount(res.data.total)
                              }
                              sethasNext(res.data.hasNext);
 
@@ -213,7 +293,7 @@ function VoteDetail() {
                     message.error('로그인을 해주세요');
                  }
                  else {
-                    axios.post('/api/comments', {
+                    axios.post('/api/comments?', {
                              vote_id:id,
                              content:createdComment
                              }, {
@@ -222,15 +302,63 @@ function VoteDetail() {
                              }
                           })
                           .then((res) => {
-                               message.success(res.data.result);
-                               voteRenderingData();
+                              axios.get('/api/comments?id=' + id + '&page=' + 1)
+                                               .then((res) => {
+                                                      // 댓글 데이터 설정
+                                                      setDataCount(res.data.comment.length)
+                                                      setcomments(res.data.comment)
+                                                      setVisibleData(res.data.comment)
+                                                      // 댓글 더보기 활성화 설정
+                                                      sethasNext(res.data.hasNext);
+                                                      setcommentPage(1);
+                                                      setcreatedComment('');
+                                                      setcommentCount(res.data.total)
+                                               })
                           })
                           .catch((err) => {
                                message.error(err.response.data.result);
+                                setcreatedComment('');
                           })
 
 
                  }
+            }
+
+            const upClick = () => {
+                  axios.post('/api/ups?id=' + id)
+                        .then((res) => {
+                              message.success(res.data.result);
+                              if(hasUp)
+                              {
+                                 sethasUp(false);
+                                 setup(up - 1)
+
+                              }
+                              else {
+                                 sethasUp(true);
+                                 setup(up + 1)
+                              }
+                        })
+                        .catch((err) => {
+                             message.error(err.response.data.result);
+                        })
+
+            }
+            const bookmarkClick = () => {
+                     axios.post('/api/bookmarks?id=' + id)
+                        .then((res) => {
+                              message.success(res.data.result);
+                              if(hasBookmark)
+                              {
+                                 sethasBookmark(false);
+                              }
+                              else {
+                                 sethasBookmark(true);
+                              }
+                        })
+                        .catch((err) => {
+                             message.error(err.response.data.result);
+                        })
             }
             return (
                  <div>
@@ -275,19 +403,32 @@ function VoteDetail() {
                               ))}
                               <Flex justify="end" align="center">
                                         <div style={{marginTop:10}}>
-                                               <Button>
+                                             { !hasUp ? (
+                                               <Button onClick={upClick}>
                                                    <LikeOutlined />
-                                                   <span> {voteNormaldata.up} </span>
+                                                   <span> {up} </span>
                                                </Button>
+                                               ) : (
+                                               <Button onClick={upClick}>
+                                                    <LikeFilled />
+                                                    <span> {up} </span>
+                                               </Button>)
+                                             }
 
                                                <Button>
                                                    <CommentOutlined style={{}}/>
-                                                    <span> {voteNormaldata.commentCount} </span>
+                                                    <span> {commentCount} </span>
                                                </Button>
-
-                                               <Button>
+                                             { !hasBookmark ? (
+                                               <Button onClick={bookmarkClick}>
                                                    <BookOutlined style={{fontSize:20}}/>
                                                </Button>
+                                               ) : (
+                                                <Button onClick={bookmarkClick}>
+                                                   <BookFilled style={{fontSize:20}}/>
+                                                </Button>
+                                               )
+                                             }
                                        </div>
                               </Flex>
 
@@ -301,8 +442,8 @@ function VoteDetail() {
                                    <Input placeholder="댓글을 작성해보세요" count={{show:true,max:380}} onBlur={handleChange}/>
                                    <Button style={{height:100}}type="primary" onClick={commentSubmit}>작성</Button>
                                  </Space.Compact>
-
-                            <Card style={{ width: 500}}>
+                           { visibleData.length != 0 ? (
+                               <Card style={{ width: 500}}>
                                        {visibleData.map((comment) => (
                                           <div style={{border:'1px solid',borderRadius:'10px',marginTop:'10px',background:'#f8fafc',padding:'10px'}}>
                                               <Flex justify="space-between">
@@ -352,7 +493,9 @@ function VoteDetail() {
                                                   </Button>
                                            </div>
                                        )}
-                            </Card>
+                                </Card>
+                                ) : ''
+                            }
                           </Space>
                       </Flex>
                  </div>

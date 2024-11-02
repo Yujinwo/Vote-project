@@ -3,19 +3,12 @@ package com.react.voteproject.service;
 
 import com.react.voteproject.context.AuthContext;
 import com.react.voteproject.dto.*;
-import com.react.voteproject.entity.Comment;
-import com.react.voteproject.entity.UserVote;
-import com.react.voteproject.entity.Vote;
-import com.react.voteproject.entity.VoteOption;
-import com.react.voteproject.repository.CommentRepository;
-import com.react.voteproject.repository.UserVoteRepository;
-import com.react.voteproject.repository.VoteOptionRepository;
-import com.react.voteproject.repository.VoteRepository;
+import com.react.voteproject.entity.*;
+import com.react.voteproject.repository.*;
 import jakarta.persistence.EntityManager;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Slice;
-import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -30,6 +23,8 @@ public class VoteService {
      private final VoteRepository voteRepository;
      private final VoteOptionRepository voteOptionRepository;
      private final UserVoteRepository userVoteRepository;
+     private final UpRepository upRepository;
+     private final BookmarkRepository bookmarkRepository;
      private final CommentRepository commentRepository;
      private final EntityManager em;
 
@@ -86,27 +81,39 @@ public class VoteService {
         }
         return false;
     }
-    @Transactional(readOnly = true)
+    @Transactional
     public VoteDetailDataDto findvotes(Long id) {
         Optional<Vote> vote = voteRepository.findById(id);
         if(vote.isPresent()) {
             // 이미 투표 선택했는지 조회
             Optional<UserVote> userVote = userVoteRepository.findByuserID(AuthContext.getAuth());
+
+            Long total = commentRepository.countCommentsByVote(vote.get());
             // 투표 데이터 조회
-            VoteResponseDto voteResponseDto = vote.map(VoteResponseDto::createVoteResponseDto).get();
+            VoteResponseDto voteResponseDto = vote.map(v -> VoteResponseDto.createVoteResponseDto(v,total)).get();
 
             // 투표 댓글 Slice 조회
             PageRequest pageRequest = PageRequest.of(0,10);
             Slice<Comment> comments = commentRepository.findSliceByVote(vote.get(), pageRequest);
             List<CommentResponseDto> commentList = comments.getContent().stream().map(CommentResponseDto::createCommentResponseDto).collect(Collectors.toList());
 
+            Boolean hasUp = false;
+            Boolean hasBookmark = false;
+            if(upRepository.findByVoteAndUser(vote.get(),AuthContext.getAuth()).isPresent()) {
+                hasUp = true;
+            }
+
+            if(bookmarkRepository.findByVoteAndUser(vote.get(),AuthContext.getAuth()).isPresent()) {
+                hasBookmark = true;
+            }
+
             if(userVote.isPresent())
             {
                 Long userSelectedId = userVote.get().getVoteOption().getId();
-                return VoteDetailDataDto.createVoteDetailDataDto(voteResponseDto,userSelectedId,commentList,comments.hasNext());
+                return VoteDetailDataDto.createVoteDetailDataDto(voteResponseDto,userSelectedId,commentList,comments.hasNext(),hasUp,hasBookmark);
             }
             else {
-                return VoteDetailDataDto.createVoteDetailDataDto(voteResponseDto,null,commentList,comments.hasNext());
+                return VoteDetailDataDto.createVoteDetailDataDto(voteResponseDto,null,commentList,comments.hasNext(), hasUp, hasBookmark);
             }
 
         }
@@ -149,7 +156,7 @@ public class VoteService {
         return false;
     }
 
-
+    @Transactional
     public Boolean delete(Long voteId) {
 
         Optional<Vote> vote = voteRepository.findById(voteId);
@@ -161,6 +168,55 @@ public class VoteService {
             }
             // 투표 삭제
             voteRepository.delete(vote.get());
+            return true;
+        }
+        return false;
+    }
+    @Transactional
+    public Boolean changeUp(Long voteId) {
+        Optional<Vote> vote = voteRepository.findById(voteId);
+        if(vote.isPresent())
+        {
+            Optional<Up> up = upRepository.findByVoteAndUser(vote.get(),AuthContext.getAuth());
+            if(up.isPresent()) {
+                // 좋아요 -1
+                upRepository.delete(up.get());
+                vote.get().changeUp(-1);
+            }
+            else {
+                // 좋아요 +1
+                Up saveUp = Up.builder().user(AuthContext.getAuth()).vote(vote.get()).build();
+                Optional<Up> savedUp = Optional.of(upRepository.save(saveUp));
+                if(savedUp.isEmpty()) {
+                    return false;
+                }
+                vote.get().changeUp(1);
+            }
+
+            return true;
+        }
+        return false;
+    }
+    @Transactional
+    public Boolean changeBookmark(Long voteId) {
+
+        Optional<Vote> vote = voteRepository.findById(voteId);
+        if(vote.isPresent())
+        {
+            Optional<Bookmark> bookmark = bookmarkRepository.findByVoteAndUser(vote.get(),AuthContext.getAuth());
+            if(bookmark.isPresent()) {
+                // 북마크 해제
+                bookmarkRepository.delete(bookmark.get());
+            }
+            else {
+                // 북마크 등록
+                Bookmark saveBookmark = Bookmark.builder().user(AuthContext.getAuth()).vote(vote.get()).build();
+                Optional<Bookmark> savedBookmark = Optional.of(bookmarkRepository.save(saveBookmark));
+                if(savedBookmark.isEmpty()) {
+                    return false;
+                }
+            }
+
             return true;
         }
         return false;

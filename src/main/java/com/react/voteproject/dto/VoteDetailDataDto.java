@@ -1,7 +1,6 @@
 package com.react.voteproject.dto;
 
 
-import com.react.voteproject.entity.VoteOption;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
@@ -22,10 +21,16 @@ public class VoteDetailDataDto {
     private Long selectedOptionId;
 
     // 댓글 더보기 활성화 여부
-    private Boolean hasNext;
+    private Boolean hasNext ;
 
-    public static VoteDetailDataDto createVoteDetailDataDto(VoteResponseDto voteResponseDto,Long selectedOptionId,List<CommentResponseDto> comments,Boolean hasNext)
+    // 좋아요 활성화 여부
+    private Boolean hasUp = false;
+
+    // 북마크 활성화 여부
+    private Boolean hasBookMark  = false;
+
+    public static VoteDetailDataDto createVoteDetailDataDto(VoteResponseDto voteResponseDto, Long selectedOptionId, List<CommentResponseDto> comments, Boolean hasNext, Boolean hasUp, Boolean hasBookmark)
     {
-        return VoteDetailDataDto.builder().vote(voteResponseDto).selectedOptionId(selectedOptionId).comments(comments).hasNext(hasNext).build();
+        return VoteDetailDataDto.builder().vote(voteResponseDto).selectedOptionId(selectedOptionId).comments(comments).hasNext(hasNext).hasUp(hasUp).hasBookMark(hasBookmark).build();
     }
 }
