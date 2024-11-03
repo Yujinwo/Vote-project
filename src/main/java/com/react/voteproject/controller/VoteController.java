@@ -3,10 +3,7 @@ package com.react.voteproject.controller;
 
 import com.react.voteproject.category.category_enum;
 import com.react.voteproject.context.AuthContext;
-import com.react.voteproject.dto.CommentWriteDto;
-import com.react.voteproject.dto.VoteDetailDataDto;
-import com.react.voteproject.dto.VoteUpdateDto;
-import com.react.voteproject.dto.VoteWriteDto;
+import com.react.voteproject.dto.*;
 import com.react.voteproject.entity.Vote;
 import com.react.voteproject.service.CommentService;
 import com.react.voteproject.service.VoteService;
@@ -14,11 +11,14 @@ import com.react.voteproject.utility.ResponseHelper;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.web.PageableDefault;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 
@@ -33,11 +33,18 @@ public class VoteController {
 
 
     @GetMapping("/votes")
-    public ResponseEntity<VoteDetailDataDto> findVote(@RequestParam("id") Long vote_id) {
-        VoteDetailDataDto vote = voteService.findvotes(vote_id);
+    public ResponseEntity<VoteDetailDataDto> findId(@RequestParam("id") Long vote_id) {
+        VoteDetailDataDto vote = voteService.findvotesId(vote_id);
 
         return ResponseEntity.status(HttpStatus.OK).body(vote);
     }
+    @GetMapping("/votes/all")
+    public ResponseEntity<VoteHomeDataDto> findAll(@PageableDefault(page = 1) Pageable pageable, @RequestParam(value = "sort",defaultValue = "startDay")  String sort) {
+        VoteHomeDataDto vote = voteService.findAll(pageable,sort);
+
+        return ResponseEntity.status(HttpStatus.OK).body(vote);
+    }
+
     @PostMapping("/votes")
     public ResponseEntity<Map<Object,Object>> writeVote(@Valid @RequestBody VoteWriteDto voteWriteDto) {
 

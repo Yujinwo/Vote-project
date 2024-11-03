@@ -18,11 +18,7 @@ function Home() {
         {id:4,category:"애완동물",title:"문재인 대통령의 전반적인 국정운영에 만족하십니까?",staryday:"2024.10.17",endday:"2024.10.30",writer:"테스트",rate:"1200 ",up:10,commentcount:10},
         {id:5,category:"영화",title:"조국 법무부 장관 임명이 적절하다고 보십니까?",staryday:"2024.10.17",endday:"2024.10.30",writer:"테스트",rate:"1030 ",up:10,commentcount:10},
         {id:6,category:"뮤비",title:"체리블렛 멤버 인기순위. 제일 좋아하는 멤버에 투표해주세요!",staryday:"2024.10.17",endday:"2024.10.30",writer:"테스트",rate:"1020 ",up:10,commentcount:10},
-        {id:6,category:"뮤비",title:"체리블렛 멤버 인기순위. 제일 좋아하는 멤버에 투표해주세요!",staryday:"2024.10.17",endday:"2024.10.30",writer:"테스트",rate:"1020 ",up:10,commentcount:10},
-        {id:6,category:"뮤비",title:"체리블렛 멤버 인기순위. 제일 좋아하는 멤버에 투표해주세요!",staryday:"2024.10.17",endday:"2024.10.30",writer:"테스트",rate:"1020 ",up:10,commentcount:10},
-        {id:6,category:"뮤비",title:"체리블렛 멤버 인기순위. 제일 좋아하는 멤버에 투표해주세요!",staryday:"2024.10.17",endday:"2024.10.30",writer:"테스트",rate:"1020 ",up:10,commentcount:10},
-        {id:6,category:"뮤비",title:"체리블렛 멤버 인기순위. 제일 좋아하는 멤버에 투표해주세요!",staryday:"2024.10.17",endday:"2024.10.30",writer:"테스트",rate:"1020 ",up:10,commentcount:10},
-        {id:6,category:"뮤비",title:"체리블렛 멤버 인기순위. 제일 좋아하는 멤버에 투표해주세요!",staryday:"2024.10.17",endday:"2024.10.30",writer:"테스트",rate:"1020 ",up:10,commentcount:10},
+
     ]
     const styles = {
           headerBox: {

@@ -45,15 +45,11 @@ function VoteListCategory() {
                                 label: '최신',
                         },
                         {
-                                value: 'Oldest',
-                                label: '오래된',
+                                value: 'UserCount',
+                                label: '참여율',
                         },
                         {
-                                value: 'MostViewed',
-                                label: '조회수',
-                        },
-                        {
-                                value: 'Most Liked',
+                                value: 'Like',
                                 label: '좋아요',
                         },
      ]
@@ -107,6 +103,7 @@ function VoteListCategory() {
                                             (option?.label ?? '').toLowerCase().includes(input.toLowerCase())
                                       }
                                       options={categorys}
+                                      size="large"
                               />
                               <Select
                                       showSearch
@@ -116,6 +113,7 @@ function VoteListCategory() {
                                             (option?.label ?? '').toLowerCase().includes(input.toLowerCase())
                                       }
                                       options={orders}
+                                      size="large"
                               />
                         </Flex>
                         <ReactCardSlider slides={slides}/>

@@ -10,6 +10,7 @@ import lombok.NoArgsConstructor;
 import org.hibernate.query.sql.internal.ParameterRecognizerImpl;
 
 import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -18,7 +19,7 @@ import java.util.stream.Collectors;
 @NoArgsConstructor
 @Builder
 public class VoteResponseDto {
-
+    private Long id;
 
     private String title;
 
@@ -32,10 +33,10 @@ public class VoteResponseDto {
     private Long commentCount;
 
 
-    private LocalDateTime startDay;
+    private String startDay;
 
 
-    private LocalDateTime endDay;
+    private String endDay;
 
     private List<VoteOptionDto> voteOptions;
 
@@ -45,14 +46,23 @@ public class VoteResponseDto {
 
     public static VoteResponseDto createVoteResponseDto(Vote vote,Long commentCount) {
 
+        // 변환 포맷 정의
+        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd");
+
+        // 원하는 형식으로 변환
+        String startDay = vote.getStartDay().format(formatter);
+        // 원하는 형식으로 변환
+        String endDay = vote.getEndDay().format(formatter);
+
        int total = vote.getOptions().stream().mapToInt(o -> o.getCount()).sum();
 
        return VoteResponseDto.builder()
+                 .id(vote.getId())
                 .title(vote.getTitle())
                 .category(vote.getCategory())
                 .up(vote.getUp())
                 .commentCount(commentCount)
-                .startDay(vote.getStartDay()).endDay(vote.getEndDay())
+                .startDay(startDay).endDay(endDay)
                 .optionCountTotal(total)
                 .user(UserDto.createUserDto(vote.getUser()))
                 .voteOptions(vote.getOptions().stream().map(o -> VoteOptionDto.createOptionDto(o,total)).collect(Collectors.toList())).build();

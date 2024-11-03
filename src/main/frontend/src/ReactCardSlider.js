@@ -6,11 +6,12 @@ import { Link } from "react-router-dom"; // Link import
 import { Progress, Flex,Button,Spin  } from "antd"; // Ant Design의 Progress 컴포넌트 import
 import "./Slider.css"; // CSS 파일 import
 import { BulbOutlined, CalendarOutlined, UserOutlined, LikeOutlined, CommentOutlined } from '@ant-design/icons';
-
+import axios from 'axios'
 const ReactCardSlider = (props) => {
-  const [visibleSlides, setVisibleSlides] = useState(props.slides.slice(0, 5)); // 처음에 보일 슬라이드 수
+  const [visibleSlides, setVisibleSlides] = useState(props.slides.slice(0, props.slides.length)); // 처음에 보일 슬라이드 수
   const [isLoading, setIsLoading] = useState(false); // 로딩 상태 관리
-
+  const [page,setpage] = useState(props.page);
+  const [hasNext,sethasNext] =useState(props.hasNext);
   const slideLeft = () => {
     const slider = document.getElementById("slider");
     slider.scrollLeft -= 500; // 슬라이드 왼쪽으로 이동
@@ -25,36 +26,68 @@ const ReactCardSlider = (props) => {
     }
   };
 
+
  // 슬라이드의 끝에 도달했을 때 추가 슬라이드를 로드하는 함수
    const loadMoreSlides = () => {
-     if (isLoading || visibleSlides.length >= props.slides.length) return; // 이미 로딩 중이거나 모든 슬라이드가 로드된 경우 종료
+
+     if (!hasNext) return; // 이미 로딩 중이거나 모든 슬라이드가 로드된 경우 종료
 
      setIsLoading(true);
-
      // 0.2초 후에 추가 슬라이드를 로드
+
      setTimeout(() => {
-       const newSlides = props.slides.slice(visibleSlides.length, visibleSlides.length + 5); // 다음 5개 슬라이드 로드
-       setVisibleSlides((prevSlides) => [...prevSlides, ...newSlides]); // 기존 슬라이드에 추가
-       setIsLoading(false);
+       if(hasNext) {
+         axios.get('/api/votes/all?page=' + (page + 1) + '&sort=' + 'voting')
+                                .then((res) => {
+                                            const newSlides = res.data.vote.map((v) => ({
+                                                                id: v.id,
+                                                                category: v.category,
+                                                                title: v.title,
+                                                                startDay: v.startDay,
+                                                                endDay: v.endDay,
+                                                                writer: v.user.user_nick,
+                                                                rate: v.optionCountTotal,
+                                                                up: v.up,
+                                                                commentCount: v.commentCount,
+                                                            }));
+
+                                            setpage(res.data.page + 1)
+                                            sethasNext(res.data.hasNext);
+                                            setVisibleSlides((prevSlides) => [...prevSlides, ...newSlides]); // 기존 슬라이드에 추가
+                                            setIsLoading(false);
+                                })
+
+        }
      }, 200);
    };
 
-  // 슬라이드의 scroll 이벤트 리스너 등록
-  useEffect(() => {
-    const slider = document.getElementById("slider");
+    // 슬라이드의 scroll 이벤트 리스너 등록
+useEffect(() => {
+
+       setVisibleSlides(props.slides.slice(0, props.slides.length));
+}, []); // 의존성 배열에 visibleSlides와 isLoading 추가
+
+
+useEffect(() => {
+ const slider = document.getElementById("slider");
 
     const handleScroll = () => {
       if (slider.scrollLeft + slider.clientWidth >= slider.scrollWidth) { // 슬라이드 끝에 도달했을 때
         loadMoreSlides(); // 슬라이드 추가 로드
       }
     };
+     return () => {
+          slider.removeEventListener("scroll", handleScroll); // 컴포넌트 언마운트 시 이벤트 리스너 제거
+        };
+}, [isLoading]); // 의존성 배열에 visibleSlides와 isLoading 추가
 
-    slider.addEventListener("scroll", handleScroll); // scroll 이벤트 리스너 추가
+  // 슬라이드의 scroll 이벤트 리스너 등록
+  useEffect(() => {
+    setVisibleSlides(props.slides.slice(0, props.slides.length));
+    sethasNext(props.hasNext);
+    setpage(props.page);
 
-    return () => {
-      slider.removeEventListener("scroll", handleScroll); // 컴포넌트 언마운트 시 이벤트 리스너 제거
-    };
-  }, [visibleSlides, isLoading]); // 의존성 배열에 visibleSlides와 isLoading 추가
+  }, [props]); // 의존성 배열에 visibleSlides와 isLoading 추가
 
   return (
     <div id="main-slider-container">
@@ -91,7 +124,7 @@ const ReactCardSlider = (props) => {
                 </Button>
                 <Button>
                   <CommentOutlined />
-                  <span> {slide.commentcount} </span>
+                  <span> {slide.commentCount} </span>
                 </Button>
               </div>
             </Flex>

@@ -32,8 +32,6 @@ public class Vote extends BaseTime{
     @Column
     private int up;
 
-    @Column
-    private int view;
 
     @Column
     private LocalDateTime startDay;
@@ -50,7 +48,6 @@ public class Vote extends BaseTime{
     @PrePersist
     public void prePersist() {
         if (up == 0) up = 0;
-        if (view == 0) view = 0;
         if (startDay == null) startDay = LocalDateTime.now();
         if (endDay == null) endDay = LocalDateTime.now().plusDays(7);
     }
