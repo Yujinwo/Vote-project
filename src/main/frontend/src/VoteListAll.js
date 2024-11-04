@@ -66,7 +66,7 @@ function VoteListAll() {
     }
 
      useEffect(() => {
-                  axios.get('/api/votes/all?sort=' + 'voting')
+                  axios.get('/api/votes/all?sort=' + OrderValue)
                          .then((res) => {
                                      const newSlides = res.data.vote.map((v) => ({
                                                          id: v.id,

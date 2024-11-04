@@ -140,7 +140,7 @@ function VoteDetail() {
 
 
                }
-               //onUpdate(editingCommentId, updatedComment); // 수정된 댓글 저장
+
 
             };
             const CommentCancelClick = () => {
@@ -184,63 +184,57 @@ function VoteDetail() {
                   </Menu>
             );
 
-            const handleSelect = (id) => {
+            const selectRendering = (id) => {
                   if(selectedOption != id)
-                  {
-                      if(selectedOption == null)
-                      {
-                       setSelectedOption(id); // 선택된 항목 업데이트
-                       setoptions(prevOptions =>
-                             prevOptions.map(option =>
-                                   option.id === id ? {  ...option, userCountTotal: option.userCountTotal + 1 } : option
-                             )
-                       )
-                       setoptionCountTotal(optionCountTotal + 1)
+                              {
+                                  if(selectedOption == null)
+                                  {
+                                   setSelectedOption(id); // 선택된 항목 업데이트
+                                   setoptions(prevOptions =>
+                                         prevOptions.map(option =>
+                                               option.id === id ? {  ...option, userCountTotal: option.userCountTotal + 1 } : option
+                                         )
+                                   )
+                                   setoptionCountTotal(optionCountTotal + 1)
 
-                       setoptions(prevOptions =>
-                                                    prevOptions.map(option =>
-                                                          option.id === id ? {  ...option, percent: (option.userCountTotal + 1 / optionCountTotal + 1) * 100 } : option
-                                                    )
-                                              )
-
-                       axios.post('/api/voteoptions?id=' + id)
-                                   .then((res) => {
-                                        message.success(res.data.result);
-                                    })
-                                   .catch((err) => {
-                                        message.error(err.response.data.result)
-                                   })
-                      }
-                      else {
-
-                             setSelectedOption(id); // 선택된 항목 업데이트
-                             setoptions(prevOptions =>
-                                                          prevOptions.map(option =>
-                                                                option.id === id ? {  ...option, userCountTotal: option.userCountTotal + 1 } : {  ...option, userCountTotal: option.userCountTotal - 1 }
+                                   setoptions(prevOptions =>
+                                                                prevOptions.map(option =>
+                                                                      option.id === id ? {  ...option, percent: (option.userCountTotal + 1 / optionCountTotal + 1) * 100 } : option
+                                                                )
                                                           )
-                             )
-                             setoptions(prevOptions =>
-                                                          prevOptions.map(option =>
-                                                                 option.id === id ? {  ...option, percent: (option.userCountTotal + 1 / optionCountTotal) * 100 } : {  ...option, percent: (option.userCountTotal - 1 / optionCountTotal) * 100 }
-                                                          )
-                             )
+                                  }
+                                  else {
+
+                                         setSelectedOption(id); // 선택된 항목 업데이트
+                                         setoptions(prevOptions =>
+                                                                      prevOptions.map(option =>
+                                                                            option.id === id ? {  ...option, userCountTotal: option.userCountTotal + 1 } : {  ...option, userCountTotal: option.userCountTotal - 1 }
+                                                                      )
+                                         )
+                                         setoptions(prevOptions =>
+                                                                      prevOptions.map(option =>
+                                                                             option.id === id ? {  ...option, percent: (option.userCountTotal + 1 / optionCountTotal) * 100 } : {  ...option, percent: (option.userCountTotal - 1 / optionCountTotal) * 100 }
+                                                                      )
+                                         )
 
 
+                                  }
 
-
-
-                           axios.post('/api/voteoptions?id=' + id)
-                                       .then((res) => {
-                                            message.success(res.data.result);
-                                        })
-                                       .catch((err) => {
-                                            message.error(err.response.data.result)
-                                       })
-
-                      }
-
-                  }
+                }
             };
+
+            const handleSelect = (id) => {
+                      axios.post('/api/voteoptions?id=' + id)
+                                        .then((res) => {
+                                                        selectRendering(id)
+                                                        message.success(res.data.result);
+                                        })
+                                        .catch((err) => {
+                                                        message.error(err.response.data.result)
+                                        })
+
+            }
+
             const [visibleData, setVisibleData] = useState(comments.slice(0,9)); // 초기 10개 데이터
             const [dataCount, setDataCount] = useState(10); // 현재 표시된 데이터 개수
 

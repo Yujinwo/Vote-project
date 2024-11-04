@@ -39,8 +39,8 @@ public class VoteController {
         return ResponseEntity.status(HttpStatus.OK).body(vote);
     }
     @GetMapping("/votes/all")
-    public ResponseEntity<VoteHomeDataDto> findAll(@PageableDefault(page = 1) Pageable pageable, @RequestParam(value = "sort",defaultValue = "startDay")  String sort) {
-        VoteHomeDataDto vote = voteService.findAll(pageable,sort);
+    public ResponseEntity<VoteHomeDataDto> findAll(@PageableDefault(page = 1) Pageable pageable, @RequestParam(value = "sort",defaultValue = "startDay")  String sort, @RequestParam(value = "category",defaultValue = "")  String category) {
+        VoteHomeDataDto vote = voteService.findAll(pageable,sort,category);
 
         return ResponseEntity.status(HttpStatus.OK).body(vote);
     }

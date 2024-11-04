@@ -1,6 +1,7 @@
 package com.react.voteproject.service;
 
 
+import com.react.voteproject.category.category_enum;
 import com.react.voteproject.context.AuthContext;
 import com.react.voteproject.dto.*;
 import com.react.voteproject.entity.*;
@@ -225,30 +226,58 @@ public class VoteService {
 
 
     @Transactional(readOnly = true)
-    public  VoteHomeDataDto findAll(Pageable pageable,String sort) {
-         String[] fields = {"startDay","up","voting"};
+    public  VoteHomeDataDto findAll(Pageable pageable,String sort,String category) {
+         String[] sortFields = {"startDay","up","voting"};
 
-         boolean contains = Arrays.asList(fields).contains(sort);
+         boolean contains = Arrays.asList(sortFields).contains(sort);
          if(!contains) {
              sort = "startDay";
          }
-        int page = pageable.getPageNumber() - 1;
+         int page = pageable.getPageNumber() - 1;
          if(pageable.getPageNumber() == 0) {
-             page = 0;
+            page = 0;
          }
-         if(sort.equals("voting")) {
-             // 첫 번째 페이지, 10개
 
-             PageRequest pageRequest = PageRequest.of(page, 10);
-             Slice<Object[]> voteWithTotalCount = voteRepository.findVoteWithTotalCount(pageRequest);
-             List<VoteResponseDto> list = voteWithTotalCount.getContent().stream().map(v -> VoteResponseDto.createVoteResponseDto((Vote) v[0], commentRepository.countCommentsByVote((Vote) v[0]))).collect(Collectors.toList());
+         if(category.isBlank()) {
+             if(sort.equals("voting")) {
+                 // 첫 번째 페이지, 10개
+                 PageRequest pageRequest = PageRequest.of(page, 10);
+                 Slice<Object[]> voteWithTotalCount = voteRepository.findVoteWithTotalCount(pageRequest);
+                 List<VoteResponseDto> list = voteWithTotalCount.getContent().stream().map(v -> VoteResponseDto.createVoteResponseDto((Vote) v[0], commentRepository.countCommentsByVote((Vote) v[0]))).collect(Collectors.toList());
 
-             return VoteHomeDataDto.createVoteHomeDataDto(list,voteWithTotalCount.hasNext(),voteWithTotalCount.getNumber());
+                 return VoteHomeDataDto.createVoteHomeDataDto(list,voteWithTotalCount.hasNext(),voteWithTotalCount.getNumber());
+             }
+
+             PageRequest pageRequest = PageRequest.of(page, 10, Sort.by(Sort.Order.desc(sort)));
+             Slice<Vote> sliceVote = voteRepository.findAllByVote(pageRequest);
+             List<VoteResponseDto> list = sliceVote.stream().map(v -> VoteResponseDto.createVoteResponseDto(v, commentRepository.countCommentsByVote(v))).collect(Collectors.toList());
+             return VoteHomeDataDto.createVoteHomeDataDto(list,sliceVote.hasNext(),sliceVote.getNumber());
+
          }
-         PageRequest pageRequest = PageRequest.of(page, 10, Sort.by(Sort.Order.desc(sort)));
-         Slice<Vote> sliceVote = voteRepository.findAllByVote(pageRequest);
-         List<VoteResponseDto> list = sliceVote.stream().map(v -> VoteResponseDto.createVoteResponseDto(v, commentRepository.countCommentsByVote(v))).collect(Collectors.toList());
-         return VoteHomeDataDto.createVoteHomeDataDto(list,sliceVote.hasNext(),sliceVote.getNumber());
+         else {
+
+             Boolean checkCategory = category_enum.fromCode(category);
+             if(!checkCategory) {
+                 category = "ENTERTAINMENT";
+             }
+
+             if(sort.equals("voting")) {
+                 // 첫 번째 페이지, 10개
+                 PageRequest pageRequest = PageRequest.of(page, 10);
+                 Slice<Object[]> voteWithTotalCount = voteRepository.findVoteWithTotalCountByCategory(pageRequest,category);
+                 List<VoteResponseDto> list = voteWithTotalCount.getContent().stream().map(v -> VoteResponseDto.createVoteResponseDto((Vote) v[0], commentRepository.countCommentsByVote((Vote) v[0]))).collect(Collectors.toList());
+
+                 return VoteHomeDataDto.createVoteHomeDataDto(list,voteWithTotalCount.hasNext(),voteWithTotalCount.getNumber());
+             }
+
+             PageRequest pageRequest = PageRequest.of(page, 10, Sort.by(Sort.Order.desc(sort)));
+             Slice<Vote> sliceVote = voteRepository.findAllByVoteAndCategory(pageRequest,category);
+             List<VoteResponseDto> list = sliceVote.stream().map(v -> VoteResponseDto.createVoteResponseDto(v, commentRepository.countCommentsByVote(v))).collect(Collectors.toList());
+             return VoteHomeDataDto.createVoteHomeDataDto(list,sliceVote.hasNext(),sliceVote.getNumber());
+
+         }
+
+
 
     }
 

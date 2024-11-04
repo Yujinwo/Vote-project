@@ -12,6 +12,8 @@ const ReactCardSlider = (props) => {
   const [isLoading, setIsLoading] = useState(false); // 로딩 상태 관리
   const [page,setpage] = useState(props.page);
   const [hasNext,sethasNext] =useState(props.hasNext);
+  const [order,setorder] =useState(props.OrderValue);
+  const [category,setcategory] =useState(props.category);
   const slideLeft = () => {
     const slider = document.getElementById("slider");
     slider.scrollLeft -= 500; // 슬라이드 왼쪽으로 이동
@@ -36,8 +38,8 @@ const ReactCardSlider = (props) => {
      // 0.2초 후에 추가 슬라이드를 로드
 
      setTimeout(() => {
-       if(hasNext) {
-         axios.get('/api/votes/all?page=' + (page + 1) + '&sort=' + 'voting')
+       if(hasNext && category) {
+            axios.get('/api/votes/all?page=' + (page + 1) + '&sort=' + order )
                                 .then((res) => {
                                             const newSlides = res.data.vote.map((v) => ({
                                                                 id: v.id,
@@ -58,12 +60,32 @@ const ReactCardSlider = (props) => {
                                 })
 
         }
+       else if(hasNext && !category) {
+                axios.get('/api/votes/all?page=' + (page + 1) + '&sort=' + order + '&category=' + category)
+                                       .then((res) => {
+                                                   const newSlides = res.data.vote.map((v) => ({
+                                                                       id: v.id,
+                                                                       category: v.category,
+                                                                       title: v.title,
+                                                                       startDay: v.startDay,
+                                                                       endDay: v.endDay,
+                                                                       writer: v.user.user_nick,
+                                                                       rate: v.optionCountTotal,
+                                                                       up: v.up,
+                                                                       commentCount: v.commentCount,
+                                                                   }));
+
+                                                   setpage(res.data.page + 1)
+                                                   sethasNext(res.data.hasNext);
+                                                   setVisibleSlides((prevSlides) => [...prevSlides, ...newSlides]); // 기존 슬라이드에 추가
+                                                   setIsLoading(false);
+                                       })
+       }
      }, 200);
    };
 
     // 슬라이드의 scroll 이벤트 리스너 등록
 useEffect(() => {
-
        setVisibleSlides(props.slides.slice(0, props.slides.length));
 }, []); // 의존성 배열에 visibleSlides와 isLoading 추가
 
@@ -86,6 +108,8 @@ useEffect(() => {
     setVisibleSlides(props.slides.slice(0, props.slides.length));
     sethasNext(props.hasNext);
     setpage(props.page);
+    setorder(props.OrderValue)
+    setcategory(props.category);
 
   }, [props]); // 의존성 배열에 visibleSlides와 isLoading 추가
 
@@ -106,9 +130,9 @@ useEffect(() => {
               <p className="slider-card-title">{slide.title}</p>
               <CalendarOutlined />
               <div className="slider-card-day">
-                <p className="slider-card-staryday">{slide.staryday}</p>
+                <p className="slider-card-staryday">{slide.startDay}</p>
                 <p className="slider-card-to">~</p>
-                <p className="slider-card-endday">{slide.endday}</p>
+                <p className="slider-card-endday">{slide.endDay}</p>
               </div>
               <UserOutlined />
               <p className="slider-card-writer">{slide.writer}</p>
