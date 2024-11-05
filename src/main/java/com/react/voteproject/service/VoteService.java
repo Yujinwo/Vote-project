@@ -264,7 +264,7 @@ public class VoteService {
              if(sort.equals("voting")) {
                  // 첫 번째 페이지, 10개
                  PageRequest pageRequest = PageRequest.of(page, 10);
-                 Slice<Object[]> voteWithTotalCount = voteRepository.findVoteWithTotalCountByCategory(pageRequest,category);
+                 Slice<Object[]> voteWithTotalCount = voteRepository.findVotesWithTotalCountByCategory(pageRequest,category);
                  List<VoteResponseDto> list = voteWithTotalCount.getContent().stream().map(v -> VoteResponseDto.createVoteResponseDto((Vote) v[0], commentRepository.countCommentsByVote((Vote) v[0]))).collect(Collectors.toList());
 
                  return VoteHomeDataDto.createVoteHomeDataDto(list,voteWithTotalCount.hasNext(),voteWithTotalCount.getNumber());

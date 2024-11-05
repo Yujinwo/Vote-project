@@ -4,7 +4,9 @@ package com.react.voteproject.controller;
 import com.react.voteproject.context.AuthContext;
 import com.react.voteproject.dto.UserJoinDto;
 import com.react.voteproject.dto.UserLoginDto;
+import com.react.voteproject.dto.UserStatsDto;
 import com.react.voteproject.entity.User;
+import com.react.voteproject.repository.UserRepository;
 import com.react.voteproject.service.UserService;
 import com.react.voteproject.utility.ResponseHelper;
 import jakarta.validation.Valid;
@@ -29,6 +31,7 @@ import java.util.regex.Pattern;
 public class UserController {
     
     private final UserService userService;
+    private final UserRepository userRepository;
     // 영어와 숫자만 허용하는 정규식
     private static final Pattern alphanumericPattern = Pattern.compile("^[a-zA-Z0-9]*$");
     // 한글 초성을 확인하는 정규식
@@ -115,5 +118,17 @@ public class UserController {
 
         return ResponseHelper.createErrorMessage("result","회원가입 실패");
 
+    }
+
+    @GetMapping("/users/stats")
+    public ResponseEntity<UserStatsDto> getstats() {
+
+        if(!AuthContext.checkAuth())
+        {
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(new UserStatsDto());
+        }
+
+        UserStatsDto userStatsDto = userService.getStats();
+        return ResponseEntity.status(HttpStatus.OK).body(userStatsDto);
     }
 }

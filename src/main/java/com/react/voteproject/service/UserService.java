@@ -1,8 +1,10 @@
 package com.react.voteproject.service;
 
 
+import com.react.voteproject.context.AuthContext;
 import com.react.voteproject.dto.UserJoinDto;
 import com.react.voteproject.dto.UserLoginDto;
+import com.react.voteproject.dto.UserStatsDto;
 import com.react.voteproject.entity.User;
 import com.react.voteproject.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
@@ -31,5 +33,24 @@ public class UserService {
     @Transactional(readOnly = true)
     public Optional<User> getUserId(String userid) {
         return userRepository.findByuserId(userid);
+    }
+
+    public UserStatsDto getStats() {
+
+
+
+        Long id = AuthContext.getAuth().getId();
+        Optional<Object[]> statsByUser = userRepository.findStatsByUser(id);
+        if(statsByUser.isPresent()){
+            Double votingRateByUser = userRepository.findVotingRateByUser(id);
+            UserStatsDto userStatsDto = UserStatsDto.createUserStatsDto(statsByUser.get(),votingRateByUser);
+            return userStatsDto;
+
+        }
+        else {
+            return new UserStatsDto();
+        }
+
+
     }
 }

@@ -1,14 +1,22 @@
-import React from 'react';
+import React, { useState,useEffect } from 'react';
 import { Flex, Progress,Tabs,Table,Pagination,Tag } from 'antd';
 import { ContainerOutlined,LikeOutlined,CommentOutlined } from '@ant-design/icons';
 import MypageVoteWrtieList from './MypageVoteWrtieList'
 import MypageVoteLikeList from './MypageVoteLikeList'
 import MypageVoteSelectList from './MypageVoteSelectList'
 import MypageVoteBookmarkList from './MypageVoteBookmarkList'
-
+import axios from 'axios'
 function Mypage() {
 
-   const userdata = {usernick:'dqwdqwd',userid:'ddhkf123',rate:30,vote:10,up:2,comment:4};
+   const [userdata,setuserdata] = useState({});
+
+   useEffect(() => {
+        axios.get('/api/users/stats')
+              .then((res) => {
+                   setuserdata({usernick:res.data.user_nick,userid:res.data.user_id,rate:res.data.rate,vote:res.data.vote,up:res.data.up,comment:res.data.comment})
+              })
+   },[])
+
    return (
     <div>
         <div style={{width:'600px',margin:'0 auto',marginBottom:'20px'}}>
@@ -41,7 +49,7 @@ function Mypage() {
 
                <Flex style={{marginLeft:13}}>
                    <span>유저 참여율</span>
-                   <Progress percent={30} size="large" style={{marginLeft:10,width:450}}/>
+                   <Progress percent={userdata.rate} size="large" style={{marginLeft:10,width:450}}/>
                </Flex>
             </div>
         </div>

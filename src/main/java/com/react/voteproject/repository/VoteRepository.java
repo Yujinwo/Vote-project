@@ -23,14 +23,18 @@ public interface VoteRepository extends JpaRepository<Vote,Long>, VoteRepository
     @Query("select v from Vote v")
     Slice<Vote> findAllByVote(Pageable pageable);
 
-    @Query("SELECT v, (SELECT SUM(vo.count) FROM VoteOption vo WHERE vo.vote.id = v.id) AS totalCount "
-            + "FROM Vote v "
-            + "WHERE category = :category "
-            + "ORDER BY totalCount desc ")
-    Slice<Object[]> findVoteWithTotalCountByCategory(Pageable pageable, @Param("category") String category);
+    @Query("SELECT v, SUM(vo.count) AS totalCount " +
+            "FROM Vote v " +
+            "LEFT JOIN VoteOption vo ON vo.vote.id = v.id " +
+            "WHERE v.category = :category " +
+            "GROUP BY v.id " +
+            "ORDER BY totalCount DESC")
+    Slice<Object[]> findVotesWithTotalCountByCategory(Pageable pageable,@Param("category") String category);
 
-    @Query("SELECT v, (SELECT SUM(vo.count) FROM VoteOption vo WHERE vo.vote.id = v.id) AS totalCount "
-            + "FROM Vote v "
-            + "ORDER BY totalCount desc ")
+    @Query("SELECT v, SUM(vo.count) AS totalCount " +
+            "FROM Vote v " +
+            "LEFT JOIN VoteOption vo ON vo.vote.id = v.id " +
+            "GROUP BY v.id " +
+            "ORDER BY totalCount DESC")
     Slice<Object[]> findVoteWithTotalCount(Pageable pageable);
 }

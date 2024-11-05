@@ -57,6 +57,7 @@ function VoteDetail() {
                                                    { id: vote.voteOptions[0].id, label: vote.voteOptions[0].content, percent: vote.voteOptions[0].rate, userCountTotal: vote.voteOptions[0].userCountTotal },
                                                    { id: vote.voteOptions[1].id, label: vote.voteOptions[1].content, percent: vote.voteOptions[1].rate, userCountTotal: vote.voteOptions[1].userCountTotal },
                                                   ])
+
                                                   // 투표 기본 데이터 설정
                                                   setvoteNormaldata(
                                                   { title: vote.title, category:vote.category,up:vote.up,commentCount:vote.commentCount}
@@ -192,14 +193,14 @@ function VoteDetail() {
                                    setSelectedOption(id); // 선택된 항목 업데이트
                                    setoptions(prevOptions =>
                                          prevOptions.map(option =>
-                                               option.id === id ? {  ...option, userCountTotal: option.userCountTotal + 1 } : option
+                                               option.id === id ? {  ...option, userCountTotal: (option.userCountTotal + 1) } : option
                                          )
                                    )
                                    setoptionCountTotal(optionCountTotal + 1)
 
                                    setoptions(prevOptions =>
                                                                 prevOptions.map(option =>
-                                                                      option.id === id ? {  ...option, percent: (option.userCountTotal + 1 / optionCountTotal + 1) * 100 } : option
+                                                                      option.id == id ? {  ...option, percent: ( (option.userCountTotal + 1) / optionCountTotal + 1) * 100 } : option
                                                                 )
                                                           )
                                   }
@@ -208,17 +209,18 @@ function VoteDetail() {
                                          setSelectedOption(id); // 선택된 항목 업데이트
                                          setoptions(prevOptions =>
                                                                       prevOptions.map(option =>
-                                                                            option.id === id ? {  ...option, userCountTotal: option.userCountTotal + 1 } : {  ...option, userCountTotal: option.userCountTotal - 1 }
+                                                                            option.id == id ? {  ...option, userCountTotal: (option.userCountTotal + 1) } : {  ...option, userCountTotal: (option.userCountTotal - 1) }
                                                                       )
                                          )
                                          setoptions(prevOptions =>
                                                                       prevOptions.map(option =>
-                                                                             option.id === id ? {  ...option, percent: (option.userCountTotal + 1 / optionCountTotal) * 100 } : {  ...option, percent: (option.userCountTotal - 1 / optionCountTotal) * 100 }
+                                                                             option.id == id ? {  ...option, percent: ( (option.userCountTotal + 1) / optionCountTotal) * 100 } : {  ...option, percent: ( (option.userCountTotal - 1) / optionCountTotal) * 100 }
                                                                       )
                                          )
 
 
                                   }
+
 
                 }
             };
