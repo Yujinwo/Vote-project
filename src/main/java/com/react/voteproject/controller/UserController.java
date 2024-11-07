@@ -73,12 +73,12 @@ public class UserController {
     }
 
     @GetMapping("/users")
-    public ResponseEntity<Map<Object,Object>> GetUserId(@RequestParam("user_id") @NotBlank @Size(min = 4, max = 10,message = "최소 4자 이상, 최대 10자 이하로 입력해주세요") String user_id) {
+    public ResponseEntity<Map<Object,Object>> findUserId(@RequestParam("user_id") @NotBlank @Size(min = 4, max = 10,message = "최소 4자 이상, 최대 10자 이하로 입력해주세요") String user_id) {
         if(!alphanumericPattern.matcher(user_id).matches())
         {
             return ResponseHelper.createErrorMessage("result","알파벳, 숫자 조합으로 입력해주세요");
         }
-        Optional<User> user = userService.getUserId(user_id);
+        Optional<User> user = userService.findUserId(user_id);
         if(user.isPresent()){
             return ResponseHelper.createErrorMessage("result","존재 하는 id 입니다");
         }
@@ -97,7 +97,7 @@ public class UserController {
             return ResponseHelper.createErrorMessage("result","한글 초성은 불가능합니다");
         }
         // id 중복 확인
-        Optional<User> userId = userService.getUserId(userJoinDto.getUser_id());
+        Optional<User> userId = userService.findUserId(userJoinDto.getUser_id());
         if (userId.isPresent())
         {
             return ResponseHelper.createErrorMessage("result","존재하는 ID가 있습니다");

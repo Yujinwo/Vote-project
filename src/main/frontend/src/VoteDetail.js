@@ -200,7 +200,7 @@ function VoteDetail() {
 
                                    setoptions(prevOptions =>
                                                                 prevOptions.map(option =>
-                                                                      option.id == id ? {  ...option, percent: ( (option.userCountTotal + 1) / optionCountTotal + 1) * 100 } : option
+                                                                      option.id == id ? {  ...option, percent: ( (option.userCountTotal + 1) / (optionCountTotal + 1 )) * 100 } : {  ...option, percent: ( (option.userCountTotal) / (optionCountTotal + 1 )) * 100 }
                                                                 )
                                                           )
                                   }

@@ -1,7 +1,7 @@
 import React, { useState,useEffect } from 'react';
 import { Flex, Progress,Tabs,Table,Pagination,Tag } from 'antd';
 import { ContainerOutlined,LikeOutlined,CommentOutlined } from '@ant-design/icons';
-import MypageVoteWrtieList from './MypageVoteWrtieList'
+import MypageVoteWriteList from './MypageVoteWriteList'
 import MypageVoteLikeList from './MypageVoteLikeList'
 import MypageVoteSelectList from './MypageVoteSelectList'
 import MypageVoteBookmarkList from './MypageVoteBookmarkList'
@@ -57,7 +57,7 @@ function Mypage() {
             <div style={{border:'1px solid',borderRadius:10,padding:10}}>
                 <Tabs defaultActiveKey="1" centered>
                         <Tabs.TabPane tab="작성한 투표" key="1">
-                             <MypageVoteWrtieList />
+                             <MypageVoteWriteList />
                         </Tabs.TabPane>
                         <Tabs.TabPane tab="참여한 투표" key="2">
                              <MypageVoteSelectList />

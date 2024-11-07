@@ -56,7 +56,7 @@ public class CommentService {
             List<CommentResponseDto> commentResponseDto = comments.getContent().stream().map(CommentResponseDto::createCommentResponseDto).collect(Collectors.toList());
 
             Long total = commentRepository.countCommentsByVote(vote.get());
-            CommentMoreDto commentMoreDto = CommentMoreDto.createCommentMoreDto(comments.getNumber(),total,comments.hasContent(),comments.hasNext(),commentResponseDto);
+            CommentMoreDto commentMoreDto = CommentMoreDto.createCommentMoreDto(total,comments,commentResponseDto);
             return commentMoreDto;
         }
         else {

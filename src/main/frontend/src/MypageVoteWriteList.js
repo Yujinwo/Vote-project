@@ -1,7 +1,7 @@
 import React, { useState,useEffect } from 'react';
 import {Table} from 'antd'
 import axios from 'axios'
-function MypageVoteSelectList() {
+function MypageVoteWriteList() {
     const [page,setpage] = useState(1);
     const [pageSize,setpageSize] = useState(10)
     const [total,settotal] = useState(0)
@@ -9,7 +9,7 @@ function MypageVoteSelectList() {
 const [focusedRow, setFocusedRow] = useState(null); // 포커스된 행을 추적
 useEffect( () => {
 
-   axios.get('/api/uservotes/mypage')
+   axios.get('/api/votes/mypage')
           .then((res) => {
                               const newSlides = res.data.vote.map((v) => ({
                                                   key: v.id,
@@ -53,7 +53,7 @@ useEffect( () => {
                                        current: page, // 현재 페이지 설정
                                        onChange: (page, pageSize) => {
                                             setpage(page + 1);
-                                            axios.get('/api/uservotes/mypage?page=' + page + 1)
+                                            axios.get('/api/votes/mypage?page=' + page + 1)
                                                .then((res) => {
                                                 const newSlides = res.data.vote.map((v) => ({
                                                                          key: v.id,
@@ -89,6 +89,6 @@ useEffect( () => {
         );
     }
 
-export default MypageVoteSelectList;
+export default MypageVoteWriteList;
 
 

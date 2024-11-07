@@ -152,3 +152,7 @@ margin: 0 auto;
 
 
 
+.focused-row {
+  background-color: #e6f7ff; /* 포커스된 행의 배경색 */
+  cursor: pointer; /* 포커스를 맞춘 행에 마우스 커서를 포인터로 변경 */
+}

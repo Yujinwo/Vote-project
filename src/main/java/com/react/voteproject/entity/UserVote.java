@@ -20,6 +20,10 @@ public class UserVote extends BaseTime{
     private VoteOption voteOption;
 
     @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "vote_id")
+    private Vote vote;
+
+    @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "user_id")
     private User user;
 

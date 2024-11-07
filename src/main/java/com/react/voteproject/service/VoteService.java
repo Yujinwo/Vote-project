@@ -88,7 +88,7 @@ public class VoteService {
         Optional<Vote> vote = voteRepository.findById(id);
         if(vote.isPresent()) {
             // 이미 투표 선택했는지 조회
-            Optional<UserVote> userVote = userVoteRepository.findByuserID(AuthContext.getAuth());
+            Optional<UserVote> userVote = userVoteRepository.findByVoteId(vote.get());
 
             Long total = commentRepository.countCommentsByVote(vote.get());
             // 투표 데이터 조회
@@ -136,10 +136,10 @@ public class VoteService {
             }
             // 기존 선택지 삭제 -> 변경한 선택지로 수정
 
-            Optional<UserVote> userVote = userVoteRepository.findByuserID(AuthContext.getAuth());
+            Optional<UserVote> userVote = userVoteRepository.findByVoteId(voteOption.get().getVote());
             if(userVote.isPresent())
             {
-                userVoteRepository.deleteByuserID(AuthContext.getAuth());
+                userVoteRepository.deleteByVoteID(voteOption.get().getVote());
                 userVote.get().getVoteOption().downCount();
                 option.upCount();
             }

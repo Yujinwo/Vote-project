@@ -51,6 +51,7 @@ public class VoteOption extends BaseTime{
 
         return UserVote.builder()
                 .voteOption(this)
+                .vote(vote)
                 .user(AuthContext.getAuth())
                 .build();
     }

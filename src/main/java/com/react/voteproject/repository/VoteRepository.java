@@ -1,5 +1,6 @@
 package com.react.voteproject.repository;
 
+import com.react.voteproject.entity.User;
 import com.react.voteproject.entity.Vote;
 import com.react.voteproject.repository.querydsl.VoteRepositoryCustom;
 import org.springframework.data.domain.Page;
@@ -22,6 +23,8 @@ public interface VoteRepository extends JpaRepository<Vote,Long>, VoteRepository
 
     @Query("select v from Vote v")
     Slice<Vote> findAllByVote(Pageable pageable);
+
+    Page<Vote> findByuser(Pageable pageable, User user);
 
     @Query("SELECT v, SUM(vo.count) AS totalCount " +
             "FROM Vote v " +

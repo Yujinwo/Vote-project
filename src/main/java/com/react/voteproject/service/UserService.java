@@ -31,13 +31,11 @@ public class UserService {
         return user;
     }
     @Transactional(readOnly = true)
-    public Optional<User> getUserId(String userid) {
+    public Optional<User> findUserId(String userid) {
         return userRepository.findByuserId(userid);
     }
 
     public UserStatsDto getStats() {
-
-
 
         Long id = AuthContext.getAuth().getId();
         Optional<Object[]> statsByUser = userRepository.findStatsByUser(id);
