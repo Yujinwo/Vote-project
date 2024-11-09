@@ -1,10 +1,12 @@
 
 import { Tabs,Flex,Radio,Space, Table, Tag,Button,Progress ,Input } from 'antd';
-import React, { useState } from 'react';
+import React, { useState ,useEffect} from 'react';
 import type { TableProps } from 'antd';
+import axios from 'axios'
 const { Search } = Input;
 
 function VoteRateAll() {
+          const [allData,setallData] = useState([])
           const columns = [
             {
               title: '순위',
@@ -32,8 +34,8 @@ function VoteRateAll() {
             },
             {
               title: '투표 작성',
-              dataIndex: 'createdvote',
-              key: 'createdvote',
+              dataIndex: 'vote',
+              key: 'vote',
               align: 'center', // 가운데 정렬
             },
             {
@@ -57,37 +59,49 @@ function VoteRateAll() {
             },
           ];
 
-
           // 특정 유저 데이터를 정의
           const firstUserData = {
               key: 100, // 유일한 키 값을 지정
               rank: 300, // 첫 번째 랭크
               user: "firstUser", // 유저 이름
               rate: "50", // 평점
-              createdvote: 30,  // 작성한 투표 수
+              vote: 30,  // 작성한 투표 수
               up: 20, // 좋아요 수
               comment: 5, // 댓글 수
               category: "음식", // 카테고리
           };
-       // 예시 데이터
-        const allData = Array.from({ length: 100 }, (v, k) => ({
-          key: k,
-          rank: k,
-          user:"dbwlsdn0125",
-          rate:"30",
-          createdvote: 10,
-          up : 10,
-          comment : 100,
-          category: "음식",
-        }));
+
         // 첫 번째 유저 데이터를 배열의 맨 앞에 추가
-        allData.unshift(firstUserData);
+
+
+        useEffect(() => {
+                  axios.get('/api/uservotes/stats')
+                                 .then((res) => {
+                                             const newSlides = res.data.map((v) => ({
+                                                                 key: v.rank,
+                                                                 rank: v.rank,
+                                                                 user:v.user_id,
+                                                                 rate:v.rate,
+                                                                 vote:v.vote ,
+                                                                 up : v.up,
+                                                                 comment : v.comment,
+                                                                 category: v.category,
+                                                             }));
+
+                                             newSlides.unshift(firstUserData);
+                                             setallData(newSlides);
+                                             setVisibleData(newSlides.slice(0,10))
+
+
+                                 })
+
+        },[])
 
 
         const [visibleData, setVisibleData] = useState(allData.slice(0, 10)); // 초기 10개 데이터
         const [dataCount, setDataCount] = useState(10); // 현재 표시된 데이터 개수
         // 선택된 값을 상태로 관리
-        const [selectedValue, setSelectedValue] = useState('today'); // 초기값 'a'
+        const [selectedValue, setSelectedValue] = useState('Thisyear'); // 초기값 'a'
 
         const handleLoadMore = () => {
            var nextDataCount = dataCount;
@@ -104,7 +118,23 @@ function VoteRateAll() {
         // onChange 핸들러
         const handleChange = (e) => {
             setSelectedValue(e.target.value); // 선택된 값을 상태에 저장
-            console.log('선택한 값:', e.target.value); // 선택한 값 출력
+             axios.get('/api/uservotes/stats?day=' + e.target.value)
+                                             .then((res) => {
+                                                         const newSlides = res.data.map((v) => ({
+                                                                             key: v.rank,
+                                                                             rank: v.rank,
+                                                                             user:v.user_id,
+                                                                             rate:v.rate,
+                                                                             vote:v.vote ,
+                                                                             up : v.up,
+                                                                             comment : v.comment,
+                                                                             category: v.category,
+                                                                         }));
+                                                         newSlides.unshift(firstUserData);
+                                                         setallData(newSlides);
+                                                         setVisibleData(newSlides.slice(0,10))
+
+                                             })
         };
         function onSearch(value) {
               console.log(value)
@@ -112,10 +142,10 @@ function VoteRateAll() {
     return(
             <div>
                    <Flex gap="middle" justify="center">
-                       <Radio.Group defaultValue="a" buttonStyle="solid" onChange={handleChange}>
-                            <Radio.Button value="today">오늘</Radio.Button>
-                            <Radio.Button value="thismonth">이번달</Radio.Button>
-                            <Radio.Button value="thisyear">이번년도</Radio.Button>
+                       <Radio.Group defaultValue="Thisyear" buttonStyle="solid" onChange={handleChange}>
+                            <Radio.Button value="Today">오늘</Radio.Button>
+                            <Radio.Button value="Thismonth">이번달</Radio.Button>
+                            <Radio.Button value="Thisyear">이번년도</Radio.Button>
                        </Radio.Group>
                    </Flex>
                    <Flex style={{marginTop: '20px', margin:'0 auto', width:'1200px'}} align="center" justify="space-between">

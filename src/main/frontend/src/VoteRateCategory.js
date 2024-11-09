@@ -1,11 +1,12 @@
 
 import { Tabs,Flex,Radio,Space, Table, Tag,Button,Progress,Select,Input } from 'antd';
-import React, { useState } from 'react';
+import React, { useState,useEffect } from 'react';
 import type { TableProps } from 'antd';
-
+import axios from 'axios'
 const {Search} = Input;
 
 function VoteRateCategory() {
+          const [allData,setallData] = useState([])
           const categorys = [
                        {
                            value: 'ENTERTAINMENT',
@@ -63,8 +64,8 @@ function VoteRateCategory() {
             },
             {
               title: '투표 작성',
-              dataIndex: 'createdvote',
-              key: 'createdvote',
+              dataIndex: 'vote',
+              key: 'vote',
               align: 'center', // 가운데 정렬
             },
             {
@@ -86,29 +87,38 @@ function VoteRateCategory() {
                rank: 300, // 첫 번째 랭크
                user: "firstUser", // 유저 이름
                rate: "50", // 평점
-               createdvote: 30, // 작성한 투표 수
+               vote: 30, // 작성한 투표 수
                up: 20, // 좋아요 수
                comment: 5, // 댓글 수
                ategory: "음식", // 카테고리
           };
-          // 예시 데이터
-          const allData = Array.from({ length: 100 }, (v, k) => ({
-              key: k,
-              rank: k,
-              user:"dbwlsdn0125",
-              rate:"30",
-              createdvote: 10, 
-              up : 10,
-              comment : 100,
-        }));
-       // 첫 번째 유저 데이터를 배열의 맨 앞에 추가
-        allData.unshift(firstUserData);
+              useEffect(() => {
+                  axios.get('/api/uservotes/stats?day=' + DayValue + '&category='+ CategoryValue)
+                                 .then((res) => {
+                                             const newSlides = res.data.map((v) => ({
+                                                                 key: v.rank,
+                                                                 rank: v.rank,
+                                                                 user:v.user_id,
+                                                                 rate:v.rate,
+                                                                 vote:v.vote ,
+                                                                 up : v.up,
+                                                                 comment : v.comment,
+                                                             }));
+
+                                             newSlides.unshift(firstUserData);
+                                             setallData(newSlides);
+                                             setVisibleData(newSlides.slice(0,10))
+
+
+                                 })
+
+            },[])
 
         const [visibleData, setVisibleData] = useState(allData.slice(0, 10)); // 초기 10개 데이터
         const [dataCount, setDataCount] = useState(10); // 현재 표시된 데이터 개수
         // 선택된 값을 상태로 관리
-        const [DayValue, setDayValue] = useState('today'); // 초기값 'a'
-        const [CategoryValue, setCategoryValue] = useState(null);
+        const [DayValue, setDayValue] = useState('Thisyear'); // 초기값 'a'
+        const [CategoryValue, setCategoryValue] = useState('LIFESTYLE');
         const handleLoadMore = () => {
            var nextDataCount = dataCount;
            if(allData.length < dataCount + 10)
@@ -125,13 +135,45 @@ function VoteRateCategory() {
          // onChange 핸들러
          const handleChangeDay = (e) => {
             setDayValue(e.target.value); // 선택된 값을 상태에 저장
-            console.log('선택한 값:', e.target.value); // 선택한 값 출력
+                        axios.get('/api/uservotes/stats?day=' + e.target.value + '&category=' + CategoryValue)
+                                                        .then((res) => {
+                                                                    const newSlides = res.data.map((v) => ({
+                                                                                        key: v.rank,
+                                                                                        rank: v.rank,
+                                                                                        user:v.user_id,
+                                                                                        rate:v.rate,
+                                                                                        vote:v.vote ,
+                                                                                        up : v.up,
+                                                                                        comment : v.comment,
+                                                                                        category: v.category,
+                                                                                    }));
+                                                                    newSlides.unshift(firstUserData);
+                                                                    setallData(newSlides);
+                                                                    setVisibleData(newSlides.slice(0,10))
+
+                                                        })
          };
 
 
          const handleChangecategory = (value) => {
              setCategoryValue(value); // 선택된 값 저장
-             console.log('Selected category:', value); // 선택된 값 콘솔에 출력
+              axios.get('/api/uservotes/stats?day=' + DayValue + '&category=' + value)
+                                                                     .then((res) => {
+                                                                                 const newSlides = res.data.map((v) => ({
+                                                                                                     key: v.rank,
+                                                                                                     rank: v.rank,
+                                                                                                     user:v.user_id,
+                                                                                                     rate:v.rate,
+                                                                                                     vote:v.vote ,
+                                                                                                     up : v.up,
+                                                                                                     comment : v.comment,
+                                                                                                     category: v.category,
+                                                                                                 }));
+                                                                                 newSlides.unshift(firstUserData);
+                                                                                 setallData(newSlides);
+                                                                                 setVisibleData(newSlides.slice(0,10))
+
+                                                                     })
          };
         function onSearch(value) {
               console.log(value)
@@ -139,10 +181,10 @@ function VoteRateCategory() {
     return(
           <div>
                    <Flex gap="middle" justify="center">
-                       <Radio.Group defaultValue="a" buttonStyle="solid" onChange={handleChangeDay}>
-                         <Radio.Button value="today">오늘</Radio.Button>
-                         <Radio.Button value="thismonth">이번달</Radio.Button>
-                         <Radio.Button value="thisyear">이번년도</Radio.Button>
+                       <Radio.Group defaultValue="Thisyear" buttonStyle="solid" onChange={handleChangeDay}>
+                         <Radio.Button value="Today">오늘</Radio.Button>
+                         <Radio.Button value="Thismonth">이번달</Radio.Button>
+                         <Radio.Button value="Thisyear">이번년도</Radio.Button>
                        </Radio.Group>
 
                    </Flex>
@@ -166,7 +208,7 @@ function VoteRateCategory() {
                                                 filterOption={(input, option) =>
                                                   (option?.label ?? '').toLowerCase().includes(input.toLowerCase())
                                                 }
-
+                                                value={CategoryValue}
                                                 options={categorys}
                          />
 

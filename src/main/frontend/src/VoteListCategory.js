@@ -13,7 +13,7 @@ function VoteListCategory() {
      const [slides,setslides] = useState([]);
      const [page,setpage] = useState(1);
      const [hasNext,sethasNext] =useState(false);
-     const [CategoryValue, setCategoryValue] = useState("FASHION_BEAUTY");
+     const [CategoryValue, setCategoryValue] = useState("LIFESTYLE");
      const [OrderValue, setOrderValue] = useState('startDay');
      const categorys = [
                        {
@@ -156,6 +156,7 @@ function VoteListCategory() {
                                       filterOption={(input, option) =>
                                             (option?.label ?? '').toLowerCase().includes(input.toLowerCase())
                                       }
+                                      value={CategoryValue}
                                       options={categorys}
                                       size="large"
                               />
@@ -166,6 +167,7 @@ function VoteListCategory() {
                                       filterOption={(input, option) =>
                                             (option?.label ?? '').toLowerCase().includes(input.toLowerCase())
                                       }
+                                      value={OrderValue}
                                       options={orders}
                                       size="large"
                               />

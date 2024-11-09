@@ -1,10 +1,12 @@
 package com.react.voteproject.controller;
 
 
+import com.react.voteproject.category.category_enum;
 import com.react.voteproject.context.AuthContext;
 import com.react.voteproject.dto.UserJoinDto;
 import com.react.voteproject.dto.UserLoginDto;
 import com.react.voteproject.dto.UserStatsDto;
+import com.react.voteproject.dto.UserVoteStatsDto;
 import com.react.voteproject.entity.User;
 import com.react.voteproject.repository.UserRepository;
 import com.react.voteproject.service.UserService;
@@ -13,15 +15,12 @@ import jakarta.validation.Valid;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.Size;
 import lombok.RequiredArgsConstructor;
-import org.apache.coyote.Response;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 
-import java.util.Map;
-import java.util.Optional;
-import java.util.concurrent.atomic.AtomicBoolean;
+import java.util.*;
 import java.util.regex.Pattern;
 
 @RestController
@@ -121,14 +120,30 @@ public class UserController {
     }
 
     @GetMapping("/users/stats")
-    public ResponseEntity<UserStatsDto> getstats() {
+    public ResponseEntity<UserStatsDto> getuserstats() {
 
         if(!AuthContext.checkAuth())
         {
             return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(new UserStatsDto());
         }
 
-        UserStatsDto userStatsDto = userService.getStats();
+        UserStatsDto userStatsDto = userService.getUserStats();
         return ResponseEntity.status(HttpStatus.OK).body(userStatsDto);
     }
+
+    @GetMapping("/uservotes/stats")
+    public ResponseEntity<List<UserVoteStatsDto>> getuserVotestats(@RequestParam(value = "category",required = false) String category,@RequestParam(value = "day",defaultValue = "Thisyear") String day) {
+        List<UserVoteStatsDto> userVoteStatsDto = userService.getVoteStats(category,day);
+        return ResponseEntity.status(HttpStatus.OK).body(userVoteStatsDto);
+    }
+
+//    @GetMapping("/uservotes/stats/search")
+//    public ResponseEntity<List<UserVoteStatsDto>> searchUserVotestats(@RequestParam(value = "id",required = false) String user_nick,@RequestParam(value = "day",defaultValue = "Thisyear") String day) {
+//        if(user_nick.isEmpty()) {
+//            return ResponseEntity.status(HttpStatus.OK).body(new ArrayList<>((Collection) new UserVoteStatsDto()));
+//        }
+//        List<UserVoteStatsDto> userVoteStatsDto = userService.searchVoteStats();
+//        return ResponseEntity.status(HttpStatus.OK).body(userVoteStatsDto);
+//    }
+
 }
