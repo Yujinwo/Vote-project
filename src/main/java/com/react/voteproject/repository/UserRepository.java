@@ -81,7 +81,8 @@ public interface UserRepository extends JpaRepository<User,Long> {
             "        ROW_NUMBER() OVER (PARTITION BY user_id ORDER BY vote_count DESC) AS category_rank " +
             "    FROM " +
             "        UserVoteCounts" +
-            ") " +
+            "), " +
+            "UserStats AS (" +
             "SELECT " +
             "    u.user_id AS user_id, " +
             "    u.user_nick AS user_nick, " +
@@ -92,7 +93,6 @@ public interface UserRepository extends JpaRepository<User,Long> {
             "    FLOOR(uvr.participation_rate), " +
             "    rc.category AS main_category, " +
             "    ROW_NUMBER() OVER (ORDER BY ua.total_activity DESC) AS overall_rank " +
-
             "FROM " +
             "    User u " +
             "LEFT JOIN " +
@@ -102,8 +102,10 @@ public interface UserRepository extends JpaRepository<User,Long> {
             "LEFT JOIN " +
             "    UserVoteRate uvr ON u.id = uvr.user_id " +
             "ORDER BY " +
-            "    ua.total_activity DESC limit 100"  , nativeQuery = true)
-    List<Object[]> findUserRankingWithActivityToday();
+            "    ua.total_activity DESC" +
+            "    LIMIT :limit ) " +
+            "Select * from UserStats us WHERE (:id IS NULL OR us.user_id = :id)" ,nativeQuery = true)
+    List<Object[]> findUserRankingWithActivityToday(@Param("id") String id,@Param("limit") int limit);
 
 
 
@@ -155,7 +157,8 @@ public interface UserRepository extends JpaRepository<User,Long> {
             "        ROW_NUMBER() OVER (PARTITION BY user_id ORDER BY vote_count DESC) AS category_rank " +
             "    FROM " +
             "        UserVoteCounts" +
-            ") " +
+            "), " +
+            "UserStats AS (" +
             "SELECT " +
             "    u.user_id AS user_id, " +
             "    u.user_nick AS user_nick, " +
@@ -166,7 +169,6 @@ public interface UserRepository extends JpaRepository<User,Long> {
             "    FLOOR(uvr.participation_rate), " +
             "    rc.category AS main_category, " +
             "    ROW_NUMBER() OVER (ORDER BY ua.total_activity DESC) AS overall_rank " +
-
             "FROM " +
             "    User u " +
             "LEFT JOIN " +
@@ -176,8 +178,10 @@ public interface UserRepository extends JpaRepository<User,Long> {
             "LEFT JOIN " +
             "    UserVoteRate uvr ON u.id = uvr.user_id " +
             "ORDER BY " +
-            "    ua.total_activity DESC limit 100"  , nativeQuery = true)
-    List<Object[]> findUserRankingWithActivityThisMonth();
+            "    ua.total_activity DESC" +
+            "    LIMIT :limit ) " +
+            "Select * from UserStats us WHERE (:id IS NULL OR us.user_id = :id)" ,nativeQuery = true)
+    List<Object[]> findUserRankingWithActivityThisMonth(@Param("id") String id,@Param("limit") int limit);
 
 
     @Query(value = "WITH UserVoteCounts AS (" +
@@ -228,7 +232,8 @@ public interface UserRepository extends JpaRepository<User,Long> {
             "        ROW_NUMBER() OVER (PARTITION BY user_id ORDER BY vote_count DESC) AS category_rank " +
             "    FROM " +
             "        UserVoteCounts" +
-            ") " +
+            "), " +
+            "UserStats AS (" +
             "SELECT " +
             "    u.user_id AS user_id, " +
             "    u.user_nick AS user_nick, " +
@@ -239,7 +244,6 @@ public interface UserRepository extends JpaRepository<User,Long> {
             "    FLOOR(uvr.participation_rate), " +
             "    rc.category AS main_category, " +
             "    ROW_NUMBER() OVER (ORDER BY ua.total_activity DESC) AS overall_rank " +
-
             "FROM " +
             "    User u " +
             "LEFT JOIN " +
@@ -249,8 +253,10 @@ public interface UserRepository extends JpaRepository<User,Long> {
             "LEFT JOIN " +
             "    UserVoteRate uvr ON u.id = uvr.user_id " +
             "ORDER BY " +
-            "    ua.total_activity DESC limit 100"  , nativeQuery = true)
-    List<Object[]> findUserRankingWithActivityThisYear();
+            "    ua.total_activity DESC" +
+            "    LIMIT :limit ) " +
+            "Select * from UserStats us WHERE (:id IS NULL OR us.user_id = :id)" ,nativeQuery = true)
+    List<Object[]> findUserRankingWithActivityThisYear(@Param("id") String id,@Param("limit") int limit);
 
 
 
@@ -294,7 +300,8 @@ public interface UserRepository extends JpaRepository<User,Long> {
             ") " +
             "where uv.created_date >= CURDATE() AND uv.created_date < CURDATE() + INTERVAL 1 DAY " +
             "GROUP BY u.id " +
-            ") " +
+            "), " +
+            "UserStats AS (" +
             "SELECT " +
             "    u.user_id AS user_id, " +
             "    u.user_nick AS user_nick, " +
@@ -302,7 +309,7 @@ public interface UserRepository extends JpaRepository<User,Long> {
             "    ua.up_count, " +
             "    ua.comment_count, " +
             "    ua.total_activity, " +
-            "    FLOOR(uvr.participation_rate), " +
+            "   FLOOR(uvr.participation_rate), " +
             "    ROW_NUMBER() OVER (ORDER BY ua.total_activity DESC) AS overall_rank " +
             "FROM " +
             "    user u " +
@@ -311,8 +318,10 @@ public interface UserRepository extends JpaRepository<User,Long> {
             "LEFT JOIN " +
             "    UserVoteRate uvr ON u.id = uvr.user_id " +
             "ORDER BY " +
-            "    ua.total_activity DESC limit 100"  , nativeQuery = true)
-    List<Object[]> findUserCategoryRankingWithActivityToday(@Param("category") String category);
+            "    ua.total_activity DESC" +
+            "    LIMIT :limit ) " +
+            "Select * from UserStats us WHERE (:id IS NULL OR us.user_id = :id)" ,nativeQuery = true)
+    List<Object[]> findUserCategoryRankingWithActivityToday(@Param("category") String category,@Param("id") String id,@Param("limit") int limit);
 
 
     @Query(value = "WITH UserActivity AS (" +
@@ -354,7 +363,8 @@ public interface UserRepository extends JpaRepository<User,Long> {
             ") " +
             "where YEAR(uv.created_date) = YEAR(CURDATE()) AND MONTH(uv.created_date) = MONTH(CURDATE())" +
             "GROUP BY u.id " +
-            ") " +
+            "), " +
+            "UserStats AS (" +
             "SELECT " +
             "    u.user_id AS user_id, " +
             "    u.user_nick AS user_nick, " +
@@ -362,7 +372,7 @@ public interface UserRepository extends JpaRepository<User,Long> {
             "    ua.up_count, " +
             "    ua.comment_count, " +
             "    ua.total_activity, " +
-            "    FLOOR(uvr.participation_rate), " +
+            "   FLOOR(uvr.participation_rate), " +
             "    ROW_NUMBER() OVER (ORDER BY ua.total_activity DESC) AS overall_rank " +
             "FROM " +
             "    user u " +
@@ -371,8 +381,10 @@ public interface UserRepository extends JpaRepository<User,Long> {
             "LEFT JOIN " +
             "    UserVoteRate uvr ON u.id = uvr.user_id " +
             "ORDER BY " +
-            "    ua.total_activity DESC limit 100"  , nativeQuery = true)
-    List<Object[]> findUserCategoryRankingWithActivityThisMonth(@Param("category") String category);
+            "    ua.total_activity DESC" +
+            "    LIMIT :limit ) " +
+            "Select * from UserStats us WHERE (:id IS NULL OR us.user_id = :id)" ,nativeQuery = true)
+    List<Object[]> findUserCategoryRankingWithActivityThisMonth(@Param("category") String category,@Param("id") String id,@Param("limit") int limit);
 
     @Query(value = "WITH UserActivity AS (" +
             "    SELECT " +
@@ -413,7 +425,8 @@ public interface UserRepository extends JpaRepository<User,Long> {
             ") " +
             "where YEAR(uv.created_date) = YEAR(CURDATE())" +
             "GROUP BY u.id " +
-            ") " +
+            "), " +
+            "UserStats AS (" +
             "SELECT " +
             "    u.user_id AS user_id, " +
             "    u.user_nick AS user_nick, " +
@@ -430,7 +443,9 @@ public interface UserRepository extends JpaRepository<User,Long> {
             "LEFT JOIN " +
             "    UserVoteRate uvr ON u.id = uvr.user_id " +
             "ORDER BY " +
-            "    ua.total_activity DESC limit 100"  , nativeQuery = true)
-    List<Object[]> findUserCategoryRankingWithActivityThisYear(@Param("category") String category);
+            "    ua.total_activity DESC" +
+            "    LIMIT :limit ) " +
+            "Select * from UserStats us WHERE (:id IS NULL OR us.user_id = :id)" ,nativeQuery = true)
+    List<Object[]> findUserCategoryRankingWithActivityThisYear(@Param("category") String category,@Param("id") String id,@Param("limit") int limit);
 
 }

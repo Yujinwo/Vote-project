@@ -13,13 +13,11 @@ function Header() {
     logout();
     axios.post('/api/logout')
               .then((res) => {
-              console.log(res)
                  notification.info({
                       message: res.data.result,
                  });
               })
               .catch((err) => {
-              console.log(err)
                  notification.info({
                       message: err.response.data.result,
                  });

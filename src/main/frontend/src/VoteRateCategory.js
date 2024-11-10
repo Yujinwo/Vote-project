@@ -3,10 +3,12 @@ import { Tabs,Flex,Radio,Space, Table, Tag,Button,Progress,Select,Input } from '
 import React, { useState,useEffect } from 'react';
 import type { TableProps } from 'antd';
 import axios from 'axios'
+import { useAuth } from './AuthContext';
 const {Search} = Input;
 
 function VoteRateCategory() {
           const [allData,setallData] = useState([])
+          const { isLoggedIn,userid } = useAuth();
           const categorys = [
                        {
                            value: 'ENTERTAINMENT',
@@ -93,24 +95,59 @@ function VoteRateCategory() {
                ategory: "음식", // 카테고리
           };
               useEffect(() => {
-                  axios.get('/api/uservotes/stats?day=' + DayValue + '&category='+ CategoryValue)
-                                 .then((res) => {
-                                             const newSlides = res.data.map((v) => ({
-                                                                 key: v.rank,
-                                                                 rank: v.rank,
-                                                                 user:v.user_id,
-                                                                 rate:v.rate,
-                                                                 vote:v.vote ,
-                                                                 up : v.up,
-                                                                 comment : v.comment,
-                                                             }));
+                   if(isLoggedIn) {
+                              axios.get('/api/uservotes/stats/search?id=' + userid + '&category=' + CategoryValue)
+                                         .then((user) => {
+                                          const firstUserData =
+                                          {
+                                            key: 0,
+                                                                                    rank: user.data[0].rank,
+                                                                                    user:user.data[0].user_id,
+                                                                                    rate:user.data[0].rate,
+                                                                                    vote:user.data[0].vote ,
+                                                                                    up : user.data[0].up,
+                                                                                    comment : user.data[0].comment,
+                                                                                    category: user.data[0].category
+                                          }
+                                          axios.get('/api/uservotes/stats?' + 'category=' + CategoryValue)
+                                                   .then((res) => {
+                                                         const newSlides = res.data.map((v) => ({
+                                                                          key: v.rank,
+                                                                          rank: v.rank,
+                                                                          user:v.user_id,
+                                                                          rate:v.rate,
+                                                                          vote:v.vote ,
+                                                                          up : v.up,
+                                                                          comment : v.comment,
+                                                                          category: v.category,
+                                                                        }));
 
-                                             newSlides.unshift(firstUserData);
-                                             setallData(newSlides);
-                                             setVisibleData(newSlides.slice(0,10))
+                                                         newSlides.unshift(firstUserData);
+                                                         setallData(newSlides);
+                                                         setVisibleData(newSlides.slice(0,10))
+                                                   })
 
+                                         })
+                              }
+                              else {
+                                          axios.get('/api/uservotes/stats?' + 'category=' + CategoryValue)
+                                                               .then((res) => {
+                                                                     const newSlides = res.data.map((v) => ({
+                                                                                      key: v.rank,
+                                                                                      rank: v.rank,
+                                                                                      user:v.user_id,
+                                                                                      rate:v.rate,
+                                                                                      vote:v.vote ,
+                                                                                      up : v.up,
+                                                                                      comment : v.comment,
+                                                                                      category: v.category,
+                                                                                    }));
 
-                                 })
+                                                                     setallData(newSlides);
+                                                                     setVisibleData(newSlides.slice(0,10))
+                                                               })
+
+                              }
 
             },[])
 
@@ -134,49 +171,136 @@ function VoteRateCategory() {
 
          // onChange 핸들러
          const handleChangeDay = (e) => {
-            setDayValue(e.target.value); // 선택된 값을 상태에 저장
-                        axios.get('/api/uservotes/stats?day=' + e.target.value + '&category=' + CategoryValue)
-                                                        .then((res) => {
-                                                                    const newSlides = res.data.map((v) => ({
-                                                                                        key: v.rank,
-                                                                                        rank: v.rank,
-                                                                                        user:v.user_id,
-                                                                                        rate:v.rate,
-                                                                                        vote:v.vote ,
-                                                                                        up : v.up,
-                                                                                        comment : v.comment,
-                                                                                        category: v.category,
-                                                                                    }));
-                                                                    newSlides.unshift(firstUserData);
-                                                                    setallData(newSlides);
-                                                                    setVisibleData(newSlides.slice(0,10))
 
-                                                        })
+                var dayValue = e.target.value;
+                setDayValue(e.target.value); // 선택된 값을 상태에 저장
+
+                if(isLoggedIn) {
+                                     axios.get('/api/uservotes/stats/search?id=' + userid + '&day=' + dayValue + '&category=' + CategoryValue)
+                                                .then((user) => {
+                                                 const firstUserData = {
+                                                      key: 0,
+                                                      rank: user.data[0].rank,
+                                                      user:user.data[0].user_id,
+                                                      rate:user.data[0].rate,
+                                                      vote:user.data[0].vote ,
+                                                      up : user.data[0].up,
+                                                      comment : user.data[0].comment,
+                                                      category: user.data[0].category
+                                                 }
+                                                 axios.get('/api/uservotes/stats?day=' + dayValue + '&category=' + CategoryValue)
+                                                          .then((res) => {
+                                                                const newSlides = res.data.map((v) => ({
+                                                                                 key: v.rank,
+                                                                                 rank: v.rank,
+                                                                                 user:v.user_id,
+                                                                                 rate:v.rate,
+                                                                                 vote:v.vote ,
+                                                                                 up : v.up,
+                                                                                 comment : v.comment,
+                                                                                 category: v.category,
+                                                                               }));
+
+                                                                newSlides.unshift(firstUserData);
+                                                                setallData(newSlides);
+                                                                setVisibleData(newSlides.slice(0,10))
+                                                          })
+
+                                                })
+                                     }
+                                     else {
+                                                 axios.get('/api/uservotes/stats?day=' + dayValue + '&category=' + CategoryValue)
+                                                                      .then((res) => {
+                                                                            const newSlides = res.data.map((v) => ({
+                                                                                             key: v.rank,
+                                                                                             rank: v.rank,
+                                                                                             user:v.user_id,
+                                                                                             rate:v.rate,
+                                                                                             vote:v.vote ,
+                                                                                             up : v.up,
+                                                                                             comment : v.comment,
+                                                                                             category: v.category,
+                                                                                           }));
+
+                                                                            setallData(newSlides);
+                                                                            setVisibleData(newSlides.slice(0,10))
+                                                                      })
+
+                                     }
          };
 
 
          const handleChangecategory = (value) => {
              setCategoryValue(value); // 선택된 값 저장
-              axios.get('/api/uservotes/stats?day=' + DayValue + '&category=' + value)
-                                                                     .then((res) => {
-                                                                                 const newSlides = res.data.map((v) => ({
-                                                                                                     key: v.rank,
-                                                                                                     rank: v.rank,
-                                                                                                     user:v.user_id,
-                                                                                                     rate:v.rate,
-                                                                                                     vote:v.vote ,
-                                                                                                     up : v.up,
-                                                                                                     comment : v.comment,
-                                                                                                     category: v.category,
-                                                                                                 }));
-                                                                                 newSlides.unshift(firstUserData);
-                                                                                 setallData(newSlides);
-                                                                                 setVisibleData(newSlides.slice(0,10))
+             if(isLoggedIn) {
+                                     axios.get('/api/uservotes/stats/search?id=' + userid + '&day=' + DayValue + '&category=' + value)
+                                                .then((user) => {
+                                                 const firstUserData = {
+                                                      key: 0,
+                                                      rank: user.data[0].rank,
+                                                      user:user.data[0].user_id,
+                                                      rate:user.data[0].rate,
+                                                      vote:user.data[0].vote ,
+                                                      up : user.data[0].up,
+                                                      comment : user.data[0].comment,
+                                                      category: user.data[0].category
+                                                 }
+                                                 axios.get('/api/uservotes/stats?day=' + DayValue + '&category=' + value)
+                                                          .then((res) => {
+                                                                const newSlides = res.data.map((v) => ({
+                                                                                 key: v.rank,
+                                                                                 rank: v.rank,
+                                                                                 user:v.user_id,
+                                                                                 rate:v.rate,
+                                                                                 vote:v.vote ,
+                                                                                 up : v.up,
+                                                                                 comment : v.comment,
+                                                                                 category: v.category,
+                                                                               }));
 
-                                                                     })
+                                                                newSlides.unshift(firstUserData);
+                                                                setallData(newSlides);
+                                                                setVisibleData(newSlides.slice(0,10))
+                                                          })
+
+                                                })
+                                     }
+                                     else {
+                                                 axios.get('/api/uservotes/stats?day=' + DayValue + '&category=' + value)
+                                                                      .then((res) => {
+                                                                            const newSlides = res.data.map((v) => ({
+                                                                                             key: v.rank,
+                                                                                             rank: v.rank,
+                                                                                             user:v.user_id,
+                                                                                             rate:v.rate,
+                                                                                             vote:v.vote ,
+                                                                                             up : v.up,
+                                                                                             comment : v.comment,
+                                                                                             category: v.category,
+                                                                                           }));
+
+                                                                            setallData(newSlides);
+                                                                            setVisibleData(newSlides.slice(0,10))
+                                                                      })
+
+                                     }
          };
         function onSearch(value) {
-              console.log(value)
+             axios.get('/api/uservotes/stats/search?day=' + DayValue + '&id=' + value +'&category=' + CategoryValue)
+                                               .then((res) => {
+                                                     const newSlides = res.data.map((v) => ({
+                                                                         key: v.rank,
+                                                                         rank: v.rank,
+                                                                         user:v.user_id,
+                                                                         rate:v.rate,
+                                                                         vote:v.vote ,
+                                                                         up : v.up,
+                                                                         comment : v.comment,
+                                                                         category: v.category,
+                                                                      }));
+                                                                      setallData(newSlides);
+                                                                      setVisibleData(newSlides.slice(0,1))
+                                                                    })
         }
     return(
           <div>
@@ -215,7 +339,7 @@ function VoteRateCategory() {
                    </Flex>
                    <div className="table-container">
                         <Table dataSource={visibleData} columns={columns} pagination={false}
-                               rowClassName={(record) => record.user === "firstUser" ? 'highlighted' : ''} />
+                               rowClassName={(record) => record.key === 0 ? 'highlighted' : ''} />
                               {dataCount < allData.length && (
                               <div className="button-container"> {/* 가운데 정렬을 위한 버튼 컨테이너 */}
                                         <Button onClick={handleLoadMore}>

@@ -137,13 +137,13 @@ public class UserController {
         return ResponseEntity.status(HttpStatus.OK).body(userVoteStatsDto);
     }
 
-//    @GetMapping("/uservotes/stats/search")
-//    public ResponseEntity<List<UserVoteStatsDto>> searchUserVotestats(@RequestParam(value = "id",required = false) String user_nick,@RequestParam(value = "day",defaultValue = "Thisyear") String day) {
-//        if(user_nick.isEmpty()) {
-//            return ResponseEntity.status(HttpStatus.OK).body(new ArrayList<>((Collection) new UserVoteStatsDto()));
-//        }
-//        List<UserVoteStatsDto> userVoteStatsDto = userService.searchVoteStats();
-//        return ResponseEntity.status(HttpStatus.OK).body(userVoteStatsDto);
-//    }
+    @GetMapping("/uservotes/stats/search")
+    public ResponseEntity<List<UserVoteStatsDto>> searchUserVotestats(@RequestParam(value = "id",required = false) String user_id,@RequestParam(value = "category",required = false) String category,@RequestParam(value = "day",defaultValue = "Thisyear") String day) {
+        if(user_id == null) {
+            return ResponseEntity.status(HttpStatus.OK).body(new ArrayList<>());
+        }
+        List<UserVoteStatsDto> userVoteStatsDto = userService.searchVoteStats(user_id,category,day);
+        return ResponseEntity.status(HttpStatus.OK).body(userVoteStatsDto);
+    }
 
 }

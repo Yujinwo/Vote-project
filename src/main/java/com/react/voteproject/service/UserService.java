@@ -60,16 +60,17 @@ public class UserService {
     }
 
     public List<UserVoteStatsDto> getVoteStats(String category, String day) {
+        List<Object[]> userRankingWithActivityToday = new ArrayList<>();
         if(category == null) {
-            List<Object[]> userRankingWithActivityToday = new ArrayList<>();
+
             if(day.equals("Thisyear")) {
-               userRankingWithActivityToday = userRepository.findUserRankingWithActivityThisYear();
+               userRankingWithActivityToday = userRepository.findUserRankingWithActivityThisYear(null,100);
             }
             else if(day.equals("Thismonth")) {
-               userRankingWithActivityToday = userRepository.findUserRankingWithActivityThisMonth();
+               userRankingWithActivityToday = userRepository.findUserRankingWithActivityThisMonth(null,100);
             }
             else {
-               userRankingWithActivityToday = userRepository.findUserRankingWithActivityToday();
+               userRankingWithActivityToday = userRepository.findUserRankingWithActivityToday(null,100);
             }
             List<UserVoteStatsDto> userVoteStatsDtos = userRankingWithActivityToday.stream().map(UserVoteStatsDto::createUserVoteStatsDto).collect(Collectors.toList());
             return userVoteStatsDtos;
@@ -79,16 +80,51 @@ public class UserService {
             if(!checkCategory){
                 return new ArrayList<>();
             }
-            List<Object[]> userRankingWithActivityToday = new ArrayList<>();
             if(day.equals("Thisyear")) {
-                userRankingWithActivityToday = userRepository.findUserCategoryRankingWithActivityThisYear(category);
+                userRankingWithActivityToday = userRepository.findUserCategoryRankingWithActivityThisYear(category,null,100);
 
             }
             else if(day.equals("Thismonth")) {
-                userRankingWithActivityToday = userRepository.findUserCategoryRankingWithActivityThisMonth(category);
+                userRankingWithActivityToday = userRepository.findUserCategoryRankingWithActivityThisMonth(category,null,100);
             }
             else {
-                userRankingWithActivityToday = userRepository.findUserCategoryRankingWithActivityToday(category);
+                userRankingWithActivityToday = userRepository.findUserCategoryRankingWithActivityToday(category,null,100);
+            }
+            List<UserVoteStatsDto> userVoteStatsDtos = userRankingWithActivityToday.stream().map(UserVoteStatsDto::createUserVoteStatsDto).collect(Collectors.toList());
+            return userVoteStatsDtos;
+        }
+
+    }
+
+    public List<UserVoteStatsDto> searchVoteStats(String userId, String category, String day) {
+        List<Object[]> userRankingWithActivityToday = new ArrayList<>();
+        if(category == null) {
+            if(day.equals("Thisyear")) {
+                userRankingWithActivityToday = userRepository.findUserRankingWithActivityThisYear(userId,1000);
+            }
+            else if(day.equals("Thismonth")) {
+                userRankingWithActivityToday = userRepository.findUserRankingWithActivityThisMonth(userId,1000);
+            }
+            else {
+                userRankingWithActivityToday = userRepository.findUserRankingWithActivityToday(userId,1000);
+            }
+            List<UserVoteStatsDto> userVoteStatsDtos = userRankingWithActivityToday.stream().map(UserVoteStatsDto::createUserVoteStatsDto).collect(Collectors.toList());
+            return userVoteStatsDtos;
+        }
+        else {
+            Boolean checkCategory = category_enum.fromCode(category);
+            if(!checkCategory){
+                return new ArrayList<>();
+            }
+            if(day.equals("Thisyear")) {
+                userRankingWithActivityToday = userRepository.findUserCategoryRankingWithActivityThisYear(category,userId,1000);
+
+            }
+            else if(day.equals("Thismonth")) {
+                userRankingWithActivityToday = userRepository.findUserCategoryRankingWithActivityThisMonth(category,userId,1000);
+            }
+            else {
+                userRankingWithActivityToday = userRepository.findUserCategoryRankingWithActivityToday(category,userId,1000);
             }
             List<UserVoteStatsDto> userVoteStatsDtos = userRankingWithActivityToday.stream().map(UserVoteStatsDto::createUserVoteStatsDto).collect(Collectors.toList());
             return userVoteStatsDtos;
