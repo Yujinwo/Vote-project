@@ -226,7 +226,7 @@ public class VoteService {
 
 
     @Transactional(readOnly = true)
-    public  VoteHomeDataDto findAll(Pageable pageable,String sort,String category) {
+    public  VoteHomeDataDto findAll(Pageable pageable,String sort,String category,String searchTitle) {
          String[] sortFields = {"startDay","up","voting"};
 
          boolean contains = Arrays.asList(sortFields).contains(sort);
@@ -249,7 +249,7 @@ public class VoteService {
              }
 
              PageRequest pageRequest = PageRequest.of(page, 10, Sort.by(Sort.Order.desc(sort)));
-             Slice<Vote> sliceVote = voteRepository.findAllByVote(pageRequest);
+             Slice<Vote> sliceVote = voteRepository.findAllByVote(pageRequest,searchTitle);
              List<VoteResponseDto> list = sliceVote.stream().map(v -> VoteResponseDto.createVoteResponseDto(v, commentRepository.countCommentsByVote(v))).collect(Collectors.toList());
              return VoteHomeDataDto.createVoteHomeDataDto(list,sliceVote.hasNext(),sliceVote.getNumber());
 
@@ -271,7 +271,7 @@ public class VoteService {
              }
 
              PageRequest pageRequest = PageRequest.of(page, 10, Sort.by(Sort.Order.desc(sort)));
-             Slice<Vote> sliceVote = voteRepository.findAllByVoteAndCategory(pageRequest,category);
+             Slice<Vote> sliceVote = voteRepository.findAllByVoteAndCategory(pageRequest,category,searchTitle);
              List<VoteResponseDto> list = sliceVote.stream().map(v -> VoteResponseDto.createVoteResponseDto(v, commentRepository.countCommentsByVote(v))).collect(Collectors.toList());
              return VoteHomeDataDto.createVoteHomeDataDto(list,sliceVote.hasNext(),sliceVote.getNumber());
 

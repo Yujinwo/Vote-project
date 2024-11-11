@@ -18,11 +18,11 @@ import java.util.List;
 public interface VoteRepository extends JpaRepository<Vote,Long>, VoteRepositoryCustom {
 
 
-    @Query("select v from Vote v WHERE category = :category")
-    Slice<Vote> findAllByVoteAndCategory(Pageable pageable, @Param("category") String category);
+    @Query("select v from Vote v WHERE category = :category AND (:title IS NULL OR LOWER(v.title) LIKE LOWER(CONCAT('%', :title, '%'))) ")
+    Slice<Vote> findAllByVoteAndCategory(Pageable pageable, @Param("category") String category,@Param("title") String title);
 
-    @Query("select v from Vote v")
-    Slice<Vote> findAllByVote(Pageable pageable);
+    @Query("select v from Vote v WHERE (:title IS NULL OR LOWER(v.title) LIKE LOWER(CONCAT('%', :title, '%')))")
+    Slice<Vote> findAllByVote(Pageable pageable,@Param("title") String title);
 
     Page<Vote> findByuser(Pageable pageable, User user);
 

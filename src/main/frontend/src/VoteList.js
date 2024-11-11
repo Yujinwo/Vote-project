@@ -3,11 +3,14 @@ import React, { useState } from 'react';
 import type { TableProps } from 'antd';
 import VoteListAll from './VoteListAll'
 import VoteListCategory from './VoteListCategory'
+import { useLocation  } from 'react-router-dom';
 function VoteList() {
+    const location = useLocation();
+    var SearchValue = location.state?.value;
     return(
     <Tabs defaultActiveKey="1" centered>
         <Tabs.TabPane tab="전체" key="1">
-             <VoteListAll />
+             <VoteListAll search={SearchValue} />
         </Tabs.TabPane>
         <Tabs.TabPane tab="카테고리 별" key="2">
              <VoteListCategory />

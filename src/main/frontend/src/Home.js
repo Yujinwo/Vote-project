@@ -1,6 +1,6 @@
 import {useEffect, useState} from "react";
 import axios from "axios";
-import { Link } from 'react-router-dom';
+import { Link,useNavigate  } from 'react-router-dom';
 import { SearchOutlined } from '@ant-design/icons';
 import './App.css';  // 스타일 파일을 임포트
 import ReactCardSlider from './ReactCardSlider';
@@ -10,6 +10,7 @@ const { Title } = Typography;
 const { Search } = Input;
 function Home() {
     const [hello, setHello] = useState('');
+    const navigate = useNavigate();
     const slides = [
         {id:0,category:"음식",title:"주로 먹방을 즐겨 보시나요?",staryday:"2024.10.17",endday:"2024.10.30",writer:"작성자",rate:"1000 ",up:10,commentcount:10 },
         {id:1,category:"패션",title:"아이돌 걸그룹 랭킹 누가 일등? 2019년",staryday:"2024.10.17",endday:"2024.10.30",writer:"테스트",rate:"1002 ",up:10,commentcount:10},
@@ -67,7 +68,9 @@ function Home() {
     }, []);
 
     function onSearch(value) {
-            console.log(value)
+           navigate('/votelist', {
+                 state: { value: value }
+               });
     }
     return (
          <div>

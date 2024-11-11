@@ -1,5 +1,5 @@
 
-import {Input,Typography,Flex,Select,Button} from 'antd'
+import {Input,Typography,Flex,Select,Button,message} from 'antd'
 import ReactCardSlider from './ReactCardSlider';
 import React, { useState,useEffect } from 'react';
 import { EditOutlined } from '@ant-design/icons';
@@ -15,6 +15,7 @@ function VoteListCategory() {
      const [hasNext,sethasNext] =useState(false);
      const [CategoryValue, setCategoryValue] = useState("LIFESTYLE");
      const [OrderValue, setOrderValue] = useState('startDay');
+     const [SearchValue,setSearchValue] = useState(null);
      const categorys = [
                        {
                            value: 'ENTERTAINMENT',
@@ -64,47 +65,94 @@ function VoteListCategory() {
 
      const handleChangecategory = (value) => {
               setCategoryValue(value); // 선택된 값 저장
-              axios.get('/api/votes/all?sort=' + OrderValue + "&category=" + value)
-                                           .then((res) => {
-                                                       const newSlides = res.data.vote.map((v) => ({
-                                                                           id: v.id,
-                                                                           category: v.category,
-                                                                           title: v.title,
-                                                                           startDay: v.startDay,
-                                                                           endDay: v.endDay,
-                                                                           writer: v.user.user_nick,
-                                                                           rate: v.optionCountTotal,
-                                                                           up: v.up,
-                                                                           commentCount: v.commentCount,
-                                                                       }));
+              if(SearchValue != null) {
+                  axios.get('/api/votes/all?sort=' + OrderValue + "&category=" + value  + '&title=' + SearchValue)
+                                               .then((res) => {
+                                                           const newSlides = res.data.vote.map((v) => ({
+                                                                               id: v.id,
+                                                                               category: v.category,
+                                                                               title: v.title,
+                                                                               startDay: v.startDay,
+                                                                               endDay: v.endDay,
+                                                                               writer: v.user.user_nick,
+                                                                               rate: v.optionCountTotal,
+                                                                               up: v.up,
+                                                                               commentCount: v.commentCount,
+                                                                           }));
 
-                                                       setslides(newSlides); // slides를 새로운 배열로 설정
-                                                       setpage(res.data.page + 1)
-                                                       sethasNext(res.data.hasNext);
+                                                           setslides(newSlides); // slides를 새로운 배열로 설정
+                                                           setpage(res.data.page + 1)
+                                                           sethasNext(res.data.hasNext);
 
-                                           })
+                  })
+              }
+              else {
+                  axios.get('/api/votes/all?sort=' + OrderValue + "&category=" + value)
+                                               .then((res) => {
+                                                           const newSlides = res.data.vote.map((v) => ({
+                                                                               id: v.id,
+                                                                               category: v.category,
+                                                                               title: v.title,
+                                                                               startDay: v.startDay,
+                                                                               endDay: v.endDay,
+                                                                               writer: v.user.user_nick,
+                                                                               rate: v.optionCountTotal,
+                                                                               up: v.up,
+                                                                               commentCount: v.commentCount,
+                                                                           }));
+
+                                                           setslides(newSlides); // slides를 새로운 배열로 설정
+                                                           setpage(res.data.page + 1)
+                                                           sethasNext(res.data.hasNext);
+
+                  })
+              }
      };
      const handleChangeorder = (value) => {
                   setOrderValue(value)
-                  axios.get('/api/votes/all?sort=' + value + "&category=" + CategoryValue)
-                                           .then((res) => {
-                                                       const newSlides = res.data.vote.map((v) => ({
-                                                                           id: v.id,
-                                                                           category: v.category,
-                                                                           title: v.title,
-                                                                           startDay: v.startDay,
-                                                                           endDay: v.endDay,
-                                                                           writer: v.user.user_nick,
-                                                                           rate: v.optionCountTotal,
-                                                                           up: v.up,
-                                                                           commentCount: v.commentCount,
-                                                                       }));
+                  if(SearchValue != null) {
+                      axios.get('/api/votes/all?sort=' + value + "&category=" + CategoryValue + '&title=' + SearchValue)
+                                               .then((res) => {
+                                                           const newSlides = res.data.vote.map((v) => ({
+                                                                               id: v.id,
+                                                                               category: v.category,
+                                                                               title: v.title,
+                                                                               startDay: v.startDay,
+                                                                               endDay: v.endDay,
+                                                                               writer: v.user.user_nick,
+                                                                               rate: v.optionCountTotal,
+                                                                               up: v.up,
+                                                                               commentCount: v.commentCount,
+                                                                           }));
 
-                                                       setslides(newSlides); // slides를 새로운 배열로 설정
-                                                       setpage(res.data.page + 1)
-                                                       sethasNext(res.data.hasNext);
+                                                           setslides(newSlides); // slides를 새로운 배열로 설정
+                                                           setpage(res.data.page + 1)
+                                                           sethasNext(res.data.hasNext);
 
-                                           })
+                      })
+                  }
+                  else {
+                      axios.get('/api/votes/all?sort=' + value + "&category=" + CategoryValue)
+                                               .then((res) => {
+                                                           const newSlides = res.data.vote.map((v) => ({
+                                                                               id: v.id,
+                                                                               category: v.category,
+                                                                               title: v.title,
+                                                                               startDay: v.startDay,
+                                                                               endDay: v.endDay,
+                                                                               writer: v.user.user_nick,
+                                                                               rate: v.optionCountTotal,
+                                                                               up: v.up,
+                                                                               commentCount: v.commentCount,
+                                                                           }));
+
+                                                           setslides(newSlides); // slides를 새로운 배열로 설정
+                                                           setpage(res.data.page + 1)
+                                                           sethasNext(res.data.hasNext);
+
+                      })
+                  }
+
      };
      const styles = {
              cardBox: {
@@ -134,7 +182,31 @@ function VoteListCategory() {
                               })
           }, []);
      function onSearch(value) {
-                 console.log(value)
+               if(value.length == 0 || value.length > 20) {
+                      message.error('검색 내용은 최대 20자 이하로 작성해주세요')
+               }
+               else {
+                      setSearchValue(value)
+                      axios.get('/api/votes/all?sort=' + OrderValue + "&category=" + CategoryValue + '&title=' + value)
+                                             .then((res) => {
+                                                            const newSlides = res.data.vote.map((v) => ({
+                                                                          id: v.id,
+                                                                          category: v.category,
+                                                                          title: v.title,
+                                                                          startDay: v.startDay,
+                                                                          endDay: v.endDay,
+                                                                          writer: v.user.user_nick,
+                                                                          rate: v.optionCountTotal,
+                                                                          up: v.up,
+                                                                          commentCount: v.commentCount,
+                                                                   }));
+
+                                                            setslides(newSlides); // slides를 새로운 배열로 설정
+                                                            setpage(res.data.page + 1)
+                                                            sethasNext(res.data.hasNext);
+
+                                                            })
+             }
       }
     return(
          <div>

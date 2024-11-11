@@ -18,6 +18,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
@@ -39,8 +40,13 @@ public class VoteController {
         return ResponseEntity.status(HttpStatus.OK).body(vote);
     }
     @GetMapping("/votes/all")
-    public ResponseEntity<VoteHomeDataDto> findAll(@PageableDefault(page = 1) Pageable pageable, @RequestParam(value = "sort",defaultValue = "startDay")  String sort, @RequestParam(value = "category",defaultValue = "")  String category) {
-        VoteHomeDataDto vote = voteService.findAll(pageable,sort,category);
+    public ResponseEntity<VoteHomeDataDto> findAll(@PageableDefault(page = 1) Pageable pageable, @RequestParam(value = "sort",defaultValue = "startDay")  String sort, @RequestParam(value = "category",defaultValue = "")  String category,@RequestParam(value = "title",required = false) String title) {
+        if(title != null) {
+            if(title.length() == 0 || title.length() > 20) {
+                return ResponseEntity.status(HttpStatus.OK).body(VoteHomeDataDto.createVoteHomeDataDto(new ArrayList<>(),false,0));
+            }
+        }
+        VoteHomeDataDto vote = voteService.findAll(pageable,sort,category,title);
 
         return ResponseEntity.status(HttpStatus.OK).body(vote);
     }

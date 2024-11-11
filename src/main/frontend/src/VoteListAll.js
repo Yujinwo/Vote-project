@@ -1,20 +1,20 @@
 
-import {Input,Typography,Button,Flex,Select} from 'antd'
+import {Input,Typography,Button,Flex,Select,message} from 'antd'
 import React, { useState,useEffect } from 'react';
 import ReactCardSlider from './ReactCardSlider';
 import { EditOutlined } from '@ant-design/icons';
-import { Link } from 'react-router-dom';
+import { Link,useLocation  } from 'react-router-dom';
 import { useAuth } from './AuthContext';
 import axios  from 'axios';
 const { Search } = Input;
 const { Title } = Typography;
 
-function VoteListAll() {
+function VoteListAll(props) {
     const { isLoggedIn, logout,login  } = useAuth();
     const [slides,setslides] = useState([]);
     const [page,setpage] = useState(1);
     const [hasNext,sethasNext] =useState(false);
-
+    const [SearchValue,setSearchValue] = useState(null);
     const orders = [
                             {
                                     value: 'startDay',
@@ -40,50 +40,126 @@ function VoteListAll() {
     const [OrderValue, setOrderValue] = useState('startDay'); // 초기값 'a'
     const handleChangeorder = (value) => {
                   setOrderValue((value))
-                  axios.get('/api/votes/all?sort=' + value)
-                                           .then((res) => {
-                                                       const newSlides = res.data.vote.map((v) => ({
-                                                                           id: v.id,
-                                                                           category: v.category,
-                                                                           title: v.title,
-                                                                           startDay: v.startDay,
-                                                                           endDay: v.endDay,
-                                                                           writer: v.user.user_nick,
-                                                                           rate: v.optionCountTotal,
-                                                                           up: v.up,
-                                                                           commentCount: v.commentCount,
-                                                                       }));
+                  if(SearchValue != null) {
+                      axios.get('/api/votes/all?sort=' + value + '&title=' + SearchValue)
+                                               .then((res) => {
+                                                           const newSlides = res.data.vote.map((v) => ({
+                                                                               id: v.id,
+                                                                               category: v.category,
+                                                                               title: v.title,
+                                                                               startDay: v.startDay,
+                                                                               endDay: v.endDay,
+                                                                               writer: v.user.user_nick,
+                                                                               rate: v.optionCountTotal,
+                                                                               up: v.up,
+                                                                               commentCount: v.commentCount,
+                                                                           }));
 
-                                                       setslides(newSlides); // slides를 새로운 배열로 설정
-                                                       setpage(res.data.page + 1)
-                                                       sethasNext(res.data.hasNext);
+                                                           setslides(newSlides); // slides를 새로운 배열로 설정
+                                                           setpage(res.data.page + 1)
+                                                           sethasNext(res.data.hasNext);
 
-                                           })
+                      })
+                  }
+                  else {
+                       axios.get('/api/votes/all?sort=' + value)
+                                                .then((res) => {
+                                                               const newSlides = res.data.vote.map((v) => ({
+                                                                                  id: v.id,
+                                                                                  category: v.category,
+                                                                                  title: v.title,
+                                                                                  startDay: v.startDay,
+                                                                                  endDay: v.endDay,
+                                                                                  writer: v.user.user_nick,
+                                                                                  rate: v.optionCountTotal,
+                                                                                  up: v.up,
+                                                                                  commentCount: v.commentCount,
+                                                                            }));
+
+                                                               setslides(newSlides); // slides를 새로운 배열로 설정
+                                                               setpage(res.data.page + 1)
+                                                               sethasNext(res.data.hasNext);
+
+                                        })
+
+                  }
 
      };
+
     function onSearch(value) {
-                console.log(value)
+              if(value.length == 0 || value.length > 20) {
+                 message.error('검색 내용은 최대 20자 이하로 작성해주세요')
+              }
+              else {
+
+                 setSearchValue(value);
+                             axios.get('/api/votes/all?sort=' + OrderValue + '&title=' + value)
+                                                                        .then((res) => {
+                                                                                    const newSlides = res.data.vote.map((v) => ({
+                                                                                                        id: v.id,
+                                                                                                        category: v.category,
+                                                                                                        title: v.title,
+                                                                                                        startDay: v.startDay,
+                                                                                                        endDay: v.endDay,
+                                                                                                        writer: v.user.user_nick,
+                                                                                                        rate: v.optionCountTotal,
+                                                                                                        up: v.up,
+                                                                                                        commentCount: v.commentCount,
+                                                                                                    }));
+
+                                                                                    setslides(newSlides); // slides를 새로운 배열로 설정
+                                                                                    setpage(res.data.page + 1)
+                                                                                    sethasNext(res.data.hasNext);
+
+                                                                        })
+
+              }
+
     }
 
      useEffect(() => {
-                  axios.get('/api/votes/all?sort=' + OrderValue)
-                         .then((res) => {
-                                     const newSlides = res.data.vote.map((v) => ({
-                                                         id: v.id,
-                                                         category: v.category,
-                                                         title: v.title,
-                                                         startDay: v.startDay,
-                                                         endDay: v.endDay,
-                                                         writer: v.user.user_nick,
-                                                         rate: v.optionCountTotal,
-                                                         up: v.up,
-                                                         commentCount: v.commentCount,
-                                                     }));
+                  const SearchValue = props.search; // 'Hello from MyComponent!'
+                  if(SearchValue != null) {
+                      axios.get('/api/votes/all?sort=' + OrderValue + '&title=' + SearchValue)
+                             .then((res) => {
+                                         const newSlides = res.data.vote.map((v) => ({
+                                                             id: v.id,
+                                                             category: v.category,
+                                                             title: v.title,
+                                                             startDay: v.startDay,
+                                                             endDay: v.endDay,
+                                                             writer: v.user.user_nick,
+                                                             rate: v.optionCountTotal,
+                                                             up: v.up,
+                                                             commentCount: v.commentCount,
+                                                         }));
 
-                                     setslides(newSlides); // slides를 새로운 배열로 설정
-                                     setpage(res.data.page + 1)
-                                     sethasNext(res.data.hasNext);
-                         })
+                                         setslides(newSlides); // slides를 새로운 배열로 설정
+                                         setpage(res.data.page + 1)
+                                         sethasNext(res.data.hasNext);
+                      })
+                  }
+                  else {
+                      axios.get('/api/votes/all?sort=' + OrderValue)
+                             .then((res) => {
+                                         const newSlides = res.data.vote.map((v) => ({
+                                                             id: v.id,
+                                                             category: v.category,
+                                                             title: v.title,
+                                                             startDay: v.startDay,
+                                                             endDay: v.endDay,
+                                                             writer: v.user.user_nick,
+                                                             rate: v.optionCountTotal,
+                                                             up: v.up,
+                                                             commentCount: v.commentCount,
+                                                         }));
+
+                                         setslides(newSlides); // slides를 새로운 배열로 설정
+                                         setpage(res.data.page + 1)
+                                         sethasNext(res.data.hasNext);
+                      })
+                  }
+
      }, []);
     return(
          <div>
