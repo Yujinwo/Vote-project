@@ -39,6 +39,15 @@ public class VoteController {
 
         return ResponseEntity.status(HttpStatus.OK).body(vote);
     }
+
+    @GetMapping("/votes/summary")
+    public ResponseEntity<HotCategoryAndTotalDto> getSummary() {
+        HotCategoryAndTotalDto hotCategoryAndTotalDto = voteService.getSummary();
+
+
+        return ResponseEntity.status(HttpStatus.OK).body(hotCategoryAndTotalDto);
+
+    }
     @GetMapping("/votes/all")
     public ResponseEntity<VoteHomeDataDto> findAll(@PageableDefault(page = 1) Pageable pageable, @RequestParam(value = "sort",defaultValue = "startDay")  String sort, @RequestParam(value = "category",defaultValue = "")  String category,@RequestParam(value = "title",required = false) String title) {
         if(title != null) {

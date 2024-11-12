@@ -282,4 +282,10 @@ public class VoteService {
     }
 
 
+    public HotCategoryAndTotalDto getSummary() {
+        Object[] summary = voteRepository.findHotCategoryWithVoteCount();
+        HotCategoryAndTotalDto hotCategoryAndTotalDto = HotCategoryAndTotalDto.createHotCategoryAndTotalDto(summary);
+        return  hotCategoryAndTotalDto;
+
+    }
 }

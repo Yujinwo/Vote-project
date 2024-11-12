@@ -9,7 +9,8 @@ import { LikeOutlined } from '@ant-design/icons';
 const { Title } = Typography;
 const { Search } = Input;
 function Home() {
-    const [hello, setHello] = useState('');
+    const [voteTotal, setvoteTotal] = useState(0);
+    const [hotCategory, sethotCategory] = useState('');
     const navigate = useNavigate();
     const slides = [
         {id:0,category:"음식",title:"주로 먹방을 즐겨 보시나요?",staryday:"2024.10.17",endday:"2024.10.30",writer:"작성자",rate:"1000 ",up:10,commentcount:10 },
@@ -65,6 +66,12 @@ function Home() {
 
     useEffect(() => {
 
+    axios.get('/api/votes/summary')
+             .then((res) => {
+                 sethotCategory(res.data.category)
+                 setvoteTotal(res.data.total)
+
+             })
     }, []);
 
     function onSearch(value) {
@@ -103,7 +110,7 @@ function Home() {
                            <Divider>총 투표 수</Divider>
                            <p>
                              <Tag  color="processing">
-                                     100
+                                     {voteTotal}
                              </Tag>
                            </p>
                        </div>
@@ -111,7 +118,7 @@ function Home() {
                            <Divider>인기 카테고리</Divider>
                            <p>
                               <Tag color="processing">
-                                    음식 및 요리
+                                   {hotCategory}
                               </Tag>
                            </p>
                        </div>

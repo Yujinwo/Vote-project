@@ -40,4 +40,14 @@ public interface VoteRepository extends JpaRepository<Vote,Long>, VoteRepository
             "GROUP BY v.id " +
             "ORDER BY totalCount DESC")
     Slice<Object[]> findVoteWithTotalCount(Pageable pageable);
+
+    @Query("Select v.category," +
+            "COUNT(v.category) AS HotCategory," +
+            "(Select count(*) from Vote) AS vote_count " +
+            "FROM User u " +
+            "LEFT JOIN Vote v ON u.id = v.user.id " +
+            "GROUP BY v.category " +
+            "ORDER BY HotCategory DESC " +
+            "LIMIT 1" )
+    Object[] findHotCategoryWithVoteCount();
 }
