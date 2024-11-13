@@ -15,8 +15,8 @@ import java.util.Optional;
 @Repository
 public interface UserVoteRepository extends JpaRepository<UserVote,Long> {
 
-    @Query("SELECT uv FROM UserVote uv WHERE uv.vote = :vote_id")
-    Optional<UserVote> findByVoteId(@Param("vote_id") Vote vote_id);
+    @Query("SELECT uv FROM UserVote uv WHERE uv.vote = :vote_id and uv.user = :user_id ")
+    Optional<UserVote> findByVoteId(@Param("vote_id") Vote vote_id, @Param("user_id") User user_id);
 
 
     @Modifying

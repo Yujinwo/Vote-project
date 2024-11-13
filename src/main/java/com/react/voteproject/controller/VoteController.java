@@ -48,6 +48,14 @@ public class VoteController {
         return ResponseEntity.status(HttpStatus.OK).body(hotCategoryAndTotalDto);
 
     }
+
+    @GetMapping("/votes/hot")
+    public ResponseEntity<HotVoteandRankDto> getHot() {
+        HotVoteandRankDto hotVoteandRankDto = voteService.getHot();
+        return ResponseEntity.status(HttpStatus.OK).body(hotVoteandRankDto);
+
+    }
+
     @GetMapping("/votes/all")
     public ResponseEntity<VoteHomeDataDto> findAll(@PageableDefault(page = 1) Pageable pageable, @RequestParam(value = "sort",defaultValue = "startDay")  String sort, @RequestParam(value = "category",defaultValue = "")  String category,@RequestParam(value = "title",required = false) String title) {
         if(title != null) {

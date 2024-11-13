@@ -50,4 +50,16 @@ public interface VoteRepository extends JpaRepository<Vote,Long>, VoteRepository
             "ORDER BY HotCategory DESC " +
             "LIMIT 1" )
     Object[] findHotCategoryWithVoteCount();
+
+    @Query(value = "WITH hot_vote AS (select v.id AS vote_id, SUM(vo.count) AS user_count " +
+            "from Vote v " +
+            "LEFT JOIN VoteOption vo ON v.id = vo.vote.id AND YEAR(vo.createdDate) = YEAR(CURDATE()) AND MONTH(vo.createdDate) = MONTH(CURDATE()) " +
+            "GROUP BY v.id ) " +
+            "Select v, row_number() OVER (ORDER BY user_count DESC) AS vote_rank " +
+            "from Vote v " +
+            "LEFT JOIN hot_vote hv ON v.id = hv.vote_id ")
+    List<Object[]> findHotVote(Pageable pageable);
+
+
+
 }

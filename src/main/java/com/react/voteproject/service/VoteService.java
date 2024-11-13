@@ -88,7 +88,7 @@ public class VoteService {
         Optional<Vote> vote = voteRepository.findById(id);
         if(vote.isPresent()) {
             // 이미 투표 선택했는지 조회
-            Optional<UserVote> userVote = userVoteRepository.findByVoteId(vote.get());
+            Long userSelectedId = null;
 
             Long total = commentRepository.countCommentsByVote(vote.get());
             // 투표 데이터 조회
@@ -109,15 +109,20 @@ public class VoteService {
                 hasBookmark = true;
             }
 
-            if(userVote.isPresent())
-            {
-                Long userSelectedId = userVote.get().getVoteOption().getId();
-                return VoteDetailDataDto.createVoteDetailDataDto(voteResponseDto,userSelectedId,commentList,comments.hasNext(),hasUp,hasBookmark);
+            if(AuthContext.checkAuth()) {
+                Optional<UserVote> userVote = userVoteRepository.findByVoteId(vote.get(),AuthContext.getAuth());
+                if(userVote.isPresent())
+                {
+                    userSelectedId = userVote.get().getVoteOption().getId();
+                    return VoteDetailDataDto.createVoteDetailDataDto(voteResponseDto,userSelectedId,commentList,comments.hasNext(),hasUp,hasBookmark);
+                }
+                else {
+                    return VoteDetailDataDto.createVoteDetailDataDto(voteResponseDto,userSelectedId,commentList,comments.hasNext(), hasUp, hasBookmark);
+                }
             }
             else {
-                return VoteDetailDataDto.createVoteDetailDataDto(voteResponseDto,null,commentList,comments.hasNext(), hasUp, hasBookmark);
+                return VoteDetailDataDto.createVoteDetailDataDto(voteResponseDto,userSelectedId,commentList,comments.hasNext(), hasUp, hasBookmark);
             }
-
         }
         else {
             return new VoteDetailDataDto();
@@ -136,7 +141,7 @@ public class VoteService {
             }
             // 기존 선택지 삭제 -> 변경한 선택지로 수정
 
-            Optional<UserVote> userVote = userVoteRepository.findByVoteId(voteOption.get().getVote());
+            Optional<UserVote> userVote = userVoteRepository.findByVoteId(voteOption.get().getVote(),voteOption.get().getVote().getUser());
             if(userVote.isPresent())
             {
                 userVoteRepository.deleteByVoteID(voteOption.get().getVote());
@@ -287,5 +292,13 @@ public class VoteService {
         HotCategoryAndTotalDto hotCategoryAndTotalDto = HotCategoryAndTotalDto.createHotCategoryAndTotalDto(summary);
         return  hotCategoryAndTotalDto;
 
+    }
+
+    public HotVoteandRankDto getHot() {
+        PageRequest pageRequest = PageRequest.of(0, 10);
+        List<Object[]> summary = voteRepository.findHotVote(pageRequest);
+        List<HotVoteResponseDto> hotVoteResponseDto = summary.stream().map(HotVoteResponseDto::createHotVoteResponseDto).collect(Collectors.toList());
+        HotVoteandRankDto hotVoteandRankDto = HotVoteandRankDto.createHotVoteandRankDto(hotVoteResponseDto);
+        return hotVoteandRankDto;
     }
 }

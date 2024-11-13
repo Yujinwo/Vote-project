@@ -3,6 +3,7 @@ package com.react.voteproject.entity;
 import com.react.voteproject.context.AuthContext;
 import jakarta.persistence.*;
 import lombok.*;
+import org.hibernate.annotations.BatchSize;
 
 import java.util.List;
 
@@ -12,6 +13,7 @@ import java.util.List;
 @AllArgsConstructor
 @Builder
 @Getter
+@BatchSize(size = 10)
 public class VoteOption extends BaseTime{
 
     @Id
