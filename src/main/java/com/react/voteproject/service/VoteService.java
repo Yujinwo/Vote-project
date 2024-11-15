@@ -135,10 +135,6 @@ public class VoteService {
         Optional<VoteOption> voteOption = voteOptionRepository.findById(id);
         if(voteOption.isPresent()){
             VoteOption option = voteOption.get();
-            Optional<UserVote> uv = userVoteRepository.findByVoteOptionId(option);
-            if(uv.isPresent()){
-                return false;
-            }
             // 기존 선택지 삭제 -> 변경한 선택지로 수정
 
             Optional<UserVote> userVote = userVoteRepository.findByVoteId(voteOption.get().getVote(),voteOption.get().getVote().getUser());
@@ -297,8 +293,18 @@ public class VoteService {
     public HotVoteandRankDto getHot() {
         PageRequest pageRequest = PageRequest.of(0, 10);
         List<Object[]> summary = voteRepository.findHotVote(pageRequest);
-        List<HotVoteResponseDto> hotVoteResponseDto = summary.stream().map(HotVoteResponseDto::createHotVoteResponseDto).collect(Collectors.toList());
+        List<HotVoteResponseDto> hotVoteResponseDto = summary.stream().map(v -> HotVoteResponseDto.createHotVoteResponseDto(v,commentRepository.countCommentsByVote((Vote) v[0]))).collect(Collectors.toList());
         HotVoteandRankDto hotVoteandRankDto = HotVoteandRankDto.createHotVoteandRankDto(hotVoteResponseDto);
         return hotVoteandRankDto;
+    }
+
+    public HotVoteandRankDto getRecommend() {
+        PageRequest pageRequest = PageRequest.of(0, 10);
+        Long user_id = AuthContext.getAuth() != null ? AuthContext.getAuth().getId() :null;
+        List<Object[]> summary = voteRepository.findHotVotesExcludingUser(user_id,pageRequest);
+        List<HotVoteResponseDto> hotVoteResponseDto = summary.stream().map(v -> HotVoteResponseDto.createHotVoteResponseDto(v,commentRepository.countCommentsByVote((Vote) v[0]))).collect(Collectors.toList());
+        HotVoteandRankDto hotVoteandRankDto = HotVoteandRankDto.createHotVoteandRankDto(hotVoteResponseDto);
+        return hotVoteandRankDto;
+
     }
 }

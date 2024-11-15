@@ -57,12 +57,13 @@ public class VoteResponseDto {
        int total = vote.getOptions().stream().mapToInt(o -> o.getCount()).sum();
 
        return VoteResponseDto.builder()
-                 .id(vote.getId())
+                .id(vote.getId())
                 .title(vote.getTitle())
                 .category(vote.getCategory())
                 .up(vote.getUp())
                 .commentCount(commentCount)
-                .startDay(startDay).endDay(endDay)
+                .startDay(startDay)
+                .endDay(endDay)
                 .optionCountTotal(total)
                 .user(UserDto.createUserDto(vote.getUser()))
                 .voteOptions(vote.getOptions().stream().map(o -> VoteOptionDto.createOptionDto(o,total)).collect(Collectors.toList())).build();

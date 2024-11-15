@@ -11,17 +11,9 @@ const { Search } = Input;
 function Home() {
     const [voteTotal, setvoteTotal] = useState(0);
     const [hotCategory, sethotCategory] = useState('');
+    const [slides,setslides] = useState([]);
     const navigate = useNavigate();
-    const slides = [
-        {id:0,category:"음식",title:"주로 먹방을 즐겨 보시나요?",staryday:"2024.10.17",endday:"2024.10.30",writer:"작성자",rate:"1000 ",up:10,commentcount:10 },
-        {id:1,category:"패션",title:"아이돌 걸그룹 랭킹 누가 일등? 2019년",staryday:"2024.10.17",endday:"2024.10.30",writer:"테스트",rate:"1002 ",up:10,commentcount:10},
-        {id:2,category:"음식",title:"ITZY 있지 멤버 인기순위 투표해주세요! 내가 제일 좋아하는 멤버에 투표!",staryday:"2024.10.17",endday:"2024.10.30",writer:"테스트",rate:"10 ",up:10,commentcount:10},
-        {id:3,category:"엔터테인먼트",title:"트와이스 멤버 인기 순위 투표 가장 좋아하는 멤버에 투표해주세요!",staryday:"2024.10.17",endday:"2024.10.30",writer:"테스트",rate:"100 ",up:10,commentcount:10},
-        {id:4,category:"애완동물",title:"문재인 대통령의 전반적인 국정운영에 만족하십니까?",staryday:"2024.10.17",endday:"2024.10.30",writer:"테스트",rate:"1200 ",up:10,commentcount:10},
-        {id:5,category:"영화",title:"조국 법무부 장관 임명이 적절하다고 보십니까?",staryday:"2024.10.17",endday:"2024.10.30",writer:"테스트",rate:"1030 ",up:10,commentcount:10},
-        {id:6,category:"뮤비",title:"체리블렛 멤버 인기순위. 제일 좋아하는 멤버에 투표해주세요!",staryday:"2024.10.17",endday:"2024.10.30",writer:"테스트",rate:"1020 ",up:10,commentcount:10},
 
-    ]
     const styles = {
           headerBox: {
             width: '700px',
@@ -65,13 +57,27 @@ function Home() {
      };
 
     useEffect(() => {
-
-    axios.get('/api/votes/summary')
+      axios.get('/api/votes/summary')
              .then((res) => {
                  sethotCategory(res.data.category)
                  setvoteTotal(res.data.total)
-
              })
+      axios.get('/api/votes/recommend')
+             .then((res) => {
+                 const newSlides = res.data.vote.map((v) => ({
+                                            id: v.id,
+                                            category: v.category,
+                                            title: v.title,
+                                            startDay: v.startDay,
+                                            endDay: v.endDay,
+                                            writer: v.user.user_nick,
+                                            rate: v.optionCountTotal,
+                                            up: v.up,
+                                            commentCount: v.commentCount,
+                  }));
+                 setslides(newSlides); // slides를 새로운 배열로 설정
+            })
+
     }, []);
 
     function onSearch(value) {

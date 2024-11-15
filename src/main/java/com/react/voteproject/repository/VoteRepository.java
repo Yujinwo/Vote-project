@@ -55,10 +55,29 @@ public interface VoteRepository extends JpaRepository<Vote,Long>, VoteRepository
             "from Vote v " +
             "LEFT JOIN VoteOption vo ON v.id = vo.vote.id AND YEAR(vo.createdDate) = YEAR(CURDATE()) AND MONTH(vo.createdDate) = MONTH(CURDATE()) " +
             "GROUP BY v.id ) " +
-            "Select v, row_number() OVER (ORDER BY user_count DESC) AS vote_rank " +
+            "Select v, u, row_number() OVER (ORDER BY user_count DESC) AS vote_rank " +
             "from Vote v " +
-            "LEFT JOIN hot_vote hv ON v.id = hv.vote_id ")
+            "LEFT JOIN hot_vote hv ON v.id = hv.vote_id " +
+            "LEFT JOIN User u ON v.user.id = u.id ")
     List<Object[]> findHotVote(Pageable pageable);
+
+
+    @Query(value = "WITH hot_vote AS (" +
+            "    SELECT v.id AS vote_id, SUM(vo.count) AS user_count " +
+            "    FROM Vote v " +
+            "    LEFT JOIN VoteOption vo ON v.id = vo.vote.id " +
+            "    AND YEAR(vo.createdDate) = YEAR(CURDATE()) " +
+            "    AND MONTH(vo.createdDate) = MONTH(CURDATE()) " +
+            "    GROUP BY v.id" +
+            ") " +
+            "SELECT v, u, " +
+            "       ROW_NUMBER() OVER (ORDER BY hv.user_count DESC) AS vote_rank " +
+            "FROM Vote v " +
+            "LEFT JOIN hot_vote hv ON v.id = hv.vote_id " +
+            "LEFT JOIN User u ON v.user.id = u.id " +
+            "WHERE (:userId IS NULL OR v.id NOT IN (SELECT DISTINCT uv.vote.id FROM UserVote uv WHERE uv.user.id = :userId)) " +
+            "AND (:userId IS NULL OR v.user.id != :userId) ")
+    List<Object[]> findHotVotesExcludingUser(@Param("userId") Long userId,Pageable pageable);
 
 
 

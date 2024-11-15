@@ -31,29 +31,28 @@ public class VoteController {
 
     private final VoteService voteService;
 
-
-
     @GetMapping("/votes")
     public ResponseEntity<VoteDetailDataDto> findId(@RequestParam("id") Long vote_id) {
         VoteDetailDataDto vote = voteService.findvotesId(vote_id);
-
         return ResponseEntity.status(HttpStatus.OK).body(vote);
     }
 
     @GetMapping("/votes/summary")
     public ResponseEntity<HotCategoryAndTotalDto> getSummary() {
         HotCategoryAndTotalDto hotCategoryAndTotalDto = voteService.getSummary();
-
-
         return ResponseEntity.status(HttpStatus.OK).body(hotCategoryAndTotalDto);
-
     }
 
     @GetMapping("/votes/hot")
     public ResponseEntity<HotVoteandRankDto> getHot() {
         HotVoteandRankDto hotVoteandRankDto = voteService.getHot();
         return ResponseEntity.status(HttpStatus.OK).body(hotVoteandRankDto);
+    }
 
+    @GetMapping("/votes/recommend")
+    public ResponseEntity<HotVoteandRankDto> getRecommend() {
+        HotVoteandRankDto hotVoteandRankDto = voteService.getRecommend();
+        return ResponseEntity.status(HttpStatus.OK).body(hotVoteandRankDto);
     }
 
     @GetMapping("/votes/all")
@@ -121,7 +120,6 @@ public class VoteController {
     }
     @PostMapping("/voteoptions")
     public ResponseEntity<Map<Object,Object>> changeVoteOption(@RequestParam("id") Long id) {
-
         if(!AuthContext.checkAuth())
         {
             return ResponseHelper.createErrorMessage("result","로그인을 해주세요");
