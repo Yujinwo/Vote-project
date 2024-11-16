@@ -192,7 +192,7 @@ function VoteListAll(props) {
                              <ReactCardSlider slides={slides} hasNext={hasNext} page={page} OrderValue={OrderValue}/>
               </div>
               { isLoggedIn ? (
-                   <Flex justify="center">
+                   <Flex justify="center" style={{margin:200}}>
                         <div style={styles.votewritebutton}>
                            <Link to="/votewrite">
                              <Button type="primary" shape="round" icon={<EditOutlined />} size={20}>

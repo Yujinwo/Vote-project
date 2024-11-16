@@ -48,44 +48,53 @@ function VoteDetail() {
             const voteRenderingData = () => {
                  axios.get('/api/votes?id=' + id)
                                               .then((res) => {
-                                                  setcommentPage(1)
-                                                  const vote = res.data.vote;
+                                                  if(res.data.vote == null) {
+                                                           navigate('/votelist');
+                                                           message.error('데이터가 존재하지 않습니다');
+                                                  }
+                                                  else {
+                                                      setcommentPage(1)
+                                                      const vote = res.data.vote;
 
-                                                  setuserId(vote.user.user_id)
-                                                  // 선택지 설정
-                                                  setoptions([
-                                                   { id: vote.voteOptions[0].id, label: vote.voteOptions[0].content, percent: vote.voteOptions[0].rate, userCountTotal: vote.voteOptions[0].userCountTotal },
-                                                   { id: vote.voteOptions[1].id, label: vote.voteOptions[1].content, percent: vote.voteOptions[1].rate, userCountTotal: vote.voteOptions[1].userCountTotal },
-                                                  ])
+                                                      setuserId(vote.user.user_id)
+                                                      // 선택지 설정
+                                                      setoptions([
+                                                       { id: vote.voteOptions[0].id, label: vote.voteOptions[0].content, percent: vote.voteOptions[0].rate, userCountTotal: vote.voteOptions[0].userCountTotal },
+                                                       { id: vote.voteOptions[1].id, label: vote.voteOptions[1].content, percent: vote.voteOptions[1].rate, userCountTotal: vote.voteOptions[1].userCountTotal },
+                                                      ])
 
-                                                  // 투표 기본 데이터 설정
-                                                  setvoteNormaldata(
-                                                  { title: vote.title, category:vote.category,up:vote.up,commentCount:vote.commentCount}
-                                                  )
+                                                      // 투표 기본 데이터 설정
+                                                      setvoteNormaldata(
+                                                      { title: vote.title, category:vote.category,up:vote.up,commentCount:vote.commentCount}
+                                                      )
 
-                                                  // 투표 좋아요,댓글 수
-                                                  setcommentCount(vote.commentCount)
-                                                  setup(vote.up)
+                                                      // 투표 좋아요,댓글 수
+                                                      setcommentCount(vote.commentCount)
+                                                      setup(vote.up)
 
-                                                  // 선택한 투표 데이터 동기화
-                                                  setSelectedOption(res.data.selectedOptionId);
+                                                      // 선택한 투표 데이터 동기화
+                                                      setSelectedOption(res.data.selectedOptionId);
 
-                                                  // 댓글 데이터 설정
-                                                  setDataCount(res.data.comments.length)
-                                                  setcomments(res.data.comments)
-                                                  setVisibleData(res.data.comments)
+                                                      // 댓글 데이터 설정
+                                                      setDataCount(res.data.comments.length)
+                                                      setcomments(res.data.comments)
+                                                      setVisibleData(res.data.comments)
 
-                                                  // 댓글 더보기 활성화 설정
-                                                  sethasNext(res.data.hasNext);
+                                                      // 댓글 더보기 활성화 설정
+                                                      sethasNext(res.data.hasNext);
 
-                                                  // 좋아요 활성화 설정
-                                                  sethasUp(res.data.hasUp);
+                                                      // 좋아요 활성화 설정
+                                                      sethasUp(res.data.hasUp);
 
-                                                  // 북마크 활성화 설정
-                                                  sethasBookmark(res.data.hasBookMark);
+                                                      // 북마크 활성화 설정
+                                                      sethasBookmark(res.data.hasBookMark);
 
-                                                  // 투표 선택지 정보 백업
-                                                  setoptionCountTotal(vote.optionCountTotal);
+                                                      // 투표 선택지 정보 백업
+                                                      setoptionCountTotal(vote.optionCountTotal);
+
+
+                                                  }
+
 
 
 

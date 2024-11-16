@@ -3,7 +3,7 @@
 import React, { useEffect, useState } from "react";
 import { MdChevronLeft, MdChevronRight } from "react-icons/md"; // 아이콘 라이브러리에서 아이콘을 import
 import { Link } from "react-router-dom"; // Link import
-import { Progress, Flex,Button,Spin  } from "antd"; // Ant Design의 Progress 컴포넌트 import
+import { Progress, Flex,Button,Spin ,Empty } from "antd"; // Ant Design의 Progress 컴포넌트 import
 import "./Slider.css"; // CSS 파일 import
 import { BulbOutlined, CalendarOutlined, UserOutlined, LikeOutlined, CommentOutlined } from '@ant-design/icons';
 import axios from 'axios'
@@ -91,16 +91,20 @@ useEffect(() => {
 
 
 useEffect(() => {
- const slider = document.getElementById("slider");
+   if(visibleSlides.length != 0) {
 
-    const handleScroll = () => {
-      if (slider.scrollLeft + slider.clientWidth >= slider.scrollWidth) { // 슬라이드 끝에 도달했을 때
-        loadMoreSlides(); // 슬라이드 추가 로드
-      }
-    };
-     return () => {
-          slider.removeEventListener("scroll", handleScroll); // 컴포넌트 언마운트 시 이벤트 리스너 제거
-        };
+    const slider = document.getElementById("slider");
+       const handleScroll = () => {
+         if (slider.scrollLeft + slider.clientWidth >= slider.scrollWidth) { // 슬라이드 끝에 도달했을 때
+           loadMoreSlides(); // 슬라이드 추가 로드
+         }
+       };
+        return () => {
+             slider.removeEventListener("scroll", handleScroll); // 컴포넌트 언마운트 시 이벤트 리스너 제거
+           };
+
+   }
+
 }, [isLoading]); // 의존성 배열에 visibleSlides와 isLoading 추가
 
   // 슬라이드의 scroll 이벤트 리스너 등록
@@ -114,9 +118,11 @@ useEffect(() => {
   }, [props]); // 의존성 배열에 visibleSlides와 isLoading 추가
 
   return (
+  visibleSlides.length != 0 ? (
     <div id="main-slider-container">
       <MdChevronLeft size={40} className="slider-icon left" onClick={slideLeft} />
       <div id="slider" style={{ overflowX: 'scroll', whiteSpace: 'nowrap' }}>
+
         {visibleSlides.map((slide, index) => (
           <div className="slider-card" key={index}>
             <Link to={`/votedetail/${slide.id}`}>
@@ -154,17 +160,23 @@ useEffect(() => {
             </Flex>
           </div>
         ))}
+
         {isLoading && ( // 로딩 중일 때 Spin 컴포넌트 표시
                   <Flex justify="end" align="center">
                       <div style={{ position:'absolute',top:'135px' }}>
                         <Spin size="large" /> {/* 로딩 스피너 */}
                       </div>
                    </Flex>
-                )}
+         )}
+
       </div>
+
       <MdChevronRight size={40} className="slider-icon right" onClick={slideRight} />
+
     </div>
-  );
+
+  ) : ( <div> <Empty description="데이터가 없습니다." style={{marginBottom:100,marginTop:50}} /> </div> )
+  )
 };
 
 export default ReactCardSlider; // 컴포넌트를 export

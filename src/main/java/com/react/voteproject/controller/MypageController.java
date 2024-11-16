@@ -31,7 +31,7 @@ public class MypageController {
 
         if(!AuthContext.checkAuth())
         {
-            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(new MypageVoteDto());
+            return ResponseEntity.status(HttpStatus.OK).body(new MypageVoteDto());
         }
         MypageVoteDto mypageVoteDto = mypageService.findVotes(pageable,AuthContext.getAuth());
 

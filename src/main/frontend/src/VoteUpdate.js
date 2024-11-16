@@ -12,7 +12,7 @@ const { Text, Link } = Typography;
 
 function VoteUpdate() {
        const { id } = useParams();
-       const { isLoggedIn, login  } = useAuth();
+       const { isLoggedIn, login ,userid } = useAuth();
        const navigate = useNavigate();
        const [title,setTitle] = useState('');
        const [titleError, settitleError] = useState('기존 제목을 수정해주세요');
@@ -63,19 +63,27 @@ function VoteUpdate() {
 
      useEffect(() => {
 
-        axios.get('/api/votes?id=' + id)
-                    .then((res) => {
-                       setCategoryValue(res.data.vote.category);
-                       setinitialCategory(res.data.vote.category);
+              axios.get('/api/votes?id=' + id)
+                             .then((res) => {
+                                if(res.data.vote.user.user_id == null) {
+                                             navigate('/votelist');
+                                             message.error('로그인을 해주세요');
+                                }
+                                else if (res.data.vote.user.user_id != userid) {
+                                             navigate('/votelist');
+                                             message.error('허용되지 않은 접근입니다');
+                                }
+                                setCategoryValue(res.data.vote.category);
+                                setinitialCategory(res.data.vote.category);
 
-                       setTitle(res.data.vote.title);
-                       setinitialTitle(res.data.vote.title);
+                                setTitle(res.data.vote.title);
+                                setinitialTitle(res.data.vote.title);
 
-                       setChoices([res.data.vote.voteOptions[0].content,res.data.vote.voteOptions[1].content]);
-                       setinitialChoices([res.data.vote.voteOptions[0].content,res.data.vote.voteOptions[1].content]);
+                                setChoices([res.data.vote.voteOptions[0].content,res.data.vote.voteOptions[1].content]);
+                                setinitialChoices([res.data.vote.voteOptions[0].content,res.data.vote.voteOptions[1].content]);
 
-                       dayset(res.data.vote.startDay,res.data.vote.endDay);
-                    })
+                                dayset(res.data.vote.startDay,res.data.vote.endDay);
+                             })
      },[])
 
      const dayset = (startDay,endDay) => {

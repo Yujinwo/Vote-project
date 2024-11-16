@@ -1,23 +1,34 @@
 import React, { useState,useEffect } from 'react';
-import { Flex, Progress,Tabs,Table,Pagination,Tag } from 'antd';
+import { Flex, Progress,Tabs,Table,Pagination,Tag,message } from 'antd';
 import { ContainerOutlined,LikeOutlined,CommentOutlined } from '@ant-design/icons';
 import MypageVoteWriteList from './MypageVoteWriteList'
 import MypageVoteLikeList from './MypageVoteLikeList'
 import MypageVoteSelectList from './MypageVoteSelectList'
 import MypageVoteBookmarkList from './MypageVoteBookmarkList'
 import axios from 'axios'
+import { useNavigate } from 'react-router-dom';
+import { useAuth } from './AuthContext';
 function Mypage() {
 
    const [userdata,setuserdata] = useState({});
-
+   const { isLoggedIn, login,userId  } = useAuth();
+   const navigate = useNavigate();
    useEffect(() => {
-        axios.get('/api/users/stats')
-              .then((res) => {
-                   setuserdata({usernick:res.data.user_nick,userid:res.data.user_id,rate:res.data.rate,vote:res.data.vote,up:res.data.up,comment:res.data.comment})
-              })
+     axios.get('/api/users/stats')
+                      .then((res) => {
+                           if(res.data.user_id == null) {
+                                   navigate('/votelist');
+                                   message.error('로그인을 해주세요');
+                           }
+                           else {
+                             setuserdata({usernick:res.data.user_nick,userid:res.data.user_id,rate:res.data.rate,vote:res.data.vote,up:res.data.up,comment:res.data.comment})
+                           }
+
+                      })
    },[])
 
    return (
+   isLoggedIn ? (
     <div>
         <div style={{width:'600px',margin:'0 auto',marginBottom:'20px'}}>
             <div style={{border:'1px solid',borderRadius:10,padding:20}}>
@@ -72,9 +83,9 @@ function Mypage() {
             </div>
         </div>
       </div>
+   ) : ( <div></div> )
 
-   );
-
+ )
 }
 
 export default Mypage;

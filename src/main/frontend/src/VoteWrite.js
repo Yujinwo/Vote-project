@@ -1,16 +1,27 @@
 
-import React, { useState } from "react";
+import React, { useState,useEffect } from "react";
 import { Flex, Input, Typography,DatePicker, Space,Form, Button, Row, Col,message,Select } from 'antd';
 import { DeleteOutlined, PlusOutlined ,ExclamationCircleOutlined} from "@ant-design/icons";
 import { EditOutlined } from '@ant-design/icons';
-import { useNavigate } from 'react-router-dom';
 import axios from 'axios';
+import { useNavigate } from 'react-router-dom';
 import { useAuth } from './AuthContext';
 const { RangePicker } = DatePicker;
 const { Text, Link } = Typography;
 function VoteWrite() {
-       const { isLoggedIn, login  } = useAuth();
-       const navigate = useNavigate();
+      const { isLoggedIn, login  } = useAuth();
+      const navigate = useNavigate();
+       useEffect(() => {
+            axios.get('/api/sessions')
+                 .then((res) => {
+                 })
+                 .catch((err) => {
+                        navigate('/votelist');
+                        message.error('로그인을 해주세요');
+                 })
+       },[])
+
+
        const [title,setTitle] = useState('');
        const [titleError, settitleError] = useState('');
        const [day,setDay] = useState('');

@@ -13,8 +13,15 @@ import VoteUpdate from './VoteUpdate'
 import Mypage from './Mypage'
 import UserJoin from './UserJoin'
 import Login from './Login'
+import {Result } from 'antd';
 import { AuthProvider } from './AuthContext';
-
+const NotFoundPage = () => (
+    <Result
+      status="404"
+      title="404"
+      subTitle="방문하신 페이지는 존재하지 않습니다"
+    />
+);
 function App() {
     return (
        <AuthProvider>
@@ -34,6 +41,7 @@ function App() {
               <Route path="userjoin" element={<UserJoin />} />
               <Route path="login" element={<Login />} />
             </Route>
+             <Route path="*" element={<NotFoundPage />} />
           </Routes>
         </Router>
       </AuthProvider>

@@ -124,7 +124,7 @@ public class UserController {
 
         if(!AuthContext.checkAuth())
         {
-            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(new UserStatsDto());
+            return ResponseEntity.status(HttpStatus.OK).body(new UserStatsDto());
         }
 
         UserStatsDto userStatsDto = userService.getUserStats();
