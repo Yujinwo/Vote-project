@@ -5,22 +5,12 @@ import { DeleteOutlined, PlusOutlined ,ExclamationCircleOutlined} from "@ant-des
 import { EditOutlined } from '@ant-design/icons';
 import axios from 'axios';
 import { useNavigate } from 'react-router-dom';
-import { useAuth } from './AuthContext';
+import { useAuth } from '../Auth/AuthContext';
 const { RangePicker } = DatePicker;
 const { Text, Link } = Typography;
 function VoteWrite() {
-      const { isLoggedIn, login  } = useAuth();
-      const navigate = useNavigate();
-       useEffect(() => {
-            axios.get('/api/sessions')
-                 .then((res) => {
-                 })
-                 .catch((err) => {
-                        navigate('/votelist');
-                        message.error('로그인을 해주세요');
-                 })
-       },[])
-
+       const { isLoggedIn, login  } = useAuth();
+       const navigate = useNavigate();
 
        const [title,setTitle] = useState('');
        const [titleError, settitleError] = useState('');
@@ -31,40 +21,51 @@ function VoteWrite() {
        const [choiceError, setchoiceError] = useState('');
        const [choiceTwoisExceeded, setchoiceTwoIsExceeded] = useState(true);
        const [CategoryValue, setCategoryValue] = useState(null);
-       const categorys = [
-                              {
-                                  value: 'ENTERTAINMENT',
-                                  label: '엔터테인먼트',
-                              },
-                              {
-                                  value: 'SPORTS',
-                                  label: '스포츠',
-                              },
-                              {
-                                 value: 'FASHION_BEAUTY',
-                                 label: '패션 및 부티',
-                              },
-                              {
-                                 value: 'FOOD_CULINARY',
-                                 label: '음식 및 요리',
-                              },
-                              {
-                                 value: 'LIFESTYLE',
-                                 label: '라이프스타일',
-                              },
-                              {
-                                 value: 'GAMING_IT',
-                                 label: '게임 및 IT',
-                              },
-                              {
-                                 value: 'EDUCATION_LEARNING',
-                                 label: '교육 및 학습',
-                              },
+       const categorys =
+       [
+            {
+                value: 'ENTERTAINMENT',
+                label: '엔터테인먼트',
+            },
+            {
+                value: 'SPORTS',
+                label: '스포츠',
+            },
+            {
+               value: 'FASHION_BEAUTY',
+               label: '패션 및 부티',
+            },
+            {
+               value: 'FOOD_CULINARY',
+               label: '음식 및 요리',
+            },
+            {
+               value: 'LIFESTYLE',
+               label: '라이프스타일',
+            },
+            {
+               value: 'GAMING_IT',
+               label: '게임 및 IT',
+            },
+            {
+               value: 'EDUCATION_LEARNING',
+               label: '교육 및 학습',
+            },
        ]
-
+       useEffect(() =>
+       {
+           axios.get('/api/sessions')
+                 .then((res) => {})
+                 .catch((err) =>
+                 {
+                     navigate('/votelist');
+                     message.error('로그인을 해주세요');
+                 })
+       },[])
 
       // 선택지 내용 지우기 함수
-      const removeChoice = (index) => {
+      const removeChoice = (index) =>
+      {
         const newChoices = [...choices];
         console.log(newChoices);
         newChoices[index]= '';
@@ -72,7 +73,8 @@ function VoteWrite() {
       };
 
       // 선택지 값 변경 함수
-      const handleChange = (index, event) => {
+      const handleChange = (index, event) =>
+      {
         const newChoices = [...choices];
         console.log(newChoices);
         newChoices[index] = event.target.value;
@@ -83,21 +85,24 @@ function VoteWrite() {
         const value = event.target.value;
         if(index == 0)
         {
-             if( ( value.length < minLength || value.length > maxLength ) &&  ( !/^[ㄱ-ㅎ]*$/.test(value) && !/[ㄱ-ㅎ]/.test(value) ) )
+               if( ( value.length < minLength || value.length > maxLength ) &&  ( !/^[ㄱ-ㅎ]*$/.test(value) && !/[ㄱ-ㅎ]/.test(value) ) )
                {
                        setchoiceOneIsExceeded(true);
                        setchoiceError("최소 5자 이상, 최대 20자 이하로 입력해주세요")
                }
-               else if (value === null || value.trim() === '') {
+               else if (value === null || value.trim() === '')
+               {
                       setchoiceOneIsExceeded(true);
                       setchoiceError("선택지를 입력해주세요");
                }
                // 한글 초성 불가능 규칙 확인
-               else if ( /^[ㄱ-ㅎ]*$/.test(value) || /[ㄱ-ㅎ]/.test(value) ) {
+               else if ( /^[ㄱ-ㅎ]*$/.test(value) || /[ㄱ-ㅎ]/.test(value) )
+               {
                        setchoiceOneIsExceeded(true);
                        setchoiceError("한글 초성은 불가능합니다");
                }
-               else {
+               else
+               {
                        setchoiceOneIsExceeded(false);
                        setchoiceError('');
                }
@@ -108,84 +113,103 @@ function VoteWrite() {
                        setchoiceTwoIsExceeded(true);
                        setchoiceError("최소 5자 이상, 최대 20자 이하로 입력해주세요")
                    }
-                   else if (value === null || value.trim() === '') {
+                   else if (value === null || value.trim() === '')
+                   {
                        setchoiceTwoIsExceeded(true);
                        setchoiceError("선택지를 입력해주세요");
                    }
                    // 한글 초성 불가능 규칙 확인
-                   else if ( /^[ㄱ-ㅎ]*$/.test(value) || /[ㄱ-ㅎ]/.test(value) ) {
+                   else if ( /^[ㄱ-ㅎ]*$/.test(value) || /[ㄱ-ㅎ]/.test(value) )
+                   {
                        setchoiceTwoIsExceeded(true);
                        setchoiceError("한글 초성은 불가능합니다");
                    }
-                   else {
+                   else
+                   {
                        setchoiceTwoIsExceeded(false);
                        setchoiceError('');
                    }
             }
       }
+
       // 투표 작성 함수
-      const writeVote = () => {
-          if (titleisExceeded || choiceOneisExceeded || choiceTwoisExceeded || day.length != 2 || choices.length != 2) {
+      const writeVote = () =>
+      {
+          if (titleisExceeded || choiceOneisExceeded || choiceTwoisExceeded || day.length != 2 || choices.length != 2)
+          {
             message.error("입력을 확인해주세요");
-          } else {
-
-            axios.post('/api/votes',{
-                                  title:title,
-                                  category:CategoryValue,
-                                  days : day,
-                                  choices : choices
-                                },{
-                                   headers: {
-                                      'Content-Type': 'application/json'
-                                   }
-                                })
-                                .then((res) => {
-                                  navigate('/votelist');
-                                  message.success('투표 작성 완료');
-                                })
-                                .catch((err) => {
-                                  message.error(err.response.data.result);
-                                })
           }
-
-
+          else
+          {
+            axios.post('/api/votes',
+            {
+                    title:title,
+                    category:CategoryValue,
+                    days : day,
+                    choices : choices
+            },
+            {
+                    headers:
+                    {
+                        'Content-Type': 'application/json'
+                    }
+            })
+            .then((res) =>
+            {
+                    navigate('/votelist');
+                    message.success('투표 작성 완료');
+            })
+            .catch((err) =>
+            {
+                    message.error(err.response.data.result);
+            })
+          }
       }
-      // 제목 변경 함수
-      const changeTitle = (e) => {
 
+      // 제목 변경 함수
+      const changeTitle = (e) =>
+      {
          const minLength = 5;
          const maxLength = 20;
          const value = e.target.value;
-         if( (value.length < minLength || value.length > maxLength ) && ( !/^[ㄱ-ㅎ]*$/.test(value) && !/[ㄱ-ㅎ]/.test(value) )){
+         if( (value.length < minLength || value.length > maxLength ) && ( !/^[ㄱ-ㅎ]*$/.test(value) && !/[ㄱ-ㅎ]/.test(value) ))
+         {
            settitleIsExceeded(true);
            settitleError("최소 5자 이상, 최대 20자 이하로 입력해주세요");
          }
-         else if (value === null || value.trim() === '') {
+         else if (value === null || value.trim() === '')
+         {
            settitleIsExceeded(true);
            settitleError("제목을 입력해주세요");
          }
-         else if(/^[ㄱ-ㅎ]*$/.test(value) || /[ㄱ-ㅎ]/.test(value)) {
+         else if(/^[ㄱ-ㅎ]*$/.test(value) || /[ㄱ-ㅎ]/.test(value))
+         {
            settitleIsExceeded(true);
            settitleError("한글 초성은 불가능합니다");
          }
-         else {
+         else
+         {
            settitleIsExceeded(false);
            setTitle(value);
            settitleError('');
          }
       }
-      const changeDay =(data,dataString) => {
-         setDay(dataString);
+      // 기간 설정 함수
+      const changeDay =(data,dataString) =>
+      {
+           setDay(dataString);
       }
-
-      const handleChangecategory = (value) => {
-              setCategoryValue(value); // 선택된 값 저장
+      // 카테고리 설정 함수
+      const handleChangecategory = (value) =>
+      {
+           setCategoryValue(value); // 선택된 값 저장
       }
 
       return (
         <Flex align="center" style={{height:'1000px'}}>
             <div style={{margin:'0 auto' , width:450,border:'1px solid',borderRadius:10,padding:30}}>
                 <Typography.Title level={5}>카테고리</Typography.Title>
+                {/* 카테고리 선택 버튼 */}
                 <Select
                       showSearch
                       placeholder="카테고리 선택"
@@ -196,6 +220,7 @@ function VoteWrite() {
                       style={{width:'100%'}}
                       options={categorys}
                 />
+                {/* 제목 입력창 */}
                 <div>
                       <Typography.Title level={5}>제목</Typography.Title>
                       <Input
@@ -208,6 +233,7 @@ function VoteWrite() {
                         onBlur={changeTitle}
                       />
                 </div>
+                {/* 제목 오류 알림 */}
                 {  titleError != '' ? (
                         <Flex align="center">
                             <ExclamationCircleOutlined style={{marginBottom:10,marginRight:10}}/>
@@ -215,6 +241,7 @@ function VoteWrite() {
                         </Flex>
                     ) : ''
                 }
+                {/* 기간 설정 버튼 */}
                 <div>
                     <Typography.Title level={5}>날짜</Typography.Title>
                     <RangePicker
@@ -230,6 +257,7 @@ function VoteWrite() {
                 </div>
 
                 <div>
+                  {/* 선택지 설정 버튼 */}
                   <Form style={{height:130}}>
                       <Typography.Title level={5}>선택 의견</Typography.Title>
                        {choices.map((choice, index) => (
@@ -258,18 +286,20 @@ function VoteWrite() {
                                 </Col>
                               </Row>
                             ))}
-                    </Form>
-                          {  choiceError != '' ? (
-                                                                <Flex align="center">
-                                                                     <ExclamationCircleOutlined style={{marginBottom:4,marginRight:10}}/>
-                                                                     <Text type="danger">{choiceError}</Text>
-                                                                </Flex>
-                                                    ) : ''
-                          }
-                     <Button onClick={writeVote}
-                     style={{width:'100%'}}type="primary" shape="round" icon={<EditOutlined />} size={20}>
-                                                       투표 작성
-                     </Button>
+                  </Form>
+                  {/* 선택지 오류 알림 */}
+                  {  choiceError != '' ?
+                         (
+                             <Flex align="center">
+                               <ExclamationCircleOutlined style={{marginBottom:4,marginRight:10}}/>
+                               <Text type="danger">{choiceError}</Text>
+                             </Flex>
+                         ) : ''
+                  }
+
+                  <Button onClick={writeVote} style={{width:'100%'}}type="primary" shape="round" icon={<EditOutlined />} size={20}>
+                            투표 작성
+                  </Button>
                 </div>
             </div>
         </Flex>

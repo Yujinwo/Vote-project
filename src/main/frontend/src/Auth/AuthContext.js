@@ -1,36 +1,42 @@
 import React, { createContext, useState, useContext,useEffect } from 'react';
 import { message } from 'antd';
 import axios from 'axios'
+
 // AuthContext 생성
 const AuthContext = createContext();
 
 // Context를 제공하는 컴포넌트
 export const AuthProvider = ({ children }) => {
+  //로그인 여부
   const [isLoggedIn, setIsLoggedIn] = useState(false);
   const [userid, setuserid] = useState('');
 
-  // 토큰 기반으로 수정
-  const login = (userid) => {
-                 setuserid(userid);
-                 setIsLoggedIn(true);
+  //로그인
+  const login = (userid) =>
+  {
+         setuserid(userid);
+         setIsLoggedIn(true);
   }
-  const logout = () => {
-                 setIsLoggedIn(false);
-
+  //로그아웃
+  const logout = () =>
+  {
+         setIsLoggedIn(false);
   }
 
   // 컴포넌트가 마운트될 때 상태를 복원
   useEffect(() => {
-            axios.get('/api/sessions')
-                   .then((res) => {
-                       setuserid(res.data.result);
-                       setIsLoggedIn(true);
-                   })
-                   .catch((err) => {
-                       setIsLoggedIn(false);
-                   })
+       // 세션 조회
+       axios.get('/api/sessions')
+         .then((res) =>
+         {
+               setuserid(res.data.result);
+               setIsLoggedIn(true);
+         })
+         .catch((err) =>
+         {
+               setIsLoggedIn(false);
+         })
   }, []);
-
 
   return (
     <AuthContext.Provider value={{ isLoggedIn, login, logout,userid }}>

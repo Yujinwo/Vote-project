@@ -1,0 +1,17 @@
+/* Header.css */
+.header {
+  display: flex;
+  justify-content: center;
+  padding: 10px 0;
+  background-color: #001529;
+}
+.header-content {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  width: 100%;
+  max-width: 1200px;
+}
+.auth-buttons {
+  margin-left: 20px;
+}

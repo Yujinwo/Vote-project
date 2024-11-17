@@ -1,10 +1,9 @@
-// Footer.js
 import React from 'react';
 
 function Footer() {
   return (
     <footer style={{ textAlign: 'center' }}>
-      ©2024 Created by Your Name
+      ©2024 Created by VoteProject
     </footer>
   );
 }

@@ -1,7 +1,7 @@
 import React,{useState} from 'react'
 import { Flex, Input, Typography,Button, message } from 'antd';
 import { CheckOutlined,ExclamationCircleOutlined } from '@ant-design/icons';
-import { useAuth } from './AuthContext';
+import { useAuth } from '../Auth/AuthContext';
 import axios from "axios";
 import { useNavigate } from 'react-router-dom';
 const { Text, Link } = Typography;
@@ -23,7 +23,8 @@ function Login() {
            setidIsExceeded(true)
            setidError("최소 4자 이상, 최대 10자 이하로 입력해주세요")
         }
-        else if (value === null || value.trim() === '') {
+        else if (value === null || value.trim() === '')
+        {
            setidIsExceeded(true);
            setidError("선택지를 입력해주세요");
         }
@@ -32,59 +33,70 @@ function Login() {
            setidIsExceeded(true)
            setidError("알파벳, 숫자 조합으로 입력해주세요")
         }
-        // 알파벳, 숫자 조합 규칙 확인
-        else  {
-               setIdValue(value);
-               setidIsExceeded(false)
-               setidError('')
+        else
+        {
+           setIdValue(value);
+           setidIsExceeded(false)
+           setidError('')
         }
         };
-        const pwChange = (e) => {
+        const pwChange = (e) =>
+        {
              const minLength = 7;
              const maxLength = 15;
              const value = e.target.value.trim();
              setPwValue(value);
              if(value.length < minLength || value.length > maxLength)
              {
-                         setpwIsExceeded(true)
-                         setpwError("최소 7자 이상, 최대 15자 이하로 입력해주세요")
+                   setpwIsExceeded(true)
+                   setpwError("최소 7자 이상, 최대 15자 이하로 입력해주세요")
              }
-             else if (value === null || value.trim() === '') {
-                         setpwIsExceeded(true);
-                         setpwError("선택지를 입력해주세요");
+             else if (value === null || value.trim() === '')
+             {
+                   setpwIsExceeded(true);
+                   setpwError("선택지를 입력해주세요");
              }
              else {
-                         setpwIsExceeded(false)
-                         setpwError('')
+                   setpwIsExceeded(false)
+                   setpwError('')
              }
         };
-        const Login = () => {
-            if (idisExceeded || pwisExceeded ) {
-              message.error("입력과 규칙을 확인해주세요");
-            } else {
-              // 회원가입 처리 로직 추가
-              axios.post('/api/login',{
-                           user_id:idValue,
-                           user_pw:pwValue
-                          },{
-                                headers: {
-                                    'Content-Type': 'application/json'
-                                }
-                            })
-                            .then((res) => {
-                                    login(idValue);
-                                    navigate('/');
-                                    message.success('로그인 성공!');
-                            })
-                            .catch((err) => {
-                                    message.error(err.response.data.result);
-                            });
+        const Login = () =>
+        {
+            if (idisExceeded || pwisExceeded )
+            {
+                message.error("입력과 규칙을 확인해주세요");
+            }
+            else
+            {
+                axios.post('/api/login',
+                {
+                      user_id: idValue,
+                      user_pw: pwValue
+                },
+                {
+                      headers:
+                      {
+                          'Content-Type': 'application/json'
+                      }
+                })
+                .then((res) =>
+                {
+                      login(idValue);
+                      navigate('/');
+                      message.success('로그인 성공!');
+                })
+                .catch((err) =>
+                {
+                      message.error(err.response.data.result);
+                });
             }
         };
 
         return (
          <Flex  style={{height:1000}} align="center">
               <div style={{width:500,margin:'0 auto',border:'1px solid',borderRadius:10,padding:20}}>
+                {/* 아이디 입력창 */}
                 <div>
                       <Typography.Title level={5}>아이디</Typography.Title>
                       <Input
@@ -96,13 +108,15 @@ function Login() {
                         onBlur={idChange}
                       />
                 </div>
+                {/* 아이디 오류 알림 */}
                 {  idError != '' ? (
                     <Flex align="center">
                         <ExclamationCircleOutlined style={{marginBottom:10,marginRight:10}}/>
                         <Text type="danger">{idError}</Text>
                     </Flex>
-                ) : ''
+                   ) : ''
                 }
+                {/* 비밀번호 입력창 */}
                 <div>
                       <Typography.Title level={5}>비밀번호 </Typography.Title>
                       <Input.Password
@@ -114,6 +128,7 @@ function Login() {
                         onBlur={pwChange}
                       />
                 </div>
+                {/* 비밀번호 오류 알림 */}
                 {  pwError != '' ? (
                     <Flex align="center">
                         <ExclamationCircleOutlined style={{marginBottom:10,marginRight:10}}/>
@@ -121,11 +136,11 @@ function Login() {
                     </Flex>
                 ) : ''
                 }
+                {/* 로그인 버튼 */}
                 <div style={{marginTop:30}}>
-                               <Button onClick={Login}
-                               style={{width:'100%'}}type="primary" shape="round" icon={<CheckOutlined />} size={40}>
-                                   로그인
-                               </Button>
+                         <Button onClick={Login} style={{width:'100%'}}type="primary" shape="round" icon={<CheckOutlined />} size={40}>
+                              로그인
+                         </Button>
                 </div>
               </div>
          </Flex>
