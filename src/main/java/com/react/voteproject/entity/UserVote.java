@@ -27,5 +27,4 @@ public class UserVote extends BaseTime{
     @JoinColumn(name = "user_id")
     private User user;
 
-
 }

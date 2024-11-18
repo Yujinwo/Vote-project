@@ -26,7 +26,12 @@ public class UserJoinDto {
     private String user_nick;
 
     public User createUser() {
-        return User.builder().userId(user_id).userPw(user_pw).userNick(user_nick).build();
+
+        return User.builder()
+                .userId(user_id)
+                .userPw(user_pw)
+                .userNick(user_nick)
+                .build();
     }
 
 }

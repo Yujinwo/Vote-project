@@ -15,11 +15,10 @@ import java.util.List;
 @Repository
 public interface CommentRepository extends JpaRepository<Comment,Long> {
 
-    @Query("select c from Comment c where vote = :vote_id")
-    List<Comment> findByVote(@Param("vote_id") Vote vote_id);
+    // 투표 댓글 리스트 조회
     @Query("select c from Comment c where vote = :vote_id")
     Slice<Comment> findSliceByVote(@Param("vote_id") Vote vote_id, Pageable pageable);
-
+    // 투표 댓글 수 조회
     @Query("select count(c) from Comment c where vote = :vote_id")
     long countCommentsByVote(@Param("vote_id") Vote vote_id);
 

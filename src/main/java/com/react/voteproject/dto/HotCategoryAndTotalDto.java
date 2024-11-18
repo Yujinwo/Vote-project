@@ -21,6 +21,9 @@ public class HotCategoryAndTotalDto {
     public static HotCategoryAndTotalDto createHotCategoryAndTotalDto(Object[] object) {
 
         Object[] objectSummary = (Object[]) object[0];
-        return HotCategoryAndTotalDto.builder().category((String) objectSummary[0]).total((Long) objectSummary[2]).build();
+        return HotCategoryAndTotalDto.builder()
+                .category((String) objectSummary[0])
+                .total((Long) objectSummary[2])
+                .build();
     }
 }

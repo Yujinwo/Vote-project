@@ -18,7 +18,8 @@ public class VoteOptionDto {
     private int userCountTotal;
 
     public static VoteOptionDto createOptionDto(VoteOption voteOption, int total) {
-        double rate = ((double) voteOption.getCount() / total) * 100; // 비율 계산
+        // 비율 계산
+        double rate = ((double) voteOption.getCount() / total) * 100;
         int percentage = (int) Math.floor(rate);
         return VoteOptionDto.builder()
                 .id(voteOption.getId())

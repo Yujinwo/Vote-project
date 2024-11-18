@@ -26,6 +26,7 @@ import java.util.stream.Collectors;
 public class CommentService {
     private final CommentRepository commentRepository;
     private final VoteRepository voteRepository;
+    // 댓글 작성
     @Transactional
     public Boolean write(CommentWriteDto commentWriteDto) {
         Optional<Vote> vote = voteRepository.findById(commentWriteDto.getVote_id());
@@ -41,20 +42,15 @@ public class CommentService {
             return false;
         }
     }
+    // 댓글 조회
     @Transactional(readOnly = true)
     public CommentMoreDto findComment(Long id, Pageable pageable) {
         Optional<Vote> vote = voteRepository.findById(id);
         if(vote.isPresent()){
             int page = pageable.getPageNumber();
-
-
             PageRequest pageRequest = PageRequest.of(page > 0 ? page - 1 : page, 10);
-
-
             Slice<Comment> comments = commentRepository.findSliceByVote(vote.get(), pageRequest);
-
             List<CommentResponseDto> commentResponseDto = comments.getContent().stream().map(CommentResponseDto::createCommentResponseDto).collect(Collectors.toList());
-
             Long total = commentRepository.countCommentsByVote(vote.get());
             CommentMoreDto commentMoreDto = CommentMoreDto.createCommentMoreDto(total,comments,commentResponseDto);
             return commentMoreDto;
@@ -64,9 +60,9 @@ public class CommentService {
         }
 
     }
+    // 댓글 수정
     @Transactional
     public Boolean update(CommentUpdateDto commentUpdateDto) {
-
         Optional<Vote> vote = voteRepository.findById(commentUpdateDto.getVote_id());
         if(vote.isPresent()){
             Optional<Comment> comment = commentRepository.findById(commentUpdateDto.getComment_id());
@@ -86,9 +82,8 @@ public class CommentService {
         else {
             return false;
         }
-
     }
-
+    // 댓글 삭제
     public Boolean delete(Long commentId) {
 
             Optional<Comment> comment = commentRepository.findById(commentId);

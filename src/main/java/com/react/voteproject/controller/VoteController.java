@@ -30,33 +30,34 @@ import java.util.Optional;
 public class VoteController {
 
     private final VoteService voteService;
-
+    // 투표 상세 조회
     @GetMapping("/votes")
     public ResponseEntity<VoteDetailDataDto> findId(@RequestParam("id") Long vote_id) {
         VoteDetailDataDto vote = voteService.findvotesId(vote_id);
         return ResponseEntity.status(HttpStatus.OK).body(vote);
     }
-
+    // 총 투표 수 , 인기 카테고리 조회
     @GetMapping("/votes/summary")
     public ResponseEntity<HotCategoryAndTotalDto> getSummary() {
         HotCategoryAndTotalDto hotCategoryAndTotalDto = voteService.getSummary();
         return ResponseEntity.status(HttpStatus.OK).body(hotCategoryAndTotalDto);
     }
-
+    // 인기 투표 리스트 조회
     @GetMapping("/votes/hot")
     public ResponseEntity<HotVoteandRankDto> getHot() {
         HotVoteandRankDto hotVoteandRankDto = voteService.getHot();
         return ResponseEntity.status(HttpStatus.OK).body(hotVoteandRankDto);
     }
-
+    // 투표 추천 리스트
     @GetMapping("/votes/recommend")
     public ResponseEntity<HotVoteandRankDto> getRecommend() {
         HotVoteandRankDto hotVoteandRankDto = voteService.getRecommend();
         return ResponseEntity.status(HttpStatus.OK).body(hotVoteandRankDto);
     }
-
+    // 투표 참여 리스트 조회
     @GetMapping("/votes/all")
     public ResponseEntity<VoteHomeDataDto> findAll(@PageableDefault(page = 1) Pageable pageable, @RequestParam(value = "sort",defaultValue = "startDay")  String sort, @RequestParam(value = "category",defaultValue = "")  String category,@RequestParam(value = "title",required = false) String title) {
+        // 검색 키워드 규칙 확인
         if(title != null) {
             if(title.length() == 0 || title.length() > 20) {
                 return ResponseEntity.status(HttpStatus.OK).body(VoteHomeDataDto.createVoteHomeDataDto(new ArrayList<>(),false,0));
@@ -66,11 +67,12 @@ public class VoteController {
 
         return ResponseEntity.status(HttpStatus.OK).body(vote);
     }
-
+    // 투표 작성
     @PostMapping("/votes")
     public ResponseEntity<Map<Object,Object>> writeVote(@Valid @RequestBody VoteWriteDto voteWriteDto) {
 
         Boolean checkCategory = category_enum.fromCode(voteWriteDto.getCategory());
+        // 카테고리 데이터 검증
         if(!checkCategory){
             return ResponseHelper.createErrorMessage("result","카테고리가 일치하지 않습니다");
         }
@@ -85,11 +87,12 @@ public class VoteController {
         }
         return ResponseHelper.createSuccessMessage("result","투표 작성 성공");
     }
-
+    // 투표 수정
     @PutMapping("/votes")
     public ResponseEntity<Map<Object,Object>> updateVote(@Valid @RequestBody VoteUpdateDto voteUpdateDto) {
 
         Boolean checkCategory = category_enum.fromCode(voteUpdateDto.getCategory());
+        // 카테고리 데이터 검증
         if(!checkCategory){
             return ResponseHelper.createErrorMessage("result","카테고리가 일치하지 않습니다");
         }
@@ -104,6 +107,7 @@ public class VoteController {
         }
         return ResponseHelper.createSuccessMessage("result","투표 수정 성공");
     }
+    // 투표 삭제
     @DeleteMapping("/votes")
     public ResponseEntity<Map<Object,Object>> deleteVote(@RequestParam("id") Long vote_id) {
 
@@ -118,6 +122,7 @@ public class VoteController {
         }
         return ResponseHelper.createSuccessMessage("result","투표 삭제 성공");
     }
+    // 투표 선택지 참여
     @PostMapping("/voteoptions")
     public ResponseEntity<Map<Object,Object>> changeVoteOption(@RequestParam("id") Long id) {
         if(!AuthContext.checkAuth())
@@ -131,7 +136,7 @@ public class VoteController {
         }
         return ResponseHelper.createSuccessMessage("result","선택 성공");
     }
-
+    // 좋아요 기능
     @PostMapping("/ups")
     public ResponseEntity<Map<Object,Object>> changeUp(@RequestParam("id") Long id) {
 
@@ -146,7 +151,7 @@ public class VoteController {
         }
         return ResponseHelper.createSuccessMessage("result","좋아요 성공");
     }
-
+    // 북마크 기능
     @PostMapping("/bookmarks")
     public ResponseEntity<Map<Object,Object>> changeBookmark(@RequestParam("id") Long id) {
 

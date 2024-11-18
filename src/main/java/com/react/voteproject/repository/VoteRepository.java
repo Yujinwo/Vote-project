@@ -17,15 +17,18 @@ import java.util.List;
 @Repository
 public interface VoteRepository extends JpaRepository<Vote,Long>, VoteRepositoryCustom {
 
-
+    // 투표 참여 카테고리별 리스트 조회
     @Query("select v from Vote v WHERE category = :category AND (:title IS NULL OR LOWER(v.title) LIKE LOWER(CONCAT('%', :title, '%'))) ")
     Slice<Vote> findAllByVoteAndCategory(Pageable pageable, @Param("category") String category,@Param("title") String title);
 
+    // 투표 참여 전체 리스트 조회
     @Query("select v from Vote v WHERE (:title IS NULL OR LOWER(v.title) LIKE LOWER(CONCAT('%', :title, '%')))")
     Slice<Vote> findAllByVote(Pageable pageable,@Param("title") String title);
 
+    // 유저 투표 작성 리스트 조회
     Page<Vote> findByuser(Pageable pageable, User user);
 
+    // 카테고리별 투표 참여율 내림차순 기준 리스트 조회
     @Query("SELECT v, SUM(vo.count) AS totalCount " +
             "FROM Vote v " +
             "LEFT JOIN VoteOption vo ON vo.vote.id = v.id " +
@@ -34,6 +37,7 @@ public interface VoteRepository extends JpaRepository<Vote,Long>, VoteRepository
             "ORDER BY totalCount DESC")
     Slice<Object[]> findVotesWithTotalCountByCategory(Pageable pageable,@Param("category") String category);
 
+    // 전체 투표 참여율 내림차순 기준 리스트 조회
     @Query("SELECT v, SUM(vo.count) AS totalCount " +
             "FROM Vote v " +
             "LEFT JOIN VoteOption vo ON vo.vote.id = v.id " +
@@ -41,6 +45,7 @@ public interface VoteRepository extends JpaRepository<Vote,Long>, VoteRepository
             "ORDER BY totalCount DESC")
     Slice<Object[]> findVoteWithTotalCount(Pageable pageable);
 
+    // 총 투표 수 , 인기 카테고리 조회
     @Query("Select v.category," +
             "COUNT(v.category) AS HotCategory," +
             "(Select count(*) from Vote) AS vote_count " +
@@ -51,6 +56,7 @@ public interface VoteRepository extends JpaRepository<Vote,Long>, VoteRepository
             "LIMIT 1" )
     Object[] findHotCategoryWithVoteCount();
 
+    // 인기 투표 조회
     @Query(value = "WITH hot_vote AS (select v.id AS vote_id, SUM(vo.count) AS user_count " +
             "from Vote v " +
             "LEFT JOIN VoteOption vo ON v.id = vo.vote.id AND YEAR(vo.createdDate) = YEAR(CURDATE()) AND MONTH(vo.createdDate) = MONTH(CURDATE()) " +
@@ -61,7 +67,7 @@ public interface VoteRepository extends JpaRepository<Vote,Long>, VoteRepository
             "LEFT JOIN User u ON v.user.id = u.id ")
     List<Object[]> findHotVote(Pageable pageable);
 
-
+    // 투표 추천 리스트 조회
     @Query(value = "WITH hot_vote AS (" +
             "    SELECT v.id AS vote_id, SUM(vo.count) AS user_count " +
             "    FROM Vote v " +

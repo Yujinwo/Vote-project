@@ -21,9 +21,13 @@ public class MypageVoteDto {
     private Long total;
     private int pageSize;
 
-
     public static MypageVoteDto createMypageVoteDto(List<VoteResponseDto> vote,int page,Long total,int pageSize) {
-        return MypageVoteDto.builder().vote(vote).page(page).pageSize(pageSize).total(total).build();
+        return MypageVoteDto.builder()
+                .vote(vote)
+                .page(page)
+                .pageSize(pageSize)
+                .total(total)
+                .build();
     }
 
 }

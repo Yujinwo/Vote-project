@@ -23,11 +23,15 @@ public class CommentResponseDto {
 
         // 변환 포맷 정의
         DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm");
-
         // 원하는 형식으로 변환
         String formattedDate = comment.getCreatedDate().format(formatter);
 
-        return CommentResponseDto.builder().id(comment.getId()).content(comment.getContent()).created_date(formattedDate).user(UserDto.createUserDto(comment.getUser())).build();
+        return CommentResponseDto.builder()
+                .id(comment.getId())
+                .content(comment.getContent())
+                .created_date(formattedDate)
+                .user(UserDto.createUserDto(comment.getUser()))
+                .build();
 
     }
 

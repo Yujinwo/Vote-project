@@ -18,32 +18,16 @@ import java.util.stream.Collectors;
 public class HotVoteResponseDto {
 
     private Long id;
-
     private String title;
-
-
     private String category;
-
-
     private int up;
-
-
     private Long commentCount;
-
-
     private String startDay;
-
-
     private String endDay;
-
     private List<VoteOptionDto> voteOptions;
-
     private int optionCountTotal;
-
     private UserDto user;
-
     private Long rank;
-
 
     public static HotVoteResponseDto createHotVoteResponseDto(Object[] vote,Long commentCount) {
         // 변환 포맷 정의
@@ -53,10 +37,9 @@ public class HotVoteResponseDto {
         Long rank = (Long) vote[2];
         // 원하는 형식으로 변환
         String startDay = hotvote.getStartDay().format(formatter);
-        // 원하는 형식으로 변환
         String endDay = hotvote.getEndDay().format(formatter);
 
-        int total = hotvote.getOptions().stream().mapToInt(o -> o.getCount()).sum();
+        int optionCountTotal = hotvote.getOptions().stream().mapToInt(o -> o.getCount()).sum();
 
         return HotVoteResponseDto.builder()
                 .id(hotvote.getId())
@@ -67,9 +50,11 @@ public class HotVoteResponseDto {
                 .title(hotvote.getTitle())
                 .startDay(startDay)
                 .endDay(endDay)
-                .optionCountTotal(total)
+                .optionCountTotal(optionCountTotal)
                 .user(UserDto.createUserDto(user))
-                .voteOptions(hotvote.getOptions().stream().map(o -> VoteOptionDto.createOptionDto(o,total)).collect(Collectors.toList())).build();
+                .voteOptions(hotvote.getOptions().stream().map(o -> VoteOptionDto.createOptionDto(o,optionCountTotal))
+                        .collect(Collectors.toList()))
+                .build();
 
     }
 

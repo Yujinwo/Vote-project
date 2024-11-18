@@ -25,44 +25,40 @@ import java.util.stream.Collectors;
 public class UserService {
 
     private final UserRepository userRepository;
-
+    // 로그인
     @Transactional(readOnly = true)
     public Optional<User> login(UserLoginDto userLoginDto) {
        Optional<User> user = userRepository.Login(userLoginDto.getUser_id(), userLoginDto.getUser_pw());
        return user;
     }
-
+    // 회원가입
     @Transactional
     public Optional<User> join(UserJoinDto userJoinDto) {
         Optional<User> user = Optional.of(userRepository.save(userJoinDto.createUser()));
         return user;
     }
+    // id 조회
     @Transactional(readOnly = true)
     public Optional<User> findUserId(String userid) {
         return userRepository.findByuserId(userid);
     }
-
+    // My페이지 유저 통계 데이터 조회
     public UserStatsDto getUserStats() {
-
         Long id = AuthContext.getAuth().getId();
         Optional<Object[]> statsByUser = userRepository.findStatsByUser(id);
         if(statsByUser.isPresent()){
             Double votingRateByUser = userRepository.findVotingRateByUser(id);
             UserStatsDto userStatsDto = UserStatsDto.createUserStatsDto(statsByUser.get(),votingRateByUser);
             return userStatsDto;
-
         }
         else {
             return new UserStatsDto();
         }
-
-
     }
-
+    // 유저 투표 참여율 순위 조회
     public List<UserVoteStatsDto> getVoteStats(String category, String day) {
         List<Object[]> userRankingWithActivityToday = new ArrayList<>();
         if(category == null) {
-
             if(day.equals("Thisyear")) {
                userRankingWithActivityToday = userRepository.findUserRankingWithActivityThisYear(null,100);
             }
@@ -93,9 +89,8 @@ public class UserService {
             List<UserVoteStatsDto> userVoteStatsDtos = userRankingWithActivityToday.stream().map(UserVoteStatsDto::createUserVoteStatsDto).collect(Collectors.toList());
             return userVoteStatsDtos;
         }
-
     }
-
+    // 유저 투표 참여율 순위 id 기준 조회
     public List<UserVoteStatsDto> searchVoteStats(String userId, String category, String day) {
         List<Object[]> userRankingWithActivityToday = new ArrayList<>();
         if(category == null) {

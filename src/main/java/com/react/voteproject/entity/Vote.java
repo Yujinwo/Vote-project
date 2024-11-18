@@ -62,7 +62,6 @@ public class Vote extends BaseTime{
 
     // 좋아요
     public void changeUp( int count) {
-
         this.up = up + count;
     }
 }

@@ -23,7 +23,11 @@ public class CommentUpdateDto {
 
     public Comment createComment(Vote vote, User user)
     {
-        return Comment.builder().content(content).user(user).vote(vote).build();
+        return Comment.builder()
+                .content(content)
+                .user(user)
+                .vote(vote)
+                .build();
 
     }
 

@@ -12,12 +12,14 @@ import java.util.Optional;
 
 @Repository
 public interface UserRepository extends JpaRepository<User,Long> {
-
+    // 로그인
     @Query("select u from User u Where u.userId = :user_id and u.userPw = :user_pw")
     Optional<User> Login(@Param("user_id") String user_id, @Param("user_pw") String user_pw);
 
+    // id 조회
     Optional<User> findByuserId(String user_id);
 
+    // My페이지 유저 통계 데이터 조회
     @Query("select u.userId,u.userPw,COUNT(distinct v.id) AS vote_count, COUNT(distinct p.id) AS up_count, COUNT(distinct c.id) AS comment_count " +
             "from User u " +
             "LEFT JOIN Vote v ON u.id = v.user.id " +
@@ -26,13 +28,13 @@ public interface UserRepository extends JpaRepository<User,Long> {
             "where u.id = :user_id ")
     Optional<Object[]> findStatsByUser(@Param("user_id") Long user_id);
 
-
+    // 유저 투표 참여율 조회
     @Query("select ( COUNT(uv.user.id) / (select count(*) from Vote v) ) * 100 AS participation_rate from User u " +
             "LEFT JOIN UserVote uv ON u.id = uv.user.id " +
             "Where u.id = :user_id ")
     Double findVotingRateByUser(@Param("user_id") Long user_id);
 
-
+    // Today 전체 유저 투표 참여율 순위 조회
     @Query(value = "WITH UserVoteCounts AS (" +
             "    SELECT " +
             "        u.id AS user_id, " +
@@ -107,8 +109,7 @@ public interface UserRepository extends JpaRepository<User,Long> {
             "Select * from UserStats us WHERE (:id IS NULL OR us.user_id = :id)" ,nativeQuery = true)
     List<Object[]> findUserRankingWithActivityToday(@Param("id") String id,@Param("limit") int limit);
 
-
-
+    // ThisMonth 전체 유저 투표 참여율 순위 조회
     @Query(value = "WITH UserVoteCounts AS (" +
             "    SELECT " +
             "        u.id AS user_id, " +
@@ -183,7 +184,7 @@ public interface UserRepository extends JpaRepository<User,Long> {
             "Select * from UserStats us WHERE (:id IS NULL OR us.user_id = :id)" ,nativeQuery = true)
     List<Object[]> findUserRankingWithActivityThisMonth(@Param("id") String id,@Param("limit") int limit);
 
-
+    // ThisYear 전체 유저 투표 참여율 순위 조회
     @Query(value = "WITH UserVoteCounts AS (" +
             "    SELECT " +
             "        u.id AS user_id, " +
@@ -258,9 +259,7 @@ public interface UserRepository extends JpaRepository<User,Long> {
             "Select * from UserStats us WHERE (:id IS NULL OR us.user_id = :id)" ,nativeQuery = true)
     List<Object[]> findUserRankingWithActivityThisYear(@Param("id") String id,@Param("limit") int limit);
 
-
-
-
+    // Today 카테고리별 유저 투표 참여율 순위 조회
     @Query(value = "WITH UserActivity AS (" +
             "    SELECT " +
             "        u.id AS user_id, " +
@@ -323,7 +322,7 @@ public interface UserRepository extends JpaRepository<User,Long> {
             "Select * from UserStats us WHERE (:id IS NULL OR us.user_id = :id)" ,nativeQuery = true)
     List<Object[]> findUserCategoryRankingWithActivityToday(@Param("category") String category,@Param("id") String id,@Param("limit") int limit);
 
-
+    // ThisMonth 카테고리별 유저 투표 참여율 순위 조회
     @Query(value = "WITH UserActivity AS (" +
             "    SELECT " +
             "        u.id AS user_id, " +
@@ -386,6 +385,7 @@ public interface UserRepository extends JpaRepository<User,Long> {
             "Select * from UserStats us WHERE (:id IS NULL OR us.user_id = :id)" ,nativeQuery = true)
     List<Object[]> findUserCategoryRankingWithActivityThisMonth(@Param("category") String category,@Param("id") String id,@Param("limit") int limit);
 
+    // ThisYear 카테고리별 유저 투표 참여율 순위 조회
     @Query(value = "WITH UserActivity AS (" +
             "    SELECT " +
             "        u.id AS user_id, " +

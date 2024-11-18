@@ -26,11 +26,9 @@ public class Comment extends BaseTime {
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "user_id")
     private User user;
-
+    // 투표 내용 수정
     public void changeContent(String content) {
-
         this.content = content;
     }
-
 
 }

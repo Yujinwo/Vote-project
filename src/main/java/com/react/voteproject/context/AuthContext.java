@@ -13,7 +13,7 @@ public class AuthContext {
     public static void setAuth(User user) {
         AuthContext.user = user;
     }
-
+    // 유저 로그인 인증 함수
     public static Boolean checkAuth() {
         return AuthContext.user != null ? true : false;
     }

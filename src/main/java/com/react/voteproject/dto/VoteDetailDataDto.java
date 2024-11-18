@@ -31,6 +31,13 @@ public class VoteDetailDataDto {
 
     public static VoteDetailDataDto createVoteDetailDataDto(VoteResponseDto voteResponseDto, Long selectedOptionId, List<CommentResponseDto> comments, Boolean hasNext, Boolean hasUp, Boolean hasBookmark)
     {
-        return VoteDetailDataDto.builder().vote(voteResponseDto).selectedOptionId(selectedOptionId).comments(comments).hasNext(hasNext).hasUp(hasUp).hasBookMark(hasBookmark).build();
+        return VoteDetailDataDto.builder()
+                .vote(voteResponseDto)
+                .selectedOptionId(selectedOptionId)
+                .comments(comments)
+                .hasNext(hasNext)
+                .hasUp(hasUp)
+                .hasBookMark(hasBookmark)
+                .build();
     }
 }

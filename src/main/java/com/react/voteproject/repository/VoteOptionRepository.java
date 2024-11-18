@@ -13,6 +13,6 @@ import java.util.Optional;
 @Repository
 public interface VoteOptionRepository extends JpaRepository<VoteOption,Long> {
 
-
+    // 투표 선택지 리스트 조회
     List<VoteOption> findByvote(Vote vote);
 }

@@ -19,14 +19,10 @@ public class UserVoteStatsDto {
     private double rate;
     private int vote;
     private int up;
-
     private int comment;
     private String category;
 
     public static UserVoteStatsDto createUserVoteStatsDto(Object[] userVote) {
-
-
-
         Long voteValue = (Long) userVote[2];
         Long upValue = (Long) userVote[3];
         Long commentValue = (Long) userVote[4];

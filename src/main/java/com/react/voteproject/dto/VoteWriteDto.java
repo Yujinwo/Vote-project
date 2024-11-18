@@ -34,7 +34,6 @@ public class VoteWriteDto {
     @Size(min =2,max = 2,message = "선택지 2개를 설정해주세요")
     private List<String> choices;
 
-
     public Vote createVote() {
         DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss");
         LocalDateTime startDay = LocalDateTime.parse(days.get(0), formatter);

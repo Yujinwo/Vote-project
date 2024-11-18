@@ -15,8 +15,9 @@ import java.util.List;
 public class HotVoteandRankDto {
     List<HotVoteResponseDto> vote;
 
-
     public static HotVoteandRankDto createHotVoteandRankDto(List<HotVoteResponseDto> vote) {
-        return HotVoteandRankDto.builder().vote(vote).build();
+        return HotVoteandRankDto.builder()
+                .vote(vote)
+                .build();
     }
 }

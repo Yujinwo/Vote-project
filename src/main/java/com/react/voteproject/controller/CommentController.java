@@ -23,12 +23,13 @@ import java.util.Map;
 @RequiredArgsConstructor
 public class CommentController {
     private final CommentService commentService;
-
+    // 댓글 조회
     @GetMapping("/comments")
     public ResponseEntity<CommentMoreDto> findComment(@RequestParam("id") Long id ,@PageableDefault(page = 1) Pageable pageable) {
         CommentMoreDto commentMoreDto=  commentService.findComment(id,pageable);
         return ResponseEntity.status(HttpStatus.OK).body(commentMoreDto);
     }
+    // 댓글 작성
     @PostMapping("/comments")
     public ResponseEntity<Map<Object,Object>> writeComment(@Valid @RequestBody CommentWriteDto commentWriteDto) {
 
@@ -43,6 +44,7 @@ public class CommentController {
         }
         return ResponseHelper.createSuccessMessage("result","댓글 작성 성공");
     }
+    // 댓글 수정
     @PatchMapping("/comments")
     public ResponseEntity<Map<Object,Object>> updateComment(@Valid @RequestBody CommentUpdateDto commentUpdateDto) {
 
@@ -57,6 +59,7 @@ public class CommentController {
         }
         return ResponseHelper.createSuccessMessage("result","댓글 수정 성공");
     }
+    // 댓글 삭제
     @DeleteMapping("/comments")
     public ResponseEntity<Map<Object,Object>> deleteComment(@RequestParam("id") Long comment_id) {
 

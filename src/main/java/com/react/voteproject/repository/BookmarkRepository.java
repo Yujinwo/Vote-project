@@ -17,8 +17,8 @@ import java.util.Optional;
 @Repository
 public interface BookmarkRepository extends JpaRepository<Bookmark,Long> {
 
-
+    // 유저 북마크 현황 조회
     Optional<Bookmark> findByVoteAndUser(Vote vote , User user);
-
+    // 유저 북마크 리스트 조회
     Page<Bookmark> findByuser(PageRequest pageRequest, User user);
 }

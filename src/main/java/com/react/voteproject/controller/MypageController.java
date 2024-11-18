@@ -25,7 +25,7 @@ import java.util.List;
 public class MypageController {
 
     private  final MypageService mypageService;
-
+    // 작성한 투표 조회
     @GetMapping("/votes/mypage")
     public ResponseEntity<MypageVoteDto> findMyVotes(@PageableDefault(page = 1) Pageable pageable) {
 
@@ -37,7 +37,7 @@ public class MypageController {
 
         return ResponseEntity.status(HttpStatus.OK).body(mypageVoteDto);
     }
-
+    // 좋아요한 투표 조회
     @GetMapping("/ups/mypage")
     public ResponseEntity<MypageVoteDto> findMyUps(@PageableDefault(page = 1) Pageable pageable) {
 
@@ -49,7 +49,7 @@ public class MypageController {
 
         return ResponseEntity.status(HttpStatus.OK).body(mypageVoteDto);
     }
-
+    // 참여한 투표 조회
     @GetMapping("/uservotes/mypage")
     public ResponseEntity<MypageVoteDto> findMyUserVotes(@PageableDefault(page = 1) Pageable pageable) {
 
@@ -61,7 +61,7 @@ public class MypageController {
 
         return ResponseEntity.status(HttpStatus.OK).body(mypageVoteDto);
     }
-
+    // 북마크한 투표 조회
     @GetMapping("/bookmarks/mypage")
     public ResponseEntity<MypageVoteDto> findMyBookmarks(@PageableDefault(page = 1) Pageable pageable) {
 

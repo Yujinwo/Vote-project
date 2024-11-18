@@ -14,19 +14,15 @@ public class UserStatsDto {
 
     private String user_id;
     private String user_nick;
-
     private int vote;
     private int up;
-
     private int comment;
-
     private double rate;
-
 
     public static UserStatsDto createUserStatsDto(Object[] user, Double votingRateByUser) {
         Object[] objectUser = (Object[]) user[0];
 
-        return   UserStatsDto.builder()
+        return  UserStatsDto.builder()
                     .user_id((String) objectUser[0])
                     .user_nick((String) objectUser[1])
                     .vote(((Long) objectUser[2]).intValue())

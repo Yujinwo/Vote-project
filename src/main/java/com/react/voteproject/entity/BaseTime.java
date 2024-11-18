@@ -22,6 +22,7 @@ public class BaseTime {
     @Column(nullable = false,updatable = false)
     protected LocalDateTime createdDate;
 
+    //수정시간
     @LastModifiedDate
     @Column(nullable = false)
     protected LocalDateTime modifiedDate;

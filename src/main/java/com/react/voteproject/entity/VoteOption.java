@@ -32,25 +32,23 @@ public class VoteOption extends BaseTime{
 
     @OneToMany(mappedBy = "voteOption", fetch = FetchType.LAZY,orphanRemoval = true,cascade = CascadeType.ALL)
     private List<UserVote> uservotes;
-
-
+    // 좋아요
     public void upCount() {
         count = count + 1;
     }
+    // 좋아요 취소
     public void downCount() {
         if(count > 0)
         {
             count = count - 1;
         }
-
     }
-
+    // 투표 선택지 내용 수정
     public void changeContent(String content) {
       this.content = content;
-
     }
-    public UserVote createUserVote(){
 
+    public UserVote createUserVote(){
         return UserVote.builder()
                 .voteOption(this)
                 .vote(vote)

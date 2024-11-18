@@ -20,8 +20,10 @@ public class UserDto {
 
     public static UserDto createUserDto(User user) {
 
-
-        return UserDto.builder().user_nick(user.getUserNick()).user_id(user.getUserId()).build();
+        return UserDto.builder()
+                .user_nick(user.getUserNick())
+                .user_id(user.getUserId())
+                .build();
 
     }
 

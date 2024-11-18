@@ -60,6 +60,7 @@ public class UserController {
         }
         return ResponseHelper.createErrorMessage("result","로그아웃 실패");
     }
+    // 유저 로그인 여부 확인
     @GetMapping("/sessions")
     public ResponseEntity<Map<Object,Object>> getSession() {
 
@@ -70,7 +71,7 @@ public class UserController {
 
         return ResponseHelper.createErrorMessage("result","세션 무효");
     }
-
+    // id 조회
     @GetMapping("/users")
     public ResponseEntity<Map<Object,Object>> findUserId(@RequestParam("user_id") @NotBlank @Size(min = 4, max = 10,message = "최소 4자 이상, 최대 10자 이하로 입력해주세요") String user_id) {
         if(!alphanumericPattern.matcher(user_id).matches())
@@ -84,7 +85,7 @@ public class UserController {
         return ResponseHelper.createSuccessMessage("result","사용할 수 있는 id 입니다");
 
     }
-
+    // 회원가입
     @PostMapping("/users")
     public ResponseEntity<Map<Object,Object>> Join(@Valid @RequestBody UserJoinDto userJoinDto) {
         if(!alphanumericPattern.matcher(userJoinDto.getUser_id()).matches())
@@ -95,6 +96,7 @@ public class UserController {
 
             return ResponseHelper.createErrorMessage("result","한글 초성은 불가능합니다");
         }
+
         // id 중복 확인
         Optional<User> userId = userService.findUserId(userJoinDto.getUser_id());
         if (userId.isPresent())
@@ -118,7 +120,7 @@ public class UserController {
         return ResponseHelper.createErrorMessage("result","회원가입 실패");
 
     }
-
+    // My페이지 유저 통계 데이터 조회
     @GetMapping("/users/stats")
     public ResponseEntity<UserStatsDto> getuserstats() {
 
@@ -130,15 +132,16 @@ public class UserController {
         UserStatsDto userStatsDto = userService.getUserStats();
         return ResponseEntity.status(HttpStatus.OK).body(userStatsDto);
     }
-
+    // 전체 유저 참여율 통계 데이터 조회
     @GetMapping("/uservotes/stats")
     public ResponseEntity<List<UserVoteStatsDto>> getuserVotestats(@RequestParam(value = "category",required = false) String category,@RequestParam(value = "day",defaultValue = "Thisyear") String day) {
         List<UserVoteStatsDto> userVoteStatsDto = userService.getVoteStats(category,day);
         return ResponseEntity.status(HttpStatus.OK).body(userVoteStatsDto);
     }
-
+    // 유저 참여율 통계 데이터 id 조회
     @GetMapping("/uservotes/stats/search")
     public ResponseEntity<List<UserVoteStatsDto>> searchUserVotestats(@RequestParam(value = "id",required = false) String user_id,@RequestParam(value = "category",required = false) String category,@RequestParam(value = "day",defaultValue = "Thisyear") String day) {
+        // id가 없다면
         if(user_id == null) {
             return ResponseEntity.status(HttpStatus.OK).body(new ArrayList<>());
         }

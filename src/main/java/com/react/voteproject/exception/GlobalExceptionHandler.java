@@ -15,7 +15,7 @@ import java.util.stream.Collectors;
 // 모든 컨트롤러에서 발생하는 예외를 처리하는 전역 예외 처리기
 @RestControllerAdvice
 public class GlobalExceptionHandler {
-
+    // dto @Valid 검증 오류 메세지 반환
     @ExceptionHandler(MethodArgumentNotValidException.class)
     @ResponseStatus(HttpStatus.BAD_REQUEST)
     public Map<String, String> handleValidationExceptions(MethodArgumentNotValidException ex) {
@@ -28,7 +28,7 @@ public class GlobalExceptionHandler {
         errorjson.put("result",errorMessage);
         return errorjson;
     }
-
+    // param @Valid 검증 오류 메세지 반환
     @ExceptionHandler(ConstraintViolationException.class)
     @ResponseStatus(HttpStatus.BAD_REQUEST)
     public Map<String, String> handleValidationException(ConstraintViolationException e) {

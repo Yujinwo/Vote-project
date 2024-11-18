@@ -20,43 +20,25 @@ import java.util.stream.Collectors;
 @Builder
 public class VoteResponseDto {
     private Long id;
-
     private String title;
-
-
     private String category;
-
-
     private int up;
-
-
     private Long commentCount;
-
-
     private String startDay;
-
-
     private String endDay;
-
     private List<VoteOptionDto> voteOptions;
-
     private int optionCountTotal;
     private UserDto user;
 
-
     public static VoteResponseDto createVoteResponseDto(Vote vote,Long commentCount) {
-
         // 변환 포맷 정의
         DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd");
-
         // 원하는 형식으로 변환
         String startDay = vote.getStartDay().format(formatter);
-        // 원하는 형식으로 변환
         String endDay = vote.getEndDay().format(formatter);
+        int optionCountTotal = vote.getOptions().stream().mapToInt(o -> o.getCount()).sum();
 
-       int total = vote.getOptions().stream().mapToInt(o -> o.getCount()).sum();
-
-       return VoteResponseDto.builder()
+        return VoteResponseDto.builder()
                 .id(vote.getId())
                 .title(vote.getTitle())
                 .category(vote.getCategory())
@@ -64,9 +46,11 @@ public class VoteResponseDto {
                 .commentCount(commentCount)
                 .startDay(startDay)
                 .endDay(endDay)
-                .optionCountTotal(total)
+                .optionCountTotal(optionCountTotal)
                 .user(UserDto.createUserDto(vote.getUser()))
-                .voteOptions(vote.getOptions().stream().map(o -> VoteOptionDto.createOptionDto(o,total)).collect(Collectors.toList())).build();
+                .voteOptions(vote.getOptions().stream().map(o -> VoteOptionDto.createOptionDto(o,optionCountTotal))
+                        .collect(Collectors.toList()))
+                .build();
 
     }
 

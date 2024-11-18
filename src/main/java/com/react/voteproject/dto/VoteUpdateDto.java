@@ -29,7 +29,6 @@ public class VoteUpdateDto {
     private List<String> choices;
 
     public List<LocalDateTime> changeDayFormat(){
-
         DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss");
         LocalDateTime startDay = LocalDateTime.parse(days.get(0), formatter);
         LocalDateTime endDay = LocalDateTime.parse(days.get(1), formatter);

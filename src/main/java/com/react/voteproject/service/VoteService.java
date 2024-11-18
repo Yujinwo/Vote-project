@@ -30,10 +30,9 @@ public class VoteService {
      private final CommentRepository commentRepository;
      private final EntityManager em;
 
-
+     // 투표 작성
      @Transactional
      public Boolean write(VoteWriteDto voteWriteDto) {
-
         Optional<Vote> vote = Optional.of(voteRepository.save(voteWriteDto.createVote()));
         if(vote.isEmpty())
         {
@@ -41,7 +40,7 @@ public class VoteService {
         }
         em.flush();
         em.clear();
-
+        // 투표 선택지 저장
         for (String option : voteWriteDto.getChoices())
         {
             Optional<VoteOption> voteOption = Optional.ofNullable(voteOptionRepository.save(VoteOption.builder().content(option).vote(vote.get()).build()));
@@ -50,17 +49,15 @@ public class VoteService {
                 return false;
             }
         }
-
         return true;
 
     }
-
+    // 투표 수정
     @Transactional
     public Boolean update(VoteUpdateDto voteUpdateDto) {
 
         Optional<Vote> vote = voteRepository.findById(voteUpdateDto.getVote_id());
         if(vote.isPresent()){
-
                 // 댓글 작성자와 일치하지 않다면
                 if(!vote.get().getUser().getUserId().equals(AuthContext.getAuth().getUserId())) {
                     return false;
@@ -76,21 +73,20 @@ public class VoteService {
                             voteOption.get(i).changeContent(voteUpdateDto.getChoices().get(i));
                         }
                     }
-
                     return true;
-
                 }
         }
         return false;
     }
+    // 투표 상세 조회
     @Transactional
     public VoteDetailDataDto findvotesId(Long id) {
         Optional<Vote> vote = voteRepository.findById(id);
         if(vote.isPresent()) {
             // 이미 투표 선택했는지 조회
             Long userSelectedId = null;
-
             Long total = commentRepository.countCommentsByVote(vote.get());
+
             // 투표 데이터 조회
             VoteResponseDto voteResponseDto = vote.map(v -> VoteResponseDto.createVoteResponseDto(v,total)).get();
 
@@ -129,14 +125,14 @@ public class VoteService {
         }
 
     }
-
+    // 유저 투표 참여 선택지 변경
     @Transactional
     public Boolean changeVoteOption(Long id) {
         Optional<VoteOption> voteOption = voteOptionRepository.findById(id);
         if(voteOption.isPresent()){
             VoteOption option = voteOption.get();
-            // 기존 선택지 삭제 -> 변경한 선택지로 수정
 
+            // 기존 선택지 삭제 -> 변경한 선택지로 수정
             Optional<UserVote> userVote = userVoteRepository.findByVoteId(voteOption.get().getVote(),voteOption.get().getVote().getUser());
             if(userVote.isPresent())
             {
@@ -154,14 +150,13 @@ public class VoteService {
                 return false;
             }
             return true;
-
         }
         return false;
     }
 
+    // 투표 삭제
     @Transactional
     public Boolean delete(Long voteId) {
-
         Optional<Vote> vote = voteRepository.findById(voteId);
         if(vote.isPresent())
         {
@@ -175,6 +170,7 @@ public class VoteService {
         }
         return false;
     }
+    // 좋아요
     @Transactional
     public Boolean changeUp(Long voteId) {
         Optional<Vote> vote = voteRepository.findById(voteId);
@@ -195,11 +191,11 @@ public class VoteService {
                 }
                 vote.get().changeUp(1);
             }
-
             return true;
         }
         return false;
     }
+    // 북마크
     @Transactional
     public Boolean changeBookmark(Long voteId) {
 
@@ -219,13 +215,11 @@ public class VoteService {
                     return false;
                 }
             }
-
             return true;
         }
         return false;
     }
-
-
+    // 투표 참여 리스트 조회
     @Transactional(readOnly = true)
     public  VoteHomeDataDto findAll(Pageable pageable,String sort,String category,String searchTitle) {
          String[] sortFields = {"startDay","up","voting"};
@@ -245,51 +239,39 @@ public class VoteService {
                  PageRequest pageRequest = PageRequest.of(page, 10);
                  Slice<Object[]> voteWithTotalCount = voteRepository.findVoteWithTotalCount(pageRequest);
                  List<VoteResponseDto> list = voteWithTotalCount.getContent().stream().map(v -> VoteResponseDto.createVoteResponseDto((Vote) v[0], commentRepository.countCommentsByVote((Vote) v[0]))).collect(Collectors.toList());
-
                  return VoteHomeDataDto.createVoteHomeDataDto(list,voteWithTotalCount.hasNext(),voteWithTotalCount.getNumber());
              }
-
              PageRequest pageRequest = PageRequest.of(page, 10, Sort.by(Sort.Order.desc(sort)));
              Slice<Vote> sliceVote = voteRepository.findAllByVote(pageRequest,searchTitle);
              List<VoteResponseDto> list = sliceVote.stream().map(v -> VoteResponseDto.createVoteResponseDto(v, commentRepository.countCommentsByVote(v))).collect(Collectors.toList());
              return VoteHomeDataDto.createVoteHomeDataDto(list,sliceVote.hasNext(),sliceVote.getNumber());
-
          }
          else {
-
              Boolean checkCategory = category_enum.fromCode(category);
              if(!checkCategory) {
                  category = "ENTERTAINMENT";
              }
-
              if(sort.equals("voting")) {
                  // 첫 번째 페이지, 10개
                  PageRequest pageRequest = PageRequest.of(page, 10);
                  Slice<Object[]> voteWithTotalCount = voteRepository.findVotesWithTotalCountByCategory(pageRequest,category);
                  List<VoteResponseDto> list = voteWithTotalCount.getContent().stream().map(v -> VoteResponseDto.createVoteResponseDto((Vote) v[0], commentRepository.countCommentsByVote((Vote) v[0]))).collect(Collectors.toList());
-
                  return VoteHomeDataDto.createVoteHomeDataDto(list,voteWithTotalCount.hasNext(),voteWithTotalCount.getNumber());
              }
-
              PageRequest pageRequest = PageRequest.of(page, 10, Sort.by(Sort.Order.desc(sort)));
              Slice<Vote> sliceVote = voteRepository.findAllByVoteAndCategory(pageRequest,category,searchTitle);
              List<VoteResponseDto> list = sliceVote.stream().map(v -> VoteResponseDto.createVoteResponseDto(v, commentRepository.countCommentsByVote(v))).collect(Collectors.toList());
              return VoteHomeDataDto.createVoteHomeDataDto(list,sliceVote.hasNext(),sliceVote.getNumber());
-
          }
-
-
-
     }
-
-
+    // 총 투표 수 , 인기 카테고리 조회
     public HotCategoryAndTotalDto getSummary() {
         Object[] summary = voteRepository.findHotCategoryWithVoteCount();
         HotCategoryAndTotalDto hotCategoryAndTotalDto = HotCategoryAndTotalDto.createHotCategoryAndTotalDto(summary);
         return  hotCategoryAndTotalDto;
-
     }
 
+    // 인기 투표 조회
     public HotVoteandRankDto getHot() {
         PageRequest pageRequest = PageRequest.of(0, 10);
         List<Object[]> summary = voteRepository.findHotVote(pageRequest);
@@ -297,7 +279,7 @@ public class VoteService {
         HotVoteandRankDto hotVoteandRankDto = HotVoteandRankDto.createHotVoteandRankDto(hotVoteResponseDto);
         return hotVoteandRankDto;
     }
-
+    // 투표 추천 리스트 조회
     public HotVoteandRankDto getRecommend() {
         PageRequest pageRequest = PageRequest.of(0, 10);
         Long user_id = AuthContext.getAuth() != null ? AuthContext.getAuth().getId() :null;
