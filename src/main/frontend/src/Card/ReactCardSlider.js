@@ -6,7 +6,7 @@ import { Link } from "react-router-dom";
 import { Progress, Flex,Button,Spin ,Empty } from "antd";
 import "../css/Slider.css";
 import { BulbOutlined, CalendarOutlined, UserOutlined, LikeOutlined, CommentOutlined } from '@ant-design/icons';
-import axios from 'axios'
+import axios from  "../apiClient"
 const ReactCardSlider = (props) => {
   const [visibleSlides, setVisibleSlides] = useState(props.slides.slice(0, props.slides.length)); // 처음에 보일 슬라이드 수
   const [isLoading, setIsLoading] = useState(false);

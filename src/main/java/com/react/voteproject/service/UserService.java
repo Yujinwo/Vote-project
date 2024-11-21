@@ -3,11 +3,10 @@ package com.react.voteproject.service;
 
 import com.react.voteproject.category.category_enum;
 import com.react.voteproject.context.AuthContext;
-import com.react.voteproject.dto.UserJoinDto;
-import com.react.voteproject.dto.UserLoginDto;
-import com.react.voteproject.dto.UserStatsDto;
-import com.react.voteproject.dto.UserVoteStatsDto;
+import com.react.voteproject.dto.*;
 import com.react.voteproject.entity.User;
+import com.react.voteproject.jwt.JwtProvider;
+import com.react.voteproject.jwt.RefreshToken;
 import com.react.voteproject.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
@@ -25,11 +24,33 @@ import java.util.stream.Collectors;
 public class UserService {
 
     private final UserRepository userRepository;
+    private final JwtProvider jwtProvider;
+
     // 로그인
     @Transactional(readOnly = true)
-    public Optional<User> login(UserLoginDto userLoginDto) {
+    public LoginResponseDTO login(UserLoginDto userLoginDto) {
        Optional<User> user = userRepository.Login(userLoginDto.getUser_id(), userLoginDto.getUser_pw());
-       return user;
+       if(user.isPresent()) {
+           User userInfo = user.get();
+           AuthContext.setAuth(user.get());
+           // jwt 토큰 생성
+           String accessToken = jwtProvider.generateAccessToken(userInfo.getId());
+
+           // 기존에 가지고 있는 사용자의 refresh token 제거
+           RefreshToken.removeUserRefreshToken(userInfo.getId());
+
+           // refresh token 생성 후 저장
+           String refreshToken = jwtProvider.generateRefreshToken(userInfo.getId());
+           RefreshToken.putRefreshToken(refreshToken, userInfo.getId());
+
+           return LoginResponseDTO.builder()
+                   .accessToken(accessToken)
+                   .refreshToken(refreshToken)
+                   .build();
+
+       }
+
+      return new LoginResponseDTO();
     }
     // 회원가입
     @Transactional

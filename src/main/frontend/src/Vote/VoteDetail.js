@@ -4,7 +4,7 @@ import { MenuOutlined } from '@ant-design/icons';
 import { useParams,Link,useNavigate } from 'react-router-dom';
 import { LikeOutlined,LikeFilled,CommentOutlined,BookOutlined,BookFilled} from '@ant-design/icons';
 import { useAuth } from '../Auth/AuthContext';
-import axios from 'axios'
+import axios from  "../apiClient"
 function VoteDetail() {
             const { id } = useParams();
             const { isLoggedIn,userid } = useAuth();

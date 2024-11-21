@@ -2,7 +2,7 @@ import React,{useEffect,useState} from 'react';
 import { Card, Space,Flex, Progress, Slider, Typography,Avatar, List  } from 'antd';
 import { ContainerOutlined } from '@ant-design/icons';
 import { Link } from 'react-router-dom';
-import axios from 'axios'
+import axios from  "../apiClient"
 function Hotvote() {
         const [voteList,setvoteList] = useState([]);
         useEffect(() =>

@@ -4,7 +4,7 @@ import { Flex, Input, Typography,DatePicker, Space,Form, Button, Row, Col,messag
 import { DeleteOutlined, PlusOutlined ,ExclamationCircleOutlined} from "@ant-design/icons";
 import { EditOutlined } from '@ant-design/icons';
 import { useNavigate,useParams } from 'react-router-dom';
-import axios from 'axios';
+import axios from  "../apiClient"
 import { useAuth } from '../Auth/AuthContext';
 import dayjs from 'dayjs';
 const { RangePicker } = DatePicker;

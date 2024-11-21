@@ -1,5 +1,5 @@
 import {useEffect, useState} from "react";
-import axios from "axios";
+import axios from "../apiClient";
 import { Link,useNavigate  } from 'react-router-dom';
 import { SearchOutlined } from '@ant-design/icons';
 import '../App.css';

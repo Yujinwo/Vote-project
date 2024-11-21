@@ -1,6 +1,6 @@
 import React, { createContext, useState, useContext,useEffect } from 'react';
 import { message } from 'antd';
-import axios from 'axios'
+import axios from  "../apiClient"
 
 // AuthContext 생성
 const AuthContext = createContext();

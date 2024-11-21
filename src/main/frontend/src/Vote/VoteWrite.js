@@ -3,7 +3,7 @@ import React, { useState,useEffect } from "react";
 import { Flex, Input, Typography,DatePicker, Space,Form, Button, Row, Col,message,Select } from 'antd';
 import { DeleteOutlined, PlusOutlined ,ExclamationCircleOutlined} from "@ant-design/icons";
 import { EditOutlined } from '@ant-design/icons';
-import axios from 'axios';
+import axios from  "../apiClient"
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../Auth/AuthContext';
 const { RangePicker } = DatePicker;

@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import { Flex, Input, Typography,Button, message } from 'antd';
 import { UserAddOutlined,ExclamationCircleOutlined } from '@ant-design/icons';
 import { useAuth } from '../Auth/AuthContext';
-import axios from "axios";
+import axios from  "../apiClient"
 import { useNavigate } from 'react-router-dom';
 const { Text, Link } = Typography;
 function UserJoin() {

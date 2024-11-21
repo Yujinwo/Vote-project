@@ -5,7 +5,7 @@ import MypageVoteWriteList from './MypageVoteWriteList'
 import MypageVoteLikeList from './MypageVoteLikeList'
 import MypageVoteSelectList from './MypageVoteSelectList'
 import MypageVoteBookmarkList from './MypageVoteBookmarkList'
-import axios from 'axios'
+import axios from  "../apiClient"
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../Auth/AuthContext';
 function Mypage() {

@@ -1,6 +1,6 @@
 import React, { useState,useEffect } from 'react';
 import {Table} from 'antd'
-import axios from 'axios'
+import axios from  "../apiClient"
 function MypageVoteBookmarkList() {
     const [page,setpage] = useState(1);
     const [pageSize,setpageSize] = useState(10)

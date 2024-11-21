@@ -5,7 +5,7 @@ import ReactCardSlider from '../Card/ReactCardSlider';
 import { EditOutlined } from '@ant-design/icons';
 import { Link,useLocation  } from 'react-router-dom';
 import { useAuth } from '../Auth/AuthContext';
-import axios  from 'axios';
+import axios  from  "../apiClient"
 const { Search } = Input;
 const { Title } = Typography;
 

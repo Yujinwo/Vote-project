@@ -5,7 +5,7 @@ import { notification } from 'antd';
 import '../css/Header.css';  // 스타일 파일
 import { useAuth } from '../Auth/AuthContext';
 import { UserOutlined } from '@ant-design/icons';
-import axios from 'axios'
+import axios from  '../apiClient'
 function Header() {
   const { isLoggedIn, logout,login  } = useAuth();
   const handleLogout = () =>
@@ -14,6 +14,7 @@ function Header() {
     axios.post('/api/logout')
            .then((res) =>
            {
+                 sessionStorage.removeItem('accessToken');
                  notification.info({
                       message: res.data.result,
                  });

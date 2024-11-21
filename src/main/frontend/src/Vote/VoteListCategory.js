@@ -5,7 +5,7 @@ import React, { useState,useEffect } from 'react';
 import { EditOutlined } from '@ant-design/icons';
 import { Link } from 'react-router-dom';
 import { useAuth } from '../Auth/AuthContext';
-import axios from 'axios'
+import axios from  "../apiClient"
 const { Search } = Input;
 const { Title } = Typography;
 function VoteListCategory() {

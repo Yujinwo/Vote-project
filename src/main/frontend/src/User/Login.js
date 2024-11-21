@@ -2,7 +2,7 @@ import React,{useState} from 'react'
 import { Flex, Input, Typography,Button, message } from 'antd';
 import { CheckOutlined,ExclamationCircleOutlined } from '@ant-design/icons';
 import { useAuth } from '../Auth/AuthContext';
-import axios from "axios";
+import axios from  'axios'
 import { useNavigate } from 'react-router-dom';
 const { Text, Link } = Typography;
 function Login() {
@@ -84,6 +84,7 @@ function Login() {
                 {
                       login(idValue);
                       navigate('/');
+                      sessionStorage.setItem('accessToken', res.data.accessToken);
                       message.success('로그인 성공!');
                 })
                 .catch((err) =>

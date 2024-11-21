@@ -1,16 +1,18 @@
 package com.react.voteproject.controller;
 
 
+import com.google.gson.JsonObject;
 import com.react.voteproject.category.category_enum;
 import com.react.voteproject.context.AuthContext;
-import com.react.voteproject.dto.UserJoinDto;
-import com.react.voteproject.dto.UserLoginDto;
-import com.react.voteproject.dto.UserStatsDto;
-import com.react.voteproject.dto.UserVoteStatsDto;
+import com.react.voteproject.dto.*;
 import com.react.voteproject.entity.User;
+import com.react.voteproject.jwt.JwtProvider;
 import com.react.voteproject.repository.UserRepository;
 import com.react.voteproject.service.UserService;
 import com.react.voteproject.utility.ResponseHelper;
+import jakarta.servlet.http.Cookie;
+import jakarta.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpServletResponse;
 import jakarta.validation.Valid;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.Size;
@@ -31,31 +33,77 @@ public class UserController {
     
     private final UserService userService;
     private final UserRepository userRepository;
+    private final JwtProvider jwtProvider;
     // 영어와 숫자만 허용하는 정규식
     private static final Pattern alphanumericPattern = Pattern.compile("^[a-zA-Z0-9]*$");
     // 한글 초성을 확인하는 정규식
     private static final Pattern koreanInitialPattern = Pattern.compile("^[ㄱ-ㅎ]*$");
 
     @PostMapping("/login")
-    public ResponseEntity<Map<Object,Object>> Login(@Valid @RequestBody UserLoginDto userLoginDto) {
+    public ResponseEntity<Map<String,Object>> Login(@Valid @RequestBody UserLoginDto userLoginDto, HttpServletResponse response) {
+        Map<String,Object> result = new HashMap<>();
         if(!alphanumericPattern.matcher(userLoginDto.getUser_id()).matches())
         {
-            return ResponseHelper.createErrorMessage("result","알파벳, 숫자 조합으로 입력해주세요");
+            result.put("result","알파벳, 숫자 조합으로 입력해주세요");
+            return ResponseEntity.status(HttpStatus.OK).body(result);
         }
-        Optional<User> user = userService.login(userLoginDto);
-        if(user.isPresent())
+        LoginResponseDTO user = userService.login(userLoginDto);
+
+        if(user.getAccessToken() != null)
         {
-            AuthContext.setAuth(user.get());
-            return ResponseHelper.createSuccessMessage("result","로그인 성공");
+            result.put("result","로그인 성공");
+            result.put("accessToken",user.getAccessToken());
+            result.put("refreshToken",user.getRefreshToken());
+            // Refresh Token을 쿠키에 저장
+            Cookie refreshCookie = new Cookie("refreshToken", user.getRefreshToken());
+            refreshCookie.setHttpOnly(true);       // XSS 공격 방지
+            refreshCookie.setSecure(true);        // HTTPS에서만 작동 (개발 시에는 false로 설정 가능)
+            refreshCookie.setPath("/");           // 모든 경로에서 사용 가능
+            refreshCookie.setMaxAge(24 * 60 * 60); // 24시간 (초 단위)
+
+            response.addCookie(refreshCookie);
+            return ResponseEntity.status(HttpStatus.OK).body(result);
+        }
+        result.put("result","아이디와 비밀번호를 확인해주세요");
+        return ResponseEntity.status(HttpStatus.OK).body(result);
+    }
+
+    @PostMapping("/auth/refresh")
+    public ResponseEntity<?> refreshToken(HttpServletRequest request, HttpServletResponse response) {
+        Cookie[] cookies = request.getCookies();
+        String refreshToken = null;
+
+        if (cookies != null) {
+            for (Cookie cookie : cookies) {
+                if ("refreshToken".equals(cookie.getName())) {
+                    refreshToken = cookie.getValue();
+                    break;
+                }
+            }
+        }
+        if (refreshToken == null || !jwtProvider.validateToken(refreshToken)) {
+            Map<String,Object> result = new HashMap<>();
+            result.put("errorMsg","인증이 정확하지 않습니다");
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(result);
         }
 
-        return ResponseHelper.createErrorMessage("result","아이디와 비밀번호를 확인해주세요");
+        String username = jwtProvider.getUsernameFromToken(refreshToken);
+        String newAccessToken = jwtProvider.generateAccessToken(username);
+
+        return ResponseEntity.ok(Map.of("accessToken", newAccessToken));
     }
     @PostMapping("/logout")
-    public ResponseEntity<Map<Object,Object>> Logout()
+    public ResponseEntity<Map<Object,Object>> Logout(HttpServletResponse response)
     {
         if(AuthContext.checkAuth()) {
             AuthContext.deleteAuth();
+            Cookie cookie = new Cookie("refreshToken", null);
+            cookie.setHttpOnly(true);  // JavaScript 접근 불가
+            cookie.setSecure(true);    // HTTPS에서만 전송 (필요한 경우 설정)
+            cookie.setPath("/");       // 쿠키 경로 설정 (모든 경로에 대해 유효)
+            cookie.setMaxAge(0);       // 쿠키 만료 설정 (즉시 만료)
+
+            response.addCookie(cookie);  // 클라이언트로 쿠키 전달
             return ResponseHelper.createSuccessMessage("result","로그아웃 성공");
         }
         return ResponseHelper.createErrorMessage("result","로그아웃 실패");

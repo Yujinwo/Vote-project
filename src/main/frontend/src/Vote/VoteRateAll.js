@@ -2,7 +2,7 @@
 import { Tabs,Flex,Radio,Space, Table, Tag,Button,Progress ,Input } from 'antd';
 import React, { useState ,useEffect} from 'react';
 import type { TableProps } from 'antd';
-import axios from 'axios'
+import axios from  "../apiClient"
 import { useAuth } from '../Auth/AuthContext';
 const { Search } = Input;
 
