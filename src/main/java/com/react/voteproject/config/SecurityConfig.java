@@ -50,8 +50,15 @@ public class SecurityConfig {
         MvcRequestMatcher[] permitAllWhiteList = {
                 mvc.pattern("/api/login"),
                 mvc.pattern("/api/auth/refresh"),
-                mvc.pattern("/api/token-refresh"),
-                mvc.pattern("/api/error")
+                mvc.pattern("/api/votes/recommend"),
+                mvc.pattern("/api/sessions"),
+                mvc.pattern("/api/votes/summary"),
+                mvc.pattern("/api/votes/hot"),
+                mvc.pattern("/api/uservotes/stats"),
+                mvc.pattern("/api/uservotes/stats/search"),
+                mvc.pattern("/api/votes/all"),
+                mvc.pattern("/api/error"),
+
         };
 
         // http request 인증 설정

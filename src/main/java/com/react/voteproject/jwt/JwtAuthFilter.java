@@ -28,22 +28,8 @@ public class JwtAuthFilter extends OncePerRequestFilter {
 
     private final UserRepository userRepository;
 
-    private final List<String> permitAllWhiteList = List.of(
-            "/api/login",
-            "/api/auth/refresh"
-    );
-
-
     @Override
     protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain filterChain) throws ServletException, IOException {
-        String requestPath = request.getServletPath();
-
-        // 허용된 경로는 필터 건너뜀
-        if (permitAllWhiteList.stream().anyMatch(requestPath::startsWith)) {
-            filterChain.doFilter(request, response);
-            return;
-        }
-
 
         final String token = request.getHeader("Authorization");
         String username = null;
