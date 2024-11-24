@@ -23,23 +23,37 @@ public class UserVoteStatsDto {
     private String category;
 
     public static UserVoteStatsDto createUserVoteStatsDto(Object[] userVote) {
-        Long voteValue = (Long) userVote[2];
-        Long upValue = (Long) userVote[3];
-        Long commentValue = (Long) userVote[4];
+        int voteCount = 0; // 또는 적절한 기본값
+        int upCount = 0; // 또는 적절한 기본값
+        int commentCount = 0; // 또는 적절한 기본값
         double rateCount = 0;
-        if(userVote[6] != null) {
-            BigDecimal rateValue = (BigDecimal) userVote[6];
+        int rank = 0;
+        if (userVote[2] instanceof Integer) {
+            voteCount = (Integer) userVote[2];
+            upCount = (Integer) userVote[3];
+            commentCount = (Integer) userVote[4];
+            Integer rateValue = (Integer) userVote[6];
             rateCount = rateValue != null ? rateValue.doubleValue() : 0; // 또는 적절한 기본값
+            rank = userVote.length == 9 ? ((Integer) userVote[8]) : ((Integer) userVote[7]);
         }
         else {
-            Long rateValue = (Long) userVote[6];
-            rateCount = rateValue != null ? rateValue.doubleValue() : 0; // 또는 적절한 기본값
+            Long voteValue = (Long) userVote[2];
+            Long upValue = (Long) userVote[3];
+            Long commentValue = (Long) userVote[4];
+            voteCount = voteValue != null ? voteValue.intValue() : 0; // 또는 적절한 기본값
+            upCount = upValue != null ? upValue.intValue() : 0; // 또는 적절한 기본값
+            commentCount = commentValue != null ? commentValue.intValue() : 0; // 또는 적절한 기본값
+            if(userVote[6] != null) {
+                BigDecimal rateValue = (BigDecimal) userVote[6];
+                rateCount = rateValue != null ? rateValue.doubleValue() : 0; // 또는 적절한 기본값
+            }
+            else {
+                Long rateValue = (Long) userVote[6];
+                rateCount = rateValue != null ? rateValue.doubleValue() : 0; // 또는 적절한 기본값
+            }
+            rank = userVote.length == 9 ? ((Long) userVote[8]).intValue() : ((Long) userVote[7]).intValue();
         }
 
-        int voteCount = voteValue != null ? voteValue.intValue() : 0; // 또는 적절한 기본값
-        int upCount = upValue != null ? upValue.intValue() : 0; // 또는 적절한 기본값
-        int commentCount = commentValue != null ? commentValue.intValue() : 0; // 또는 적절한 기본값
-        int rank = userVote.length == 9 ? ((Long) userVote[8]).intValue() : ((Long) userVote[7]).intValue();
         String category = userVote.length == 9 ? (String) userVote[7] : null;
         return  UserVoteStatsDto.builder()
                 .user_id((String) userVote[0])

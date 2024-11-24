@@ -265,13 +265,14 @@ public class VoteService {
          }
     }
     // 총 투표 수 , 인기 카테고리 조회
+    @Transactional(readOnly = true)
     public HotCategoryAndTotalDto getSummary() {
         Object[] summary = voteRepository.findHotCategoryWithVoteCount();
         HotCategoryAndTotalDto hotCategoryAndTotalDto = HotCategoryAndTotalDto.createHotCategoryAndTotalDto(summary);
         return  hotCategoryAndTotalDto;
     }
-
     // 인기 투표 조회
+    @Transactional(readOnly = true)
     public HotVoteandRankDto getHot() {
         PageRequest pageRequest = PageRequest.of(0, 10);
         List<Object[]> summary = voteRepository.findHotVote(pageRequest);
@@ -280,6 +281,7 @@ public class VoteService {
         return hotVoteandRankDto;
     }
     // 투표 추천 리스트 조회
+    @Transactional(readOnly = true)
     public HotVoteandRankDto getRecommend() {
         PageRequest pageRequest = PageRequest.of(0, 10);
         Long user_id = AuthContext.getAuth() != null ? AuthContext.getAuth().getId() :null;

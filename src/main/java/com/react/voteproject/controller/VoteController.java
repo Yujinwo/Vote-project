@@ -1,6 +1,7 @@
 package com.react.voteproject.controller;
 
 
+import com.fasterxml.jackson.core.JsonProcessingException;
 import com.react.voteproject.category.category_enum;
 import com.react.voteproject.context.AuthContext;
 import com.react.voteproject.dto.*;
@@ -44,7 +45,7 @@ public class VoteController {
     }
     // 인기 투표 리스트 조회
     @GetMapping("/votes/hot")
-    public ResponseEntity<HotVoteandRankDto> getHot() {
+    public ResponseEntity<HotVoteandRankDto> getHot() throws JsonProcessingException {
         HotVoteandRankDto hotVoteandRankDto = voteService.getHot();
         return ResponseEntity.status(HttpStatus.OK).body(hotVoteandRankDto);
     }

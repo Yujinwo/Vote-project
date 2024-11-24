@@ -84,6 +84,7 @@ public class CommentService {
         }
     }
     // 댓글 삭제
+    @Transactional
     public Boolean delete(Long commentId) {
 
             Optional<Comment> comment = commentRepository.findById(commentId);

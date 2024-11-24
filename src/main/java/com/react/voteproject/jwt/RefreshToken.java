@@ -1,15 +1,22 @@
 package com.react.voteproject.jwt;
 
+import com.react.voteproject.service.impl.RedisSingleDataServiceImpl;
 import lombok.AccessLevel;
 import lombok.NoArgsConstructor;
+import lombok.RequiredArgsConstructor;
+import org.springframework.stereotype.Component;
 
+import java.time.Duration;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Optional;
 
-@NoArgsConstructor(access = AccessLevel.PRIVATE)
+
+@Component
+@RequiredArgsConstructor
 public class RefreshToken {
 
+    private final RedisSingleDataServiceImpl redisSingleDataService;
     protected static final Map<String, Long> refreshTokens = new HashMap<>();
 
     /**
@@ -18,9 +25,10 @@ public class RefreshToken {
      * @param refreshToken refresh token
      * @return id
      */
-    public static Long getRefreshToken(final String refreshToken) {
-        return Optional.ofNullable(refreshTokens.get(refreshToken)).get();
+    public Long getRefreshToken(final String refreshToken) {
+        return Optional.of(Long.parseLong(redisSingleDataService.getSingleData(refreshToken))).get();
     }
+
 
     /**
      * refresh token put
@@ -28,9 +36,9 @@ public class RefreshToken {
      * @param refreshToken refresh token
      * @param id id
      */
-    public static void putRefreshToken(final String refreshToken, Long id) {
-
-        refreshTokens.put(refreshToken, id);
+    public void putRefreshToken(final String refreshToken, Long id) {
+        Duration duration = Duration.ofHours(24);
+        redisSingleDataService.setSingleData(refreshToken, id,duration);
     }
 
     /**
@@ -38,12 +46,12 @@ public class RefreshToken {
      *
      * @param refreshToken refresh token
      */
-    private static void removeRefreshToken(final String refreshToken) {
-        refreshTokens.remove(refreshToken);
+    public void removeRefreshToken(final String refreshToken) {
+        redisSingleDataService.deleteSingleData(refreshToken);
     }
 
     // user refresh token remove
-    public static void removeUserRefreshToken(final long refreshToken) {
+    public void removeUserRefreshToken(final long refreshToken) {
         for(Map.Entry<String, Long> entry : refreshTokens.entrySet()) {
             if(entry.getValue() == refreshToken) {
                 removeRefreshToken(entry.getKey());

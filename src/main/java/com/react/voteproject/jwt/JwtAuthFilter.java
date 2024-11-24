@@ -37,7 +37,7 @@ public class JwtAuthFilter extends OncePerRequestFilter {
         // Bearer token 검증 후 user name 조회
         if(token != null && !token.isEmpty()) {
             String jwtToken = token.substring(7);
-            username = jwtProvider.getUsernameFromToken(jwtToken);
+            username = jwtProvider.getUserIdFromToken(jwtToken);
         }
 
         // token 검증 완료 후 SecurityContextHolder 내 인증 정보가 없는 경우 저장

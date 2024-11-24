@@ -1,6 +1,7 @@
 package com.react.voteproject.controller;
 
 
+import com.fasterxml.jackson.core.JsonProcessingException;
 import com.google.gson.JsonObject;
 import com.react.voteproject.category.category_enum;
 import com.react.voteproject.context.AuthContext;
@@ -8,6 +9,7 @@ import com.react.voteproject.dto.*;
 import com.react.voteproject.entity.User;
 import com.react.voteproject.jwt.JwtProvider;
 import com.react.voteproject.repository.UserRepository;
+import com.react.voteproject.service.RefreshTokenService;
 import com.react.voteproject.service.UserService;
 import com.react.voteproject.utility.ResponseHelper;
 import jakarta.servlet.http.Cookie;
@@ -34,6 +36,7 @@ public class UserController {
     private final UserService userService;
     private final UserRepository userRepository;
     private final JwtProvider jwtProvider;
+    private final RefreshTokenService refreshTokenService;
     // 영어와 숫자만 허용하는 정규식
     private static final Pattern alphanumericPattern = Pattern.compile("^[a-zA-Z0-9]*$");
     // 한글 초성을 확인하는 정규식
@@ -87,8 +90,8 @@ public class UserController {
             return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(result);
         }
 
-        String username = jwtProvider.getUsernameFromToken(refreshToken);
-        String newAccessToken = jwtProvider.generateAccessToken(username);
+        RefreshTokenResponseDTO refreshTokenResponseDTO = refreshTokenService.refreshToken(refreshToken);
+        String newAccessToken = refreshTokenResponseDTO.getAccessToken();
 
         return ResponseEntity.ok(Map.of("accessToken", newAccessToken));
     }
@@ -182,7 +185,7 @@ public class UserController {
     }
     // 전체 유저 참여율 통계 데이터 조회
     @GetMapping("/uservotes/stats")
-    public ResponseEntity<List<UserVoteStatsDto>> getuserVotestats(@RequestParam(value = "category",required = false) String category,@RequestParam(value = "day",defaultValue = "Thisyear") String day) {
+    public ResponseEntity<List<UserVoteStatsDto>> getuserVotestats(@RequestParam(value = "category",required = false) String category,@RequestParam(value = "day",defaultValue = "Thisyear") String day) throws JsonProcessingException {
         List<UserVoteStatsDto> userVoteStatsDto = userService.getVoteStats(category,day);
         return ResponseEntity.status(HttpStatus.OK).body(userVoteStatsDto);
     }

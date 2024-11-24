@@ -10,6 +10,7 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 import java.util.stream.Collectors;
@@ -24,6 +25,7 @@ public class MypageService {
     private final BookmarkRepository bookmarkRepository;
     private final CommentRepository commentRepository;
     // 유저가 작성한 투표 조회
+    @Transactional(readOnly = true)
     public MypageVoteDto findVotes(Pageable pageable, User user ){
         int page = pageable.getPageNumber();
         PageRequest pageRequest = PageRequest.of(page > 0 ? page - 1 : page, 10);
@@ -32,7 +34,9 @@ public class MypageService {
         MypageVoteDto mypageVoteDto = MypageVoteDto.createMypageVoteDto(mypageVotes,pageVotes.getNumber(), pageVotes.getTotalElements(),pageVotes.getSize());
         return mypageVoteDto;
     }
+
     // 유저가 좋아요한 투표 조회
+    @Transactional(readOnly = true)
     public MypageVoteDto findups(Pageable pageable, User user) {
         int page = pageable.getPageNumber();
         PageRequest pageRequest = PageRequest.of(page > 0 ? page - 1 : page, 10);
@@ -41,7 +45,9 @@ public class MypageService {
         MypageVoteDto mypageVoteDto = MypageVoteDto.createMypageVoteDto(mypageVotes,pageUps.getNumber(), pageUps.getTotalElements(),pageUps.getSize());
         return mypageVoteDto;
     }
+
     // 유저가 참여한 투표 조회
+    @Transactional(readOnly = true)
     public MypageVoteDto finduserVotes(Pageable pageable, User user) {
         int page = pageable.getPageNumber();
         PageRequest pageRequest = PageRequest.of(page > 0 ? page - 1 : page, 10);
@@ -51,6 +57,7 @@ public class MypageService {
         return mypageVoteDto;
     }
     // 유저가 북마크한 투표 조회
+    @Transactional(readOnly = true)
     public MypageVoteDto findbookMarks(Pageable pageable, User user) {
         int page = pageable.getPageNumber();
         PageRequest pageRequest = PageRequest.of(page > 0 ? page - 1 : page, 10);

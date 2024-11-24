@@ -38,7 +38,7 @@ public class JwtProvider {
      * @param token JWT
      * @return token Username
      */
-    public String getUsernameFromToken(final String token) {
+    public String getUserIdFromToken(final String token) {
         return getClaimFromToken(token, Claims::getId);
     }
 
