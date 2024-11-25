@@ -1,5 +1,6 @@
 package com.react.voteproject.jwt;
 
+import com.react.voteproject.context.AuthContext;
 import com.react.voteproject.entity.User;
 import com.react.voteproject.repository.UserRepository;
 import jakarta.servlet.FilterChain;
@@ -30,7 +31,6 @@ public class JwtAuthFilter extends OncePerRequestFilter {
 
     @Override
     protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain filterChain) throws ServletException, IOException {
-
         final String token = request.getHeader("Authorization");
         String username = null;
 
@@ -55,7 +55,7 @@ public class JwtAuthFilter extends OncePerRequestFilter {
      * @return 사용자 UsernamePasswordAuthenticationToken
      */
     private UsernamePasswordAuthenticationToken getUserAuth(String userid) {
-        User userInfo = userRepository.findById(Long.parseLong(userid)).get();
+        User userInfo = AuthContext.getAuth();
 
         return new UsernamePasswordAuthenticationToken(userInfo.getId(),
                 userInfo.getUserPw(),

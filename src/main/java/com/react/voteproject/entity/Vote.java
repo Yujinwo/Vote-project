@@ -4,6 +4,7 @@ package com.react.voteproject.entity;
 import com.react.voteproject.category.category_enum;
 import jakarta.persistence.*;
 import lombok.*;
+import org.hibernate.annotations.BatchSize;
 
 import java.time.LocalDateTime;
 import java.util.List;
@@ -39,6 +40,7 @@ public class Vote extends BaseTime{
     @Column
     private LocalDateTime endDay;
 
+    @BatchSize(size = 10)
     @OneToMany(mappedBy = "vote",fetch = FetchType.LAZY,orphanRemoval = true,cascade = CascadeType.ALL)
     private List<VoteOption> options;
 

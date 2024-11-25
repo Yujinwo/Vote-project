@@ -16,12 +16,12 @@ import java.util.List;
 @Builder
 public class MypageVoteDto {
 
-    private List<VoteResponseDto> vote;
+    private List<VoteWithCommentCountDTO> vote;
     private int page;
     private Long total;
     private int pageSize;
 
-    public static MypageVoteDto createMypageVoteDto(List<VoteResponseDto> vote,int page,Long total,int pageSize) {
+    public static MypageVoteDto createMypageVoteDto(List<VoteWithCommentCountDTO> vote,int page,Long total,int pageSize) {
         return MypageVoteDto.builder()
                 .vote(vote)
                 .page(page)

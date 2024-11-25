@@ -24,20 +24,25 @@ public class RefreshTokenService {
         // refresh token id 조회
         var user_id = refresh.getRefreshToken(refreshToken);
 
-        // 새로운 access token 생성
-        String newAccessToken = jwtProvider.generateAccessToken(user_id);
+        if(user_id != null) {
+            // 새로운 access token 생성
+            String newAccessToken = jwtProvider.generateAccessToken(user_id);
 
-        // 기존에 가지고 있는 사용자의 refresh token 제거
-        refresh.removeRefreshToken(refreshToken);
+            // 기존에 가지고 있는 사용자의 refresh token 제거
+            refresh.removeRefreshToken(refreshToken);
 
-        // 새로운 refresh token 생성 후 저장
-        String newRefreshToken = jwtProvider.generateRefreshToken(user_id);
-        refresh.putRefreshToken(newRefreshToken, user_id);
+            // 새로운 refresh token 생성 후 저장
+            String newRefreshToken = jwtProvider.generateRefreshToken(user_id);
+            refresh.putRefreshToken(newRefreshToken, user_id);
 
-        return RefreshTokenResponseDTO.builder()
-                .accessToken(newAccessToken)
-                .refreshToken(newRefreshToken)
-                .build();
+            return RefreshTokenResponseDTO.builder()
+                    .accessToken(newAccessToken)
+                    .refreshToken(newRefreshToken)
+                    .build();
+        }
+        else {
+            return new RefreshTokenResponseDTO();
+        }
     }
 
 

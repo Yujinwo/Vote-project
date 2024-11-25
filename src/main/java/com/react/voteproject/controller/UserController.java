@@ -91,6 +91,11 @@ public class UserController {
         }
 
         RefreshTokenResponseDTO refreshTokenResponseDTO = refreshTokenService.refreshToken(refreshToken);
+        if (refreshTokenResponseDTO.getAccessToken() == null) {
+            Map<String,Object> result = new HashMap<>();
+            result.put("errorMsg","인증이 정확하지 않습니다");
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(result);
+        }
         String newAccessToken = refreshTokenResponseDTO.getAccessToken();
 
         return ResponseEntity.ok(Map.of("accessToken", newAccessToken));

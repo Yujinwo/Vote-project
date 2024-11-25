@@ -26,9 +26,9 @@ public class RefreshToken {
      * @return id
      */
     public Long getRefreshToken(final String refreshToken) {
-        return Optional.of(Long.parseLong(redisSingleDataService.getSingleData(refreshToken))).get();
+        String token = redisSingleDataService.getSingleData(refreshToken);
+        return token != null ? Optional.of(Long.parseLong(redisSingleDataService.getSingleData(refreshToken))).get() : null;
     }
-
 
     /**
      * refresh token put

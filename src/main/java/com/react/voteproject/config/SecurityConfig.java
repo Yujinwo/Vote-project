@@ -64,6 +64,7 @@ public class SecurityConfig {
         // http request 인증 설정
         http.authorizeHttpRequests(authorize -> authorize
                 .requestMatchers(permitAllWhiteList).permitAll()
+                .requestMatchers(HttpMethod.GET,"/api/votes").permitAll()
                 // 그 외 요청 체크
                 .anyRequest().authenticated()
         );

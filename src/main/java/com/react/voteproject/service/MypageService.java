@@ -2,7 +2,7 @@ package com.react.voteproject.service;
 
 
 import com.react.voteproject.dto.MypageVoteDto;
-import com.react.voteproject.dto.VoteResponseDto;
+import com.react.voteproject.dto.VoteWithCommentCountDTO;
 import com.react.voteproject.entity.*;
 import com.react.voteproject.repository.*;
 import lombok.RequiredArgsConstructor;
@@ -11,9 +11,6 @@ import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-
-import java.util.List;
-import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
@@ -29,9 +26,10 @@ public class MypageService {
     public MypageVoteDto findVotes(Pageable pageable, User user ){
         int page = pageable.getPageNumber();
         PageRequest pageRequest = PageRequest.of(page > 0 ? page - 1 : page, 10);
-        Page<Vote> pageVotes =  voteRepository.findByuser(pageRequest,user);
-        List<VoteResponseDto> mypageVotes = pageVotes.stream().map(v -> VoteResponseDto.createVoteResponseDto(v, commentRepository.countCommentsByVote(v))).collect(Collectors.toList());
-        MypageVoteDto mypageVoteDto = MypageVoteDto.createMypageVoteDto(mypageVotes,pageVotes.getNumber(), pageVotes.getTotalElements(),pageVotes.getSize());
+        //Page<Vote> pageVotes = voteRepository.findByuser(pageRequest,user);
+        //List<VoteResponseDto> mypageVotes = pageVotes.stream().map(v -> VoteResponseDto.createVoteResponseDto(v, commentRepository.countCommentsByVote(v))).collect(Collectors.toList());
+        Page<VoteWithCommentCountDTO> votesWithCommentCount = voteRepository.findVotesWithCommentCount(pageRequest, user.getUserId());
+        MypageVoteDto mypageVoteDto = MypageVoteDto.createMypageVoteDto(votesWithCommentCount.getContent(),votesWithCommentCount.getNumber(), votesWithCommentCount.getTotalElements(),votesWithCommentCount.getSize());
         return mypageVoteDto;
     }
 
@@ -41,8 +39,10 @@ public class MypageService {
         int page = pageable.getPageNumber();
         PageRequest pageRequest = PageRequest.of(page > 0 ? page - 1 : page, 10);
         Page<Up> pageUps =  upRepository.findByuser(pageRequest,user);
-        List<VoteResponseDto> mypageVotes = pageUps.stream().map(v -> VoteResponseDto.createVoteResponseDto(v.getVote(), commentRepository.countCommentsByVote(v.getVote()))).collect(Collectors.toList());
-        MypageVoteDto mypageVoteDto = MypageVoteDto.createMypageVoteDto(mypageVotes,pageUps.getNumber(), pageUps.getTotalElements(),pageUps.getSize());
+        //List<VoteResponseDto> mypageVotes = pageUps.stream().map(v -> VoteResponseDto.createVoteResponseDto(v.getVote(), commentRepository.countCommentsByVote(v.getVote()))).collect(Collectors.toList());
+        //MypageVoteDto mypageVoteDto = MypageVoteDto.createMypageVoteDto(mypageVotes,pageUps.getNumber(), pageUps.getTotalElements(),pageUps.getSize());
+        Page<VoteWithCommentCountDTO> votesWithCommentCount = voteRepository.findUpVotesWithCommentCount(pageRequest, user.getUserId());
+        MypageVoteDto mypageVoteDto = MypageVoteDto.createMypageVoteDto(votesWithCommentCount.getContent(),votesWithCommentCount.getNumber(), votesWithCommentCount.getTotalElements(),votesWithCommentCount.getSize());
         return mypageVoteDto;
     }
 
@@ -52,8 +52,10 @@ public class MypageService {
         int page = pageable.getPageNumber();
         PageRequest pageRequest = PageRequest.of(page > 0 ? page - 1 : page, 10);
         Page<UserVote> pageUps =  userVoteRepository.findByuser(pageRequest,user);
-        List<VoteResponseDto> mypageVotes = pageUps.stream().map(v -> VoteResponseDto.createVoteResponseDto(v.getVote(), commentRepository.countCommentsByVote(v.getVote()))).collect(Collectors.toList());
-        MypageVoteDto mypageVoteDto = MypageVoteDto.createMypageVoteDto(mypageVotes,pageUps.getNumber(), pageUps.getTotalElements(),pageUps.getSize());
+        //List<VoteResponseDto> mypageVotes = pageUps.stream().map(v -> VoteResponseDto.createVoteResponseDto(v.getVote(), commentRepository.countCommentsByVote(v.getVote()))).collect(Collectors.toList());
+        //MypageVoteDto mypageVoteDto = MypageVoteDto.createMypageVoteDto(mypageVotes,pageUps.getNumber(), pageUps.getTotalElements(),pageUps.getSize());
+        Page<VoteWithCommentCountDTO> votesWithCommentCount = voteRepository.findUserVotesWithCommentCount(pageRequest, user.getUserId());
+        MypageVoteDto mypageVoteDto = MypageVoteDto.createMypageVoteDto(votesWithCommentCount.getContent(),votesWithCommentCount.getNumber(), votesWithCommentCount.getTotalElements(),votesWithCommentCount.getSize());
         return mypageVoteDto;
     }
     // 유저가 북마크한 투표 조회
@@ -62,8 +64,10 @@ public class MypageService {
         int page = pageable.getPageNumber();
         PageRequest pageRequest = PageRequest.of(page > 0 ? page - 1 : page, 10);
         Page<Bookmark> pageUps =  bookmarkRepository.findByuser(pageRequest,user);
-        List<VoteResponseDto> mypageVotes = pageUps.stream().map(v -> VoteResponseDto.createVoteResponseDto(v.getVote(), commentRepository.countCommentsByVote(v.getVote()))).collect(Collectors.toList());
-        MypageVoteDto mypageVoteDto = MypageVoteDto.createMypageVoteDto(mypageVotes,pageUps.getNumber(), pageUps.getTotalElements(),pageUps.getSize());
+        //List<VoteResponseDto> mypageVotes = pageUps.stream().map(v -> VoteResponseDto.createVoteResponseDto(v.getVote(), commentRepository.countCommentsByVote(v.getVote()))).collect(Collectors.toList());
+        //MypageVoteDto mypageVoteDto = MypageVoteDto.createMypageVoteDto(mypageVotes,pageUps.getNumber(), pageUps.getTotalElements(),pageUps.getSize());
+        Page<VoteWithCommentCountDTO> votesWithCommentCount = voteRepository.findBookmarkVotesWithCommentCount(pageRequest, user.getUserId());
+        MypageVoteDto mypageVoteDto = MypageVoteDto.createMypageVoteDto(votesWithCommentCount.getContent(),votesWithCommentCount.getNumber(), votesWithCommentCount.getTotalElements(),votesWithCommentCount.getSize());
         return mypageVoteDto;
     }
 }

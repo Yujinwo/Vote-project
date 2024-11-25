@@ -11,6 +11,7 @@ import com.react.voteproject.entity.Vote;
 import com.react.voteproject.repository.CommentRepository;
 import com.react.voteproject.repository.VoteRepository;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Slice;
@@ -49,10 +50,9 @@ public class CommentService {
         if(vote.isPresent()){
             int page = pageable.getPageNumber();
             PageRequest pageRequest = PageRequest.of(page > 0 ? page - 1 : page, 10);
-            Slice<Comment> comments = commentRepository.findSliceByVote(vote.get(), pageRequest);
+            Page<Comment> comments = commentRepository.findPageByVote(vote.get(), pageRequest);
             List<CommentResponseDto> commentResponseDto = comments.getContent().stream().map(CommentResponseDto::createCommentResponseDto).collect(Collectors.toList());
-            Long total = commentRepository.countCommentsByVote(vote.get());
-            CommentMoreDto commentMoreDto = CommentMoreDto.createCommentMoreDto(total,comments,commentResponseDto);
+            CommentMoreDto commentMoreDto = CommentMoreDto.createCommentMoreDto(comments.getTotalElements(),comments,commentResponseDto);
             return commentMoreDto;
         }
         else {

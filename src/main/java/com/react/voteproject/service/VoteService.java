@@ -85,15 +85,14 @@ public class VoteService {
         if(vote.isPresent()) {
             // 이미 투표 선택했는지 조회
             Long userSelectedId = null;
-            Long total = commentRepository.countCommentsByVote(vote.get());
-
-            // 투표 데이터 조회
-            VoteResponseDto voteResponseDto = vote.map(v -> VoteResponseDto.createVoteResponseDto(v,total)).get();
 
             // 투표 댓글 Slice 조회
             PageRequest pageRequest = PageRequest.of(0,10);
-            Slice<Comment> comments = commentRepository.findSliceByVote(vote.get(), pageRequest);
+            Page<Comment> comments = commentRepository.findPageByVote(vote.get(), pageRequest);
             List<CommentResponseDto> commentList = comments.getContent().stream().map(CommentResponseDto::createCommentResponseDto).collect(Collectors.toList());
+
+            // 투표 데이터 조회
+            VoteResponseDto voteResponseDto = vote.map(v -> VoteResponseDto.createVoteResponseDto(v,comments.getTotalElements())).get();
 
             Boolean hasUp = false;
             Boolean hasBookmark = false;
@@ -276,7 +275,8 @@ public class VoteService {
     public HotVoteandRankDto getHot() {
         PageRequest pageRequest = PageRequest.of(0, 10);
         List<Object[]> summary = voteRepository.findHotVote(pageRequest);
-        List<HotVoteResponseDto> hotVoteResponseDto = summary.stream().map(v -> HotVoteResponseDto.createHotVoteResponseDto(v,commentRepository.countCommentsByVote((Vote) v[0]))).collect(Collectors.toList());
+        List<HotVoteResponseDto> hotVoteResponseDto = summary.stream().map(v -> HotVoteResponseDto.createHotVoteResponseDto(v,0L)).collect(Collectors.toList());
+
         HotVoteandRankDto hotVoteandRankDto = HotVoteandRankDto.createHotVoteandRankDto(hotVoteResponseDto);
         return hotVoteandRankDto;
     }
