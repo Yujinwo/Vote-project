@@ -132,7 +132,12 @@ function VoteDetail() {
                     })
                     .catch((err) =>
                     {
-                            message.error(err.response.data.result);
+                            if(err.response.data.errorMsg != null) {
+                              message.error(err.response.data.errorMsg)
+                            }
+                            else {
+                              message.error(err.response.data.result)
+                            }
                             setEditingCommentId(null);
                             setUpdatedComment('');
                     })
@@ -155,7 +160,12 @@ function VoteDetail() {
                  })
                  .catch((err) =>
                  {
-                         message.error(err.response.data.result);
+                         if(err.response.data.errorMsg != null) {
+                           message.error(err.response.data.errorMsg)
+                         }
+                         else {
+                           message.error(err.response.data.result)
+                         }
                  });
             };
 
@@ -169,7 +179,12 @@ function VoteDetail() {
                  })
                  .catch((err) =>
                  {
-                      message.error(err.response.data.result);
+                      if(err.response.data.errorMsg != null) {
+                        message.error(err.response.data.errorMsg)
+                      }
+                      else {
+                        message.error(err.response.data.result)
+                      }
                  })
             }
             // 투표 더보기 메뉴
@@ -329,8 +344,13 @@ function VoteDetail() {
                             })
                             .catch((err) =>
                             {
-                                message.error(err.response.data.result);
-                                setcreatedComment('');
+                                  if(err.response.data.errorMsg != null) {
+                                    message.error(err.response.data.errorMsg)
+                                  }
+                                  else {
+                                    message.error(err.response.data.result)
+                                  }
+                                  setcreatedComment('');
                             })
                  }
             }
@@ -354,7 +374,12 @@ function VoteDetail() {
                         })
                         .catch((err) =>
                         {
-                             message.error(err.response.data.result);
+                              if(err.response.data.errorMsg != null) {
+                                message.error(err.response.data.errorMsg)
+                              }
+                              else {
+                                message.error(err.response.data.result)
+                              }
                         })
             }
             // 북마크 함수
@@ -375,7 +400,12 @@ function VoteDetail() {
                         })
                         .catch((err) =>
                         {
-                              message.error(err.response.data.result);
+                              if(err.response.data.errorMsg != null) {
+                                message.error(err.response.data.errorMsg)
+                              }
+                              else {
+                                message.error(err.response.data.result)
+                              }
                         })
             }
 

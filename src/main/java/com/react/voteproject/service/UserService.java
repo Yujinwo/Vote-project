@@ -14,15 +14,12 @@ import com.react.voteproject.repository.UserRepository;
 import com.react.voteproject.service.impl.RedisSingleDataServiceImpl;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.http.HttpStatus;
-import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.time.Duration;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Map;
 import java.util.Optional;
 import java.util.stream.Collectors;
 
@@ -40,7 +37,7 @@ public class UserService {
 
     // 로그인
     @Transactional(readOnly = true)
-    public LoginResponseDTO login(UserLoginDto userLoginDto) {
+    public LoginResponseDTO login(UserLoginDto userLoginDto, String refreshToken) {
        Optional<User> user = userRepository.Login(userLoginDto.getUser_id(), userLoginDto.getUser_pw());
        if(user.isPresent()) {
            User userInfo = user.get();
@@ -49,10 +46,12 @@ public class UserService {
            String accessToken = jwtProvider.generateAccessToken(userInfo.getId());
 
            // 기존에 가지고 있는 사용자의 refresh token 제거
-           refresh.removeUserRefreshToken(userInfo.getId());
+           if(refreshToken != null){
+               refresh.removeRefreshToken(refreshToken);
+           }
 
            // refresh token 생성 후 저장
-           String refreshToken = jwtProvider.generateRefreshToken(userInfo.getId());
+           refreshToken = jwtProvider.generateRefreshToken(userInfo.getId());
            refresh.putRefreshToken(refreshToken, userInfo.getId());
 
            return LoginResponseDTO.builder()

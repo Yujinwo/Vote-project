@@ -23,11 +23,10 @@ public class RefreshTokenService {
 
         // refresh token id 조회
         var user_id = refresh.getRefreshToken(refreshToken);
-
         if(user_id != null) {
             // 새로운 access token 생성
             String newAccessToken = jwtProvider.generateAccessToken(user_id);
-
+           
             // 기존에 가지고 있는 사용자의 refresh token 제거
             refresh.removeRefreshToken(refreshToken);
 

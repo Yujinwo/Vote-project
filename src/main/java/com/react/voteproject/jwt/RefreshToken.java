@@ -38,7 +38,7 @@ public class RefreshToken {
      */
     public void putRefreshToken(final String refreshToken, Long id) {
         Duration duration = Duration.ofHours(24);
-        redisSingleDataService.setSingleData(refreshToken, id,duration);
+        redisSingleDataService.setSingleData(refreshToken, String.valueOf(id),duration);
     }
 
     /**
