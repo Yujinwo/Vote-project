@@ -16,12 +16,7 @@ import java.util.Optional;
 public interface UserVoteRepository extends JpaRepository<UserVote,Long> {
     // 유저 투표 참여 현황 조회
     @Query("SELECT uv FROM UserVote uv WHERE uv.vote = :vote_id and uv.user = :user_id ")
-    Optional<UserVote> findByVoteId(@Param("vote_id") Vote vote_id, @Param("user_id") User user_id);
-
-    // 투표 참여 삭제
-    @Modifying
-    @Query("DELETE FROM UserVote uv WHERE uv.vote = :vote_id")
-    int deleteByVoteID(@Param("vote_id") Vote vote_id);
+    Optional<UserVote> findByVoteAndUser(@Param("vote_id") Vote vote_id, @Param("user_id") User user_id);
 
     // 유저 투표 참여 리스트 조회
     Page<UserVote> findByuser(PageRequest pageRequest, User user);

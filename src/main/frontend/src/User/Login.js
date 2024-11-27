@@ -26,7 +26,7 @@ function Login() {
         else if (value === null || value.trim() === '')
         {
            setidIsExceeded(true);
-           setidError("선택지를 입력해주세요");
+           setidError("아이디를 입력해주세요");
         }
         else if(!(/^[a-zA-Z0-9]*$/.test(value) && !/^[ㄱ-ㅎ]*$/.test(value) && !/[ㄱ-ㅎ]/.test(value)))
         {
@@ -54,7 +54,7 @@ function Login() {
              else if (value === null || value.trim() === '')
              {
                    setpwIsExceeded(true);
-                   setpwError("선택지를 입력해주세요");
+                   setpwError("비밀번호를 입력해주세요");
              }
              else {
                    setpwIsExceeded(false)
@@ -89,7 +89,12 @@ function Login() {
                 })
                 .catch((err) =>
                 {
-                      message.error(err.response.data.result);
+                      if(err.response.data.errorMsg != null) {
+                          message.error(err.response.data.errorMsg)
+                      }
+                      else {
+                          message.error(err.response.data.result)
+                      }
                 });
             }
         };

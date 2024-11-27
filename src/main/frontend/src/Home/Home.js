@@ -63,7 +63,7 @@ function Home() {
         .then((res) => {
                sethotCategory(res.data.category)
                setvoteTotal(res.data.total)
-      })
+        })
       // 투표 추천 리스트 조회
       axios.get('/api/votes/recommend')
         .then((res) => {

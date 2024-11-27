@@ -49,6 +49,7 @@ public class SecurityConfig {
         // white list (Spring Security 체크 제외 목록)
         MvcRequestMatcher[] permitAllWhiteList = {
                 mvc.pattern("/api/login"),
+                mvc.pattern("/api/join"),
                 mvc.pattern("/api/auth/refresh"),
                 mvc.pattern("/api/votes/recommend"),
                 mvc.pattern("/api/sessions"),
@@ -57,14 +58,13 @@ public class SecurityConfig {
                 mvc.pattern("/api/uservotes/stats"),
                 mvc.pattern("/api/uservotes/stats/search"),
                 mvc.pattern("/api/votes/all"),
-                mvc.pattern("/api/error"),
-
+                mvc.pattern("/api/error")
         };
 
         // http request 인증 설정
         http.authorizeHttpRequests(authorize -> authorize
                 .requestMatchers(permitAllWhiteList).permitAll()
-                .requestMatchers(HttpMethod.GET,"/api/votes").permitAll()
+                .requestMatchers(HttpMethod.GET,"/api/votes","/api/users").permitAll()
                 // 그 외 요청 체크
                 .anyRequest().authenticated()
         );

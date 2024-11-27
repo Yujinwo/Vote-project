@@ -220,7 +220,12 @@ function VoteUpdate() {
              })
              .catch((err) =>
              {
-                    message.error(err.response.data.result);
+                    if(err.response.data.errorMsg != null) {
+                      message.error(err.response.data.errorMsg)
+                    }
+                    else {
+                      message.error(err.response.data.result)
+                    }
              })
           }
       }

@@ -197,19 +197,17 @@ function VoteDetail() {
                                setSelectedOption(id);
                                setoptions(prevOptions =>
                                             prevOptions.map(option =>
-                                                option.id === id ? {  ...option, userCountTotal: (option.userCountTotal + 1) } : option
+                                                option.id == id ? {  ...option, userCountTotal: (option.userCountTotal + 1) } : option
+                                            )
+                               )
+                               setoptions(prevOptions =>
+                                            prevOptions.map(option =>
+                                                option.id == id ? {  ...option, percent: parseInt( (option.userCountTotal / (optionCountTotal + 1)) * 100 ) } : {  ...option, percent: parseInt((option.userCountTotal / (optionCountTotal + 1)) * 100) }
                                             )
                                )
                                setoptionCountTotal(optionCountTotal + 1)
-
-                               setoptions(prevOptions =>
-                                            prevOptions.map(option =>
-                                                option.id == id ? {  ...option, percent: ( (option.userCountTotal + 1) / (optionCountTotal + 1 )) * 100 } : {  ...option, percent: ( (option.userCountTotal) / (optionCountTotal + 1 )) * 100 }
-                                            )
-                               )
                         }
                         else {
-
                                setSelectedOption(id);
                                setoptions(prevOptions =>
                                             prevOptions.map(option =>
@@ -218,7 +216,7 @@ function VoteDetail() {
                                )
                                setoptions(prevOptions =>
                                             prevOptions.map(option =>
-                                                option.id == id ? {  ...option, percent: ( (option.userCountTotal + 1) / optionCountTotal) * 100 } : {  ...option, percent: ( (option.userCountTotal - 1) / optionCountTotal) * 100 }
+                                                option.id == id ? {  ...option, percent: parseInt(( (option.userCountTotal) / optionCountTotal) * 100) } : {  ...option, percent: parseInt(( (option.userCountTotal) / optionCountTotal) * 100) }
                                             )
                                )
                         }
@@ -227,6 +225,7 @@ function VoteDetail() {
             // 투표 선택 함수
             const handleSelect = (id) =>
             {
+
                 axios.post('/api/voteoptions?id=' + id)
                    .then((res) =>
                    {
@@ -235,7 +234,12 @@ function VoteDetail() {
                    })
                    .catch((err) =>
                    {
-                            message.error(err.response.data.result)
+                           if(err.response.data.errorMsg != null) {
+                             message.error(err.response.data.errorMsg)
+                           }
+                           else {
+                             message.error(err.response.data.result)
+                           }
                    })
             }
             // 댓글 더보기 함수

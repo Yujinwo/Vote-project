@@ -33,7 +33,7 @@ function UserJoin() {
     else if (value === null || value.trim() === '')
     {
        setidIsExceeded(true);
-       setidError("선택지를 입력해주세요");
+       setidError("아이디를 입력해주세요");
     }
     else if(!(/^[a-zA-Z0-9]*$/.test(value) && !/^[ㄱ-ㅎ]*$/.test(value) && !/[ㄱ-ㅎ]/.test(value)))
     {
@@ -55,8 +55,14 @@ function UserJoin() {
                      })
                      .catch((err) =>
                      {
+                            if(err.response.data.errorMsg != null) {
+                              message.info(err.response.data.errorMsg)
+                            }
+                            else {
+                              message.info(err.response.data.result)
+                            }
                             setidIsExceeded(true)
-                            message.info(err.response.data.result)
+
                      })
            }
     }
@@ -76,7 +82,7 @@ function UserJoin() {
      else if (value === null || value.trim() === '')
      {
             setpwIsExceeded(true);
-            setpwError("선택지를 입력해주세요");
+            setpwError("비밀번호를 입력해주세요");
      }
      else
      {
@@ -97,7 +103,7 @@ function UserJoin() {
      else if (value === null || value.trim() === '')
      {
             setConfirmppwIsExceeded(true);
-            setconfirmpwError("선택지를 입력해주세요");
+            setconfirmpwError("재확인 비밀번호를 입력해주세요");
      }
      else if(pwValue != value)
      {
@@ -122,7 +128,7 @@ function UserJoin() {
       else if (value === null || value.trim() === '')
       {
             setnickIsExceeded(true);
-            setnickError("선택지를 입력해주세요");
+            setnickError("닉네임을 입력해주세요");
       }
       // 한글 초성 불가능 규칙 확인
       else if (/^[ㄱ-ㅎ]*$/.test(value) || /[ㄱ-ㅎ]/.test(value))
@@ -166,8 +172,13 @@ function UserJoin() {
           })
           .catch((err) =>
           {
-                  message.error(err.response.data.result);
-          });
+                  if(err.response.data.errorMsg != null) {
+                     message.error(err.response.data.errorMsg)
+                  }
+                  else {
+                      message.error(err.response.data.result)
+                  }
+          })
     }
   };
     return (

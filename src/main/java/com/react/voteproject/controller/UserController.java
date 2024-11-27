@@ -68,7 +68,7 @@ public class UserController {
             return ResponseEntity.status(HttpStatus.OK).body(result);
         }
         result.put("result","아이디와 비밀번호를 확인해주세요");
-        return ResponseEntity.status(HttpStatus.OK).body(result);
+        return ResponseEntity.status(HttpStatus.NOT_FOUND).body(result);
     }
 
     @PostMapping("/auth/refresh")
@@ -84,21 +84,32 @@ public class UserController {
                 }
             }
         }
-        if (refreshToken == null || !jwtProvider.validateToken(refreshToken)) {
+        if (refreshToken == null) {
+            Map<String,Object> result = new HashMap<>();
+            result.put("errorMsg","인증이 정확하지 않습니다");
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(result);
+        }
+        else if (AuthContext.getAuth() == null) {
+            Map<String,Object> result = new HashMap<>();
+            result.put("errorMsg","로그인을 해주세요");
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(result);
+        }
+        else if(!jwtProvider.validateToken(refreshToken)) {
+            RefreshTokenResponseDTO refreshTokenResponseDTO = refreshTokenService.refreshToken(refreshToken);
+            if (refreshTokenResponseDTO.getAccessToken() == null) {
+                Map<String,Object> result = new HashMap<>();
+                result.put("errorMsg","로그인을 다시 해주세요");
+                return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(result);
+            }
+            String newAccessToken = refreshTokenResponseDTO.getAccessToken();
+            return ResponseEntity.ok(Map.of("accessToken", newAccessToken));
+        }
+        else {
             Map<String,Object> result = new HashMap<>();
             result.put("errorMsg","인증이 정확하지 않습니다");
             return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(result);
         }
 
-        RefreshTokenResponseDTO refreshTokenResponseDTO = refreshTokenService.refreshToken(refreshToken);
-        if (refreshTokenResponseDTO.getAccessToken() == null) {
-            Map<String,Object> result = new HashMap<>();
-            result.put("errorMsg","인증이 정확하지 않습니다");
-            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(result);
-        }
-        String newAccessToken = refreshTokenResponseDTO.getAccessToken();
-
-        return ResponseEntity.ok(Map.of("accessToken", newAccessToken));
     }
     @PostMapping("/logout")
     public ResponseEntity<Map<Object,Object>> Logout(HttpServletResponse response)

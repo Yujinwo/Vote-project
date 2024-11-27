@@ -105,7 +105,7 @@ public class VoteService {
             }
 
             if(AuthContext.checkAuth()) {
-                Optional<UserVote> userVote = userVoteRepository.findByVoteId(vote.get(),AuthContext.getAuth());
+                Optional<UserVote> userVote = userVoteRepository.findByVoteAndUser(vote.get(),AuthContext.getAuth());
                 if(userVote.isPresent())
                 {
                     userSelectedId = userVote.get().getVoteOption().getId();
@@ -132,10 +132,10 @@ public class VoteService {
             VoteOption option = voteOption.get();
 
             // 기존 선택지 삭제 -> 변경한 선택지로 수정
-            Optional<UserVote> userVote = userVoteRepository.findByVoteId(voteOption.get().getVote(),voteOption.get().getVote().getUser());
+            Optional<UserVote> userVote = userVoteRepository.findByVoteAndUser(voteOption.get().getVote(),AuthContext.getAuth());
             if(userVote.isPresent())
             {
-                userVoteRepository.deleteByVoteID(voteOption.get().getVote());
+                userVoteRepository.delete(userVote.get());
                 userVote.get().getVoteOption().downCount();
                 option.upCount();
             }

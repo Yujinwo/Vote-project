@@ -101,7 +101,15 @@ public class UserService {
             if(day.equals("Thisyear")) {
                 String this_year_user_votes_states = redisSingleDataService.getSingleData("this_year_user_votes_states");
                 if(this_year_user_votes_states != null) {
-                    userRankingWithActivityToday = objectMapper.readValue(this_year_user_votes_states, new TypeReference<List<Object[]>>() {});
+                    if(this_year_user_votes_states.isEmpty()) {
+                        userRankingWithActivityToday = userRepository.findUserRankingWithActivityThisYear(null,100);
+                        String serializedData = objectMapper.writeValueAsString(userRankingWithActivityToday);
+                        // Redis에 저장
+                        redisSingleDataService.setSingleData("this_year_user_votes_states", serializedData,duration);
+                    }
+                    else {
+                        userRankingWithActivityToday = objectMapper.readValue(this_year_user_votes_states, new TypeReference<List<Object[]>>() {});
+                    }
                 }
                 else {
                     userRankingWithActivityToday = userRepository.findUserRankingWithActivityThisYear(null,100);
@@ -114,7 +122,15 @@ public class UserService {
             else if(day.equals("Thismonth")) {
                 String this_month_user_votes_states = redisSingleDataService.getSingleData("this_month_user_votes_states");
                 if(this_month_user_votes_states != null) {
-                    userRankingWithActivityToday = objectMapper.readValue(this_month_user_votes_states, new TypeReference<List<Object[]>>() {});
+                    if(this_month_user_votes_states.isEmpty()) {
+                        userRankingWithActivityToday = userRepository.findUserRankingWithActivityThisMonth(null,100);
+                        String serializedData = objectMapper.writeValueAsString(userRankingWithActivityToday);
+                        // Redis에 저장
+                        redisSingleDataService.setSingleData("this_month_user_votes_states", serializedData,duration);
+                    }
+                    else {
+                        userRankingWithActivityToday = objectMapper.readValue(this_month_user_votes_states, new TypeReference<List<Object[]>>() {});
+                    }
                 }
                 else {
                     userRankingWithActivityToday = userRepository.findUserRankingWithActivityThisMonth(null,100);
@@ -125,8 +141,16 @@ public class UserService {
             }
             else {
                 String today_user_votes_states = redisSingleDataService.getSingleData("today_user_votes_states");
-                if(today_user_votes_states != null) {
-                    userRankingWithActivityToday = objectMapper.readValue(today_user_votes_states, new TypeReference<List<Object[]>>() {});
+                if(today_user_votes_states != null ) {
+                    if(today_user_votes_states.isEmpty()) {
+                        userRankingWithActivityToday = userRepository.findUserRankingWithActivityToday(null,100);
+                        String serializedData = objectMapper.writeValueAsString(userRankingWithActivityToday);
+                        // Redis에 저장
+                        redisSingleDataService.setSingleData("today_user_votes_states", serializedData,duration);
+                    }
+                    else {
+                        userRankingWithActivityToday = objectMapper.readValue(today_user_votes_states, new TypeReference<List<Object[]>>() {});
+                    }
                 }
                 else {
                     userRankingWithActivityToday = userRepository.findUserRankingWithActivityToday(null,100);
@@ -147,9 +171,15 @@ public class UserService {
             if(day.equals("Thisyear")) {
                 String this_year_user_votes_states_category = redisSingleDataService.getSingleData("this_year_user_votes_states_category");
                 if(this_year_user_votes_states_category != null) {
-                    userRankingWithActivityToday = objectMapper.readValue(this_year_user_votes_states_category, new TypeReference<List<Object[]>>() {});
-                    List<UserVoteStatsDto> userVoteStatsDtos = userRankingWithActivityToday.stream().map(UserVoteStatsDto::createUserVoteStatsDto).collect(Collectors.toList());
-                    return userVoteStatsDtos;
+                    if(this_year_user_votes_states_category.isEmpty()) {
+                        userRankingWithActivityToday = userRepository.findUserCategoryRankingWithActivityThisYear(category,null,100);
+                        String serializedData = objectMapper.writeValueAsString(userRankingWithActivityToday);
+                        // Redis에 저장
+                        redisSingleDataService.setSingleData("this_year_user_votes_states_category", serializedData,duration);
+                    }
+                    else {
+                        userRankingWithActivityToday = objectMapper.readValue(this_year_user_votes_states_category, new TypeReference<List<Object[]>>() {});
+                    }
                 }
                 else {
                     userRankingWithActivityToday = userRepository.findUserCategoryRankingWithActivityThisYear(category,null,100);
@@ -161,9 +191,15 @@ public class UserService {
             else if(day.equals("Thismonth")) {
                 String this_month_user_votes_states_category = redisSingleDataService.getSingleData("this_month_user_votes_states_category");
                 if(this_month_user_votes_states_category != null) {
-                    userRankingWithActivityToday = objectMapper.readValue(this_month_user_votes_states_category, new TypeReference<List<Object[]>>() {});
-                    List<UserVoteStatsDto> userVoteStatsDtos = userRankingWithActivityToday.stream().map(UserVoteStatsDto::createUserVoteStatsDto).collect(Collectors.toList());
-                    return userVoteStatsDtos;
+                    if(this_month_user_votes_states_category.isEmpty()) {
+                        userRankingWithActivityToday = userRepository.findUserCategoryRankingWithActivityThisMonth(category,null,100);
+                        String serializedData = objectMapper.writeValueAsString(userRankingWithActivityToday);
+                        // Redis에 저장
+                        redisSingleDataService.setSingleData("this_month_user_votes_states_category", serializedData,duration);
+                    }
+                    else {
+                        userRankingWithActivityToday = objectMapper.readValue(this_month_user_votes_states_category, new TypeReference<List<Object[]>>() {});
+                    }
                 }
                 else {
                     userRankingWithActivityToday = userRepository.findUserCategoryRankingWithActivityThisMonth(category,null,100);
@@ -175,9 +211,15 @@ public class UserService {
             else {
                 String today_user_votes_states_category = redisSingleDataService.getSingleData("today_user_votes_states_category");
                 if(today_user_votes_states_category != null) {
-                    userRankingWithActivityToday = objectMapper.readValue(today_user_votes_states_category, new TypeReference<List<Object[]>>() {});
-                    List<UserVoteStatsDto> userVoteStatsDtos = userRankingWithActivityToday.stream().map(UserVoteStatsDto::createUserVoteStatsDto).collect(Collectors.toList());
-                    return userVoteStatsDtos;
+                    if(today_user_votes_states_category.isEmpty()) {
+                        userRankingWithActivityToday = userRepository.findUserCategoryRankingWithActivityToday(category,null,100);
+                        String serializedData = objectMapper.writeValueAsString(userRankingWithActivityToday);
+                        // Redis에 저장
+                        redisSingleDataService.setSingleData("today_user_votes_states_category", serializedData,duration);
+                    }
+                    else {
+                        userRankingWithActivityToday = objectMapper.readValue(today_user_votes_states_category, new TypeReference<List<Object[]>>() {});
+                    }
                 }
                 else {
                     userRankingWithActivityToday = userRepository.findUserCategoryRankingWithActivityToday(category,null,100);

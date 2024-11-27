@@ -1,13 +1,15 @@
 import React, { useState } from 'react';
 import { Menu, Button,Flex } from 'antd';
-import { Link } from 'react-router-dom';
+import { Link,useNavigate } from 'react-router-dom';
 import { notification } from 'antd';
 import '../css/Header.css';  // 스타일 파일
 import { useAuth } from '../Auth/AuthContext';
 import { UserOutlined } from '@ant-design/icons';
 import axios from  '../apiClient'
+
 function Header() {
   const { isLoggedIn, logout,login  } = useAuth();
+  const navigate = useNavigate();
   const handleLogout = () =>
   {
     logout();
@@ -18,11 +20,20 @@ function Header() {
                  notification.info({
                       message: res.data.result,
                  });
+                 navigate('/login');
+
            })
            .catch((err) =>
            {
+                 var message = "";
+                 if(err.response.data.errorMsg != null) {
+                       message = err.response.data.errorMsg
+                 }
+                 else {
+                       message = err.response.data.result
+                 }
                  notification.info({
-                      message: err.response.data.result,
+                      message: message,
                  });
            })
   };
@@ -33,7 +44,7 @@ function Header() {
          {/* 홈 버튼 */}
          <Menu theme="dark" mode="horizontal">
            <Menu.Item key="1">
-                 <Link to="/">Home</Link>
+                 <Link to="/">홈</Link>
            </Menu.Item>
          </Menu>
         <div className="auth-buttons">

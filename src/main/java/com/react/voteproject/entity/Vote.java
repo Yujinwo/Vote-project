@@ -47,6 +47,9 @@ public class Vote extends BaseTime{
     @OneToMany(mappedBy = "vote",fetch = FetchType.LAZY,orphanRemoval = true,cascade = CascadeType.ALL)
     private List<Comment> comments;
 
+    @OneToMany(mappedBy = "vote",fetch = FetchType.LAZY,orphanRemoval = true,cascade = CascadeType.ALL)
+    private List<Up> ups;
+
     @PrePersist
     public void prePersist() {
         if (up == 0) up = 0;
