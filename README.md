@@ -3,15 +3,6 @@
 
 <div><h3>REST API 문서 <a href="https://valley-eyeliner-5c7.notion.site/API-1-14af0af743d380f0b999ea347cdd6705" target="_blank">링크</a> </h3></div>
 
-<div><h3>* Architecture </h3></div>
-  <details>
-    <img src="https://drive.google.com/uc?id=1xUkcYbKtiiVaJY1FCdR0Ad9C3Ed4HLVs" alt="Architecture" />
-  </details>
-
-<div><h3>* ERD </h3></div>
-  <details>
-    <img src="https://drive.google.com/uc?id=1N0bLd9AphECkAXoFAVN5f0h5kSgDXAgq" alt="ERD" />
-  </details>
 <div><h3>* Front </h3></div>
   
 ![react](https://img.shields.io/badge/react-F7DF1E.svg?style=for-the-badge&logo=react&logoColor=white)
@@ -40,38 +31,33 @@
 
 <div><h3>* Interface </h3></div>
 
-  ![querydsl](https://img.shields.io/badge/REST%20API-3DB7CC.svg?style=for-the-badge&logo=REST&logoColor=white)
+![querydsl](https://img.shields.io/badge/REST%20API-3DB7CC.svg?style=for-the-badge&logo=REST&logoColor=white)
+
+
+<div><h3>* Architecture </h3></div>
+    <img src="https://drive.google.com/uc?id=1xUkcYbKtiiVaJY1FCdR0Ad9C3Ed4HLVs" alt="Architecture" />
+
+
+<div><h3>* ERD </h3></div>
+    <img src="https://drive.google.com/uc?id=1N0bLd9AphECkAXoFAVN5f0h5kSgDXAgq" alt="ERD" />
 
 
 
 <div><h3>* 이미지 </h3></div>
-
-<details>
   <summary> Home </summary>
   <img src="https://drive.google.com/uc?id=1p0jN8tiDIOQPERJnq5WAfXUljy1rdcRT" alt="로그인" />
-</details>
 
-<details>
   <summary> 유저 참여율</summary>
   <img src="https://drive.google.com/uc?id=1jwMlsir-WS7Cu7WBgUjcu7parkD8fU8z" alt="메인" />
-</details>
 
-<details>
   <summary> 인기 투표</summary>
   <img src="https://drive.google.com/uc?id=199DB5845tmyV7EaV4JY7mvS4Uwo93_-T" alt="게시물이미지" />
-</details>
 
-<details>
   <summary> 투표 참여 </summary>
   <img src="https://drive.google.com/uc?id=1VU9lyHVebbjX6DbM9kW5PmBgMlKtc6Ej" alt="댓글" />
-</details>
 
-<details>
   <summary> 투표 상세</summary>
   <img src="https://drive.google.com/uc?id=1A8V2QSotdfQFaZThW0-5HzHlw7D99hDj" alt="쪽지" />
-</details>
 
-<details>
   <summary> My페이지 </summary>
   <img src="https://drive.google.com/uc?id=1aMXGMHyjBBGzn9pixYT-mtzeEqvnulo0" alt="Mypage" />
-</details>
