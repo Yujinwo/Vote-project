@@ -5,24 +5,19 @@ import com.fasterxml.jackson.core.JsonProcessingException;
 import com.react.voteproject.category.category_enum;
 import com.react.voteproject.context.AuthContext;
 import com.react.voteproject.dto.*;
-import com.react.voteproject.entity.Vote;
-import com.react.voteproject.service.CommentService;
 import com.react.voteproject.service.VoteService;
 import com.react.voteproject.utility.ResponseHelper;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.web.PageableDefault;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.ArrayList;
-import java.util.List;
 import java.util.Map;
-import java.util.Optional;
+import java.util.concurrent.CompletableFuture;
 
 
 @RestController
@@ -57,14 +52,14 @@ public class VoteController {
     }
     // 투표 참여 리스트 조회
     @GetMapping("/votes/all")
-    public ResponseEntity<VoteHomeDataDto> findAll(@PageableDefault(page = 1) Pageable pageable, @RequestParam(value = "sort",defaultValue = "startDay")  String sort, @RequestParam(value = "category",defaultValue = "")  String category,@RequestParam(value = "title",required = false) String title) {
+    public ResponseEntity<CompletableFuture<VoteHomeDataDto>> findAll(@PageableDefault(page = 1) Pageable pageable, @RequestParam(value = "sort",defaultValue = "startDay")  String sort, @RequestParam(value = "category",defaultValue = "")  String category, @RequestParam(value = "title",required = false) String title) {
         // 검색 키워드 규칙 확인
         if(title != null) {
             if(title.length() == 0 || title.length() > 20) {
-                return ResponseEntity.status(HttpStatus.OK).body(VoteHomeDataDto.createVoteHomeDataDto(new ArrayList<>(),false,0));
+                return ResponseEntity.status(HttpStatus.OK).body(CompletableFuture.completedFuture(VoteHomeDataDto.createVoteHomeDataDto(new ArrayList<>(),false,0)));
             }
         }
-        VoteHomeDataDto vote = voteService.findAll(pageable,sort,category,title);
+        CompletableFuture<VoteHomeDataDto> vote = voteService.findAll(pageable,sort,category,title);
 
         return ResponseEntity.status(HttpStatus.OK).body(vote);
     }

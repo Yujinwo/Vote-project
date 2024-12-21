@@ -8,15 +8,21 @@ import com.react.voteproject.entity.*;
 import com.react.voteproject.repository.*;
 import jakarta.persistence.EntityManager;
 import lombok.RequiredArgsConstructor;
+import org.springframework.context.annotation.Bean;
+import org.springframework.context.annotation.Configuration;
 import org.springframework.data.domain.*;
+import org.springframework.scheduling.annotation.Async;
+import org.springframework.scheduling.annotation.EnableAsync;
+import org.springframework.scheduling.concurrent.ThreadPoolTaskExecutor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDateTime;
-import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Optional;
+import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.Executor;
 import java.util.stream.Collectors;
 
 @Service
@@ -29,6 +35,7 @@ public class VoteService {
      private final BookmarkRepository bookmarkRepository;
      private final CommentRepository commentRepository;
      private final EntityManager em;
+
 
      // 투표 작성
      @Transactional
@@ -220,7 +227,8 @@ public class VoteService {
     }
     // 투표 참여 리스트 조회
     @Transactional(readOnly = true)
-    public  VoteHomeDataDto findAll(Pageable pageable,String sort,String category,String searchTitle) {
+    @Async
+    public CompletableFuture<VoteHomeDataDto> findAll(Pageable pageable, String sort, String category, String searchTitle) {
          String[] sortFields = {"startDay","up","voting"};
 
          boolean contains = Arrays.asList(sortFields).contains(sort);
@@ -238,12 +246,12 @@ public class VoteService {
                  PageRequest pageRequest = PageRequest.of(page, 10);
                  Slice<Object[]> voteWithTotalCount = voteRepository.findVoteWithTotalCount(pageRequest);
                  List<VoteResponseDto> list = voteWithTotalCount.getContent().stream().map(v -> VoteResponseDto.createVoteResponseDto((Vote) v[0], commentRepository.countCommentsByVote((Vote) v[0]))).collect(Collectors.toList());
-                 return VoteHomeDataDto.createVoteHomeDataDto(list,voteWithTotalCount.hasNext(),voteWithTotalCount.getNumber());
+                 return CompletableFuture.completedFuture(VoteHomeDataDto.createVoteHomeDataDto(list,voteWithTotalCount.hasNext(),voteWithTotalCount.getNumber()));
              }
              PageRequest pageRequest = PageRequest.of(page, 10, Sort.by(Sort.Order.desc(sort)));
              Slice<Vote> sliceVote = voteRepository.findAllByVote(pageRequest,searchTitle);
              List<VoteResponseDto> list = sliceVote.stream().map(v -> VoteResponseDto.createVoteResponseDto(v, commentRepository.countCommentsByVote(v))).collect(Collectors.toList());
-             return VoteHomeDataDto.createVoteHomeDataDto(list,sliceVote.hasNext(),sliceVote.getNumber());
+             return CompletableFuture.completedFuture(VoteHomeDataDto.createVoteHomeDataDto(list,sliceVote.hasNext(),sliceVote.getNumber()));
          }
          else {
              Boolean checkCategory = category_enum.fromCode(category);
@@ -255,12 +263,12 @@ public class VoteService {
                  PageRequest pageRequest = PageRequest.of(page, 10);
                  Slice<Object[]> voteWithTotalCount = voteRepository.findVotesWithTotalCountByCategory(pageRequest,category);
                  List<VoteResponseDto> list = voteWithTotalCount.getContent().stream().map(v -> VoteResponseDto.createVoteResponseDto((Vote) v[0], commentRepository.countCommentsByVote((Vote) v[0]))).collect(Collectors.toList());
-                 return VoteHomeDataDto.createVoteHomeDataDto(list,voteWithTotalCount.hasNext(),voteWithTotalCount.getNumber());
+                 return CompletableFuture.completedFuture(VoteHomeDataDto.createVoteHomeDataDto(list,voteWithTotalCount.hasNext(),voteWithTotalCount.getNumber()));
              }
              PageRequest pageRequest = PageRequest.of(page, 10, Sort.by(Sort.Order.desc(sort)));
              Slice<Vote> sliceVote = voteRepository.findAllByVoteAndCategory(pageRequest,category,searchTitle);
              List<VoteResponseDto> list = sliceVote.stream().map(v -> VoteResponseDto.createVoteResponseDto(v, commentRepository.countCommentsByVote(v))).collect(Collectors.toList());
-             return VoteHomeDataDto.createVoteHomeDataDto(list,sliceVote.hasNext(),sliceVote.getNumber());
+             return CompletableFuture.completedFuture(VoteHomeDataDto.createVoteHomeDataDto(list,sliceVote.hasNext(),sliceVote.getNumber()));
          }
     }
     // 총 투표 수 , 인기 카테고리 조회
