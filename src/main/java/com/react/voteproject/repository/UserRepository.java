@@ -20,17 +20,19 @@ public interface UserRepository extends JpaRepository<User,Long> {
     Optional<User> findByuserId(String user_id);
 
     // My페이지 유저 통계 데이터 조회
-    @Query("select u.userId,u.userPw,COUNT(distinct v.id) AS vote_count, COUNT(distinct p.id) AS up_count, COUNT(distinct c.id) AS comment_count " +
+    @Query("select u.userId,u.userPw,COUNT(v.id) AS vote_count, COUNT(p.id) AS up_count, COUNT(c.id) AS comment_count " +
             "from User u " +
-            "LEFT JOIN Vote v ON u.id = v.user.id " +
-            "LEFT JOIN Up p ON u.id = p.user.id " +
-            "LEFT JOIN Comment c ON u.id = c.user.id " +
-            "where u.id = :user_id ")
+            "Left JOIN Vote v ON u.id = v.user.id " +
+            "Left JOIN Up p ON u.id = p.user.id " +
+            "Left JOIN Comment c ON u.id = c.user.id " +
+            "where u.id = :user_id " +
+            "group by u.userId,u.userPw ")
     Optional<Object[]> findStatsByUser(@Param("user_id") Long user_id);
 
-    // 유저 투표 참여율 조회
-    @Query("select ( COUNT(uv.user.id) / (select count(*) from Vote v) ) * 100 AS participation_rate from User u " +
-            "LEFT JOIN UserVote uv ON u.id = uv.user.id " +
+    // My페이지 유저 투표 참여율 조회
+    @Query("select ( COUNT(u.id) / (select count(*) from Vote v) ) * 100 AS participation_rate " +
+            "from User u " +
+            "Left JOIN UserVote uv ON u.id = uv.user.id " +
             "Where u.id = :user_id ")
     Double findVotingRateByUser(@Param("user_id") Long user_id);
 

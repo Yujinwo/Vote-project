@@ -245,12 +245,12 @@ public class VoteService {
                  // 첫 번째 페이지, 10개
                  PageRequest pageRequest = PageRequest.of(page, 10);
                  Slice<Object[]> voteWithTotalCount = voteRepository.findVoteWithTotalCount(pageRequest);
-                 List<VoteResponseDto> list = voteWithTotalCount.getContent().stream().map(v -> VoteResponseDto.createVoteResponseDto((Vote) v[0], commentRepository.countCommentsByVote((Vote) v[0]))).collect(Collectors.toList());
+                 List<VoteResponseDto> list = voteWithTotalCount.getContent().stream().map(v -> VoteResponseDto.createVoteResponseDto((Vote) v[0], (Long) v[1])).collect(Collectors.toList());
                  return CompletableFuture.completedFuture(VoteHomeDataDto.createVoteHomeDataDto(list,voteWithTotalCount.hasNext(),voteWithTotalCount.getNumber()));
              }
              PageRequest pageRequest = PageRequest.of(page, 10, Sort.by(Sort.Order.desc(sort)));
-             Slice<Vote> sliceVote = voteRepository.findAllByVote(pageRequest,searchTitle);
-             List<VoteResponseDto> list = sliceVote.stream().map(v -> VoteResponseDto.createVoteResponseDto(v, commentRepository.countCommentsByVote(v))).collect(Collectors.toList());
+             Slice<Object[]> sliceVote = voteRepository.findAllByVote(pageRequest,searchTitle);
+             List<VoteResponseDto> list = sliceVote.stream().map(v -> VoteResponseDto.createVoteResponseDto((Vote) v[0], (Long) v[1] )).collect(Collectors.toList());
              return CompletableFuture.completedFuture(VoteHomeDataDto.createVoteHomeDataDto(list,sliceVote.hasNext(),sliceVote.getNumber()));
          }
          else {
@@ -262,12 +262,12 @@ public class VoteService {
                  // 첫 번째 페이지, 10개
                  PageRequest pageRequest = PageRequest.of(page, 10);
                  Slice<Object[]> voteWithTotalCount = voteRepository.findVotesWithTotalCountByCategory(pageRequest,category);
-                 List<VoteResponseDto> list = voteWithTotalCount.getContent().stream().map(v -> VoteResponseDto.createVoteResponseDto((Vote) v[0], commentRepository.countCommentsByVote((Vote) v[0]))).collect(Collectors.toList());
+                 List<VoteResponseDto> list = voteWithTotalCount.getContent().stream().map(v -> VoteResponseDto.createVoteResponseDto((Vote) v[0], (Long) v[1] )).collect(Collectors.toList());
                  return CompletableFuture.completedFuture(VoteHomeDataDto.createVoteHomeDataDto(list,voteWithTotalCount.hasNext(),voteWithTotalCount.getNumber()));
              }
              PageRequest pageRequest = PageRequest.of(page, 10, Sort.by(Sort.Order.desc(sort)));
-             Slice<Vote> sliceVote = voteRepository.findAllByVoteAndCategory(pageRequest,category,searchTitle);
-             List<VoteResponseDto> list = sliceVote.stream().map(v -> VoteResponseDto.createVoteResponseDto(v, commentRepository.countCommentsByVote(v))).collect(Collectors.toList());
+             Slice<Object[]> sliceVote = voteRepository.findAllByVoteAndCategory(pageRequest,category,searchTitle);
+             List<VoteResponseDto> list = sliceVote.stream().map(v -> VoteResponseDto.createVoteResponseDto((Vote) v[0], (Long) v[1] )).collect(Collectors.toList());
              return CompletableFuture.completedFuture(VoteHomeDataDto.createVoteHomeDataDto(list,sliceVote.hasNext(),sliceVote.getNumber()));
          }
     }
@@ -294,7 +294,7 @@ public class VoteService {
         PageRequest pageRequest = PageRequest.of(0, 10);
         Long user_id = AuthContext.getAuth() != null ? AuthContext.getAuth().getId() :null;
         List<Object[]> summary = voteRepository.findHotVotesExcludingUser(user_id,pageRequest);
-        List<HotVoteResponseDto> hotVoteResponseDto = summary.stream().map(v -> HotVoteResponseDto.createHotVoteResponseDto(v,commentRepository.countCommentsByVote((Vote) v[0]))).collect(Collectors.toList());
+        List<HotVoteResponseDto> hotVoteResponseDto = summary.stream().map(v -> HotVoteResponseDto.createHotVoteResponseDto(v,(Long) v[2])).collect(Collectors.toList());
         HotVoteandRankDto hotVoteandRankDto = HotVoteandRankDto.createHotVoteandRankDto(hotVoteResponseDto);
         return hotVoteandRankDto;
 

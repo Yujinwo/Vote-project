@@ -34,7 +34,8 @@ public class HotVoteResponseDto {
         DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd");
         Vote hotvote = (Vote) vote[0];
         User user = (User) vote[1];
-        Long rank = (Long) vote[2];
+
+        Long rank = commentCount != 0L ? (Long) vote[3] : (Long) vote[2];
         // 원하는 형식으로 변환
         String startDay = hotvote.getStartDay().format(formatter);
         String endDay = hotvote.getEndDay().format(formatter);

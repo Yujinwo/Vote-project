@@ -65,6 +65,7 @@ public class SecurityConfig {
         http.authorizeHttpRequests(authorize -> authorize
                 .requestMatchers(permitAllWhiteList).permitAll()
                 .requestMatchers(HttpMethod.GET,"/api/votes","/api/users").permitAll()
+                .requestMatchers(HttpMethod.POST,"/api/users").permitAll()
                 // 그 외 요청 체크
                 .anyRequest().authenticated()
         );
