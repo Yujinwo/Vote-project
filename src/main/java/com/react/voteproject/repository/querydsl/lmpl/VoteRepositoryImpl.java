@@ -12,6 +12,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.Pageable;
+import org.springframework.data.support.PageableExecutionUtils;
 
 import java.util.List;
 
@@ -39,7 +40,7 @@ public class VoteRepositoryImpl implements VoteRepositoryCustom {
                 ))
                 .from(vote)
                 .where(vote.user.userId.eq(user_id))
-                .leftJoin(comment).on(comment.vote.id.eq(vote.id))
+                .leftJoin(comment).on(comment.vote.id.eq(vote.id)).fetchJoin()
                 .groupBy(vote.id);
 
         // 페이징 처리
@@ -54,7 +55,7 @@ public class VoteRepositoryImpl implements VoteRepositoryCustom {
                 .where(vote.user.userId.eq(user_id))
                 .fetchOne();
 
-        return new PageImpl<>(results, pageable, total);
+        return PageableExecutionUtils.getPage(results, pageable, () -> total);
 
     }
 
@@ -76,7 +77,7 @@ public class VoteRepositoryImpl implements VoteRepositoryCustom {
                 ))
                 .from(userVote)
                 .where(userVote.vote.user.userId.eq(user_id))
-                .leftJoin(comment).on(comment.vote.id.eq(userVote.vote.id))
+                .leftJoin(comment).on(comment.vote.id.eq(userVote.vote.id)).fetchJoin()
                 .groupBy(userVote.vote.id);
 
         // 페이징 처리
@@ -91,7 +92,7 @@ public class VoteRepositoryImpl implements VoteRepositoryCustom {
                 .where(userVote.vote.user.userId.eq(user_id))
                 .fetchOne();
 
-        return new PageImpl<>(results, pageable, total);
+        return PageableExecutionUtils.getPage(results, pageable, () -> total);
 
     }
 
@@ -113,7 +114,7 @@ public class VoteRepositoryImpl implements VoteRepositoryCustom {
                 ))
                 .from(up)
                 .where(up.vote.user.userId.eq(user_id))
-                .leftJoin(comment).on(comment.vote.id.eq(up.vote.id))
+                .leftJoin(comment).on(comment.vote.id.eq(up.vote.id)).fetchJoin()
                 .groupBy(up.vote.id);
 
         // 페이징 처리
@@ -128,7 +129,7 @@ public class VoteRepositoryImpl implements VoteRepositoryCustom {
                 .where(up.vote.user.userId.eq(user_id))
                 .fetchOne();
 
-        return new PageImpl<>(results, pageable, total);
+        return PageableExecutionUtils.getPage(results, pageable, () -> total);
 
     }
 
@@ -150,7 +151,7 @@ public class VoteRepositoryImpl implements VoteRepositoryCustom {
                 ))
                 .from(bookmark)
                 .where(bookmark.vote.user.userId.eq(user_id))
-                .leftJoin(comment).on(comment.vote.id.eq(bookmark.vote.id))
+                .leftJoin(comment).on(comment.vote.id.eq(bookmark.vote.id)).fetchJoin()
                 .groupBy(bookmark.vote.id);
 
         // 페이징 처리
@@ -165,7 +166,7 @@ public class VoteRepositoryImpl implements VoteRepositoryCustom {
                 .where(bookmark.vote.user.userId.eq(user_id))
                 .fetchOne();
 
-        return new PageImpl<>(results, pageable, total);
+        return PageableExecutionUtils.getPage(results, pageable, () -> total);
 
     }
 

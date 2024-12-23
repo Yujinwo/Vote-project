@@ -20,13 +20,23 @@ public interface UserRepository extends JpaRepository<User,Long> {
     Optional<User> findByuserId(String user_id);
 
     // My페이지 유저 통계 데이터 조회
-    @Query("select u.userId,u.userPw,COUNT(v.id) AS vote_count, COUNT(p.id) AS up_count, COUNT(c.id) AS comment_count " +
-            "from User u " +
-            "Left JOIN Vote v ON u.id = v.user.id " +
-            "Left JOIN Up p ON u.id = p.user.id " +
-            "Left JOIN Comment c ON u.id = c.user.id " +
-            "where u.id = :user_id " +
-            "group by u.userId,u.userPw ")
+    @Query(value = "WITH vote_count AS ( " +
+            "    SELECT v.user_id AS user_id, COUNT(v.id) AS vote_count " +
+            "    FROM Vote v " +
+            "    WHERE v.user_id = :user_id " +
+            "), up_count AS ( " +
+            "    SELECT u.user_id AS user_id, COUNT(u.id) AS up_count " +
+            "    FROM Up u " +
+            "    WHERE u.user_id = :user_id " +
+            "), comment_count AS ( " +
+            "    SELECT c.user_id AS user_id, COUNT(c.id) AS comment_count " +
+            "    FROM Comment c " +
+            "    WHERE c.user_id = :user_id " +
+            ") " +
+            "SELECT vc.vote_count, uc.up_count, cc.comment_count " +
+            "FROM vote_count vc " +
+            "LEFT JOIN comment_count cc ON vc.user_id = cc.user_id " +
+            "LEFT JOIN up_count uc ON vc.user_id = uc.user_id", nativeQuery = true)
     Optional<Object[]> findStatsByUser(@Param("user_id") Long user_id);
 
     // My페이지 유저 투표 참여율 조회

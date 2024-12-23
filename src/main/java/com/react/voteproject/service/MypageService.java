@@ -26,8 +26,6 @@ public class MypageService {
     public MypageVoteDto findVotes(Pageable pageable, User user ){
         int page = pageable.getPageNumber();
         PageRequest pageRequest = PageRequest.of(page > 0 ? page - 1 : page, 10);
-        //Page<Vote> pageVotes = voteRepository.findByuser(pageRequest,user);
-        //List<VoteResponseDto> mypageVotes = pageVotes.stream().map(v -> VoteResponseDto.createVoteResponseDto(v, commentRepository.countCommentsByVote(v))).collect(Collectors.toList());
         Page<VoteWithCommentCountDTO> votesWithCommentCount = voteRepository.findVotesWithCommentCount(pageRequest, user.getUserId());
         MypageVoteDto mypageVoteDto = MypageVoteDto.createMypageVoteDto(votesWithCommentCount.getContent(),votesWithCommentCount.getNumber(), votesWithCommentCount.getTotalElements(),votesWithCommentCount.getSize());
         return mypageVoteDto;
@@ -38,9 +36,6 @@ public class MypageService {
     public MypageVoteDto findups(Pageable pageable, User user) {
         int page = pageable.getPageNumber();
         PageRequest pageRequest = PageRequest.of(page > 0 ? page - 1 : page, 10);
-        Page<Up> pageUps =  upRepository.findByuser(pageRequest,user);
-        //List<VoteResponseDto> mypageVotes = pageUps.stream().map(v -> VoteResponseDto.createVoteResponseDto(v.getVote(), commentRepository.countCommentsByVote(v.getVote()))).collect(Collectors.toList());
-        //MypageVoteDto mypageVoteDto = MypageVoteDto.createMypageVoteDto(mypageVotes,pageUps.getNumber(), pageUps.getTotalElements(),pageUps.getSize());
         Page<VoteWithCommentCountDTO> votesWithCommentCount = voteRepository.findUpVotesWithCommentCount(pageRequest, user.getUserId());
         MypageVoteDto mypageVoteDto = MypageVoteDto.createMypageVoteDto(votesWithCommentCount.getContent(),votesWithCommentCount.getNumber(), votesWithCommentCount.getTotalElements(),votesWithCommentCount.getSize());
         return mypageVoteDto;
@@ -51,9 +46,6 @@ public class MypageService {
     public MypageVoteDto finduserVotes(Pageable pageable, User user) {
         int page = pageable.getPageNumber();
         PageRequest pageRequest = PageRequest.of(page > 0 ? page - 1 : page, 10);
-        Page<UserVote> pageUps =  userVoteRepository.findByuser(pageRequest,user);
-        //List<VoteResponseDto> mypageVotes = pageUps.stream().map(v -> VoteResponseDto.createVoteResponseDto(v.getVote(), commentRepository.countCommentsByVote(v.getVote()))).collect(Collectors.toList());
-        //MypageVoteDto mypageVoteDto = MypageVoteDto.createMypageVoteDto(mypageVotes,pageUps.getNumber(), pageUps.getTotalElements(),pageUps.getSize());
         Page<VoteWithCommentCountDTO> votesWithCommentCount = voteRepository.findUserVotesWithCommentCount(pageRequest, user.getUserId());
         MypageVoteDto mypageVoteDto = MypageVoteDto.createMypageVoteDto(votesWithCommentCount.getContent(),votesWithCommentCount.getNumber(), votesWithCommentCount.getTotalElements(),votesWithCommentCount.getSize());
         return mypageVoteDto;
@@ -63,9 +55,6 @@ public class MypageService {
     public MypageVoteDto findbookMarks(Pageable pageable, User user) {
         int page = pageable.getPageNumber();
         PageRequest pageRequest = PageRequest.of(page > 0 ? page - 1 : page, 10);
-        Page<Bookmark> pageUps =  bookmarkRepository.findByuser(pageRequest,user);
-        //List<VoteResponseDto> mypageVotes = pageUps.stream().map(v -> VoteResponseDto.createVoteResponseDto(v.getVote(), commentRepository.countCommentsByVote(v.getVote()))).collect(Collectors.toList());
-        //MypageVoteDto mypageVoteDto = MypageVoteDto.createMypageVoteDto(mypageVotes,pageUps.getNumber(), pageUps.getTotalElements(),pageUps.getSize());
         Page<VoteWithCommentCountDTO> votesWithCommentCount = voteRepository.findBookmarkVotesWithCommentCount(pageRequest, user.getUserId());
         MypageVoteDto mypageVoteDto = MypageVoteDto.createMypageVoteDto(votesWithCommentCount.getContent(),votesWithCommentCount.getNumber(), votesWithCommentCount.getTotalElements(),votesWithCommentCount.getSize());
         return mypageVoteDto;
