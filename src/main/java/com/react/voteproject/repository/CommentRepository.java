@@ -18,6 +18,10 @@ public interface CommentRepository extends JpaRepository<Comment,Long> {
 
     // 투표 댓글 리스트 조회
     @Query("select c from Comment c where vote = :vote_id")
-    Page<Comment> findPageByVote(@Param("vote_id") Vote vote_id, Pageable pageable);
+    Slice<Comment> findPageByVote(@Param("vote_id") Vote vote_id, Pageable pageable);
+
+    // 투표 댓글 Count 조회
+    @Query("select count(c) from Comment c where vote = :vote_id")
+    Long findCommentcountByVote(@Param("vote_id") Vote vote_id);
 
 }

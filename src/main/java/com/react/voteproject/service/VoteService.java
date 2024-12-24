@@ -95,11 +95,11 @@ public class VoteService {
 
             // 투표 댓글 Slice 조회
             PageRequest pageRequest = PageRequest.of(0,10);
-            Page<Comment> comments = commentRepository.findPageByVote(vote.get(), pageRequest);
+            Slice<Comment> comments = commentRepository.findPageByVote(vote.get(), pageRequest);
             List<CommentResponseDto> commentList = comments.getContent().stream().map(CommentResponseDto::createCommentResponseDto).collect(Collectors.toList());
 
             // 투표 데이터 조회
-            VoteResponseDto voteResponseDto = vote.map(v -> VoteResponseDto.createVoteResponseDto(v,comments.getTotalElements())).get();
+            VoteResponseDto voteResponseDto = vote.map(v -> VoteResponseDto.createVoteResponseDto(v,commentRepository.findCommentcountByVote(vote.get()))).get();
 
             Boolean hasUp = false;
             Boolean hasBookmark = false;

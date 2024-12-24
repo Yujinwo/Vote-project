@@ -275,7 +275,6 @@ function VoteDetail() {
                                    setVisibleData(updatedComments.slice(0, nextDataCount));
                                    setDataCount(nextDataCount);
 
-                                   setcommentCount(res.data.total)
                              }
                              sethasNext(res.data.hasNext);
                         })

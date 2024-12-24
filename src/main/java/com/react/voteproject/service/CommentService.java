@@ -50,9 +50,9 @@ public class CommentService {
         if(vote.isPresent()){
             int page = pageable.getPageNumber();
             PageRequest pageRequest = PageRequest.of(page > 0 ? page - 1 : page, 10);
-            Page<Comment> comments = commentRepository.findPageByVote(vote.get(), pageRequest);
+            Slice<Comment> comments = commentRepository.findPageByVote(vote.get(), pageRequest);
             List<CommentResponseDto> commentResponseDto = comments.getContent().stream().map(CommentResponseDto::createCommentResponseDto).collect(Collectors.toList());
-            CommentMoreDto commentMoreDto = CommentMoreDto.createCommentMoreDto(comments.getTotalElements(),comments,commentResponseDto);
+            CommentMoreDto commentMoreDto = CommentMoreDto.createCommentMoreDto(comments,commentResponseDto);
             return commentMoreDto;
         }
         else {
