@@ -25,19 +25,31 @@ const ReactCardSlider = (props) => {
   // 슬라이더 오른쪽 버튼
   const slideRight = () =>
   {
-    const slider = document.getElementById("slider");
-    slider.scrollLeft += 500; // 슬라이드 오른쪽으로 이동
+     const slider = document.getElementById("slider");
+     slider.scrollLeft += 500; // 슬라이드 오른쪽으로 이동
 
-    // 슬라이드 끝에 도달했는지 확인
-    if (slider.scrollLeft + slider.clientWidth >= slider.scrollWidth)
-    {
-      loadMoreSlides(); // 슬라이드 추가 로드
-    }
+
+     // 슬라이드 끝에 도달했는지 확인
+     if (slider.scrollLeft + slider.clientWidth >= slider.scrollWidth) {
+       if (!isLoading) {
+         loadMoreSlides()
+           .then(() => {
+             setIsLoading(false)
+           })
+           .catch((error) => {
+             console.error("슬라이드 로드 중 오류 발생:", error);
+             setIsLoading(false)
+           });
+       }
+     }
+
+
   };
 
    // 슬라이드의 끝에 도달했을 때 추가 슬라이드를 로드하는 함수
    const loadMoreSlides = () =>
    {
+   return new Promise((resolve, reject) => {
      if (!hasNext) return; // 이미 로딩 중이거나 모든 슬라이드가 로드된 경우 종료
      setIsLoading(true);
      // 0.2초 후에 추가 슬라이드를 로드
@@ -66,7 +78,7 @@ const ReactCardSlider = (props) => {
                        sethasNext(res.data.hasNext);
                        // 기존 데이터에 새로운 데이터 추가
                        setVisibleSlides((prevSlides) => [...prevSlides, ...newSlides]);
-                       setIsLoading(false);
+                       resolve();
                   })
        }
        // 다음 데이터 존재 && 카테고리 존재
@@ -92,10 +104,11 @@ const ReactCardSlider = (props) => {
                        sethasNext(res.data.hasNext);
                        // 기존 데이터에 새로운 데이터 추가
                        setVisibleSlides((prevSlides) => [...prevSlides, ...newSlides]); // 기존 슬라이드에 추가
-                       setIsLoading(false);
+                       resolve();
                 })
        }
      }, 200);
+     })
    };
 
 // 처음 데이터 설정
