@@ -6,8 +6,10 @@ import { EditOutlined } from '@ant-design/icons';
 import axios from  "../apiClient"
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../Auth/AuthContext';
+import dayjs from 'dayjs';
 const { RangePicker } = DatePicker;
 const { Text, Link } = Typography;
+
 function VoteWrite() {
        const { isLoggedIn, login  } = useAuth();
        const navigate = useNavigate();
@@ -202,13 +204,18 @@ function VoteWrite() {
       // 기간 설정 함수
       const changeDay =(data,dataString) =>
       {
-           setDay(dataString);
+          setDay(dataString);
+          console.log(dataString);
       }
       // 카테고리 설정 함수
       const handleChangecategory = (value) =>
       {
            setCategoryValue(value); // 선택된 값 저장
       }
+      const disabledDate = (current) => {
+        // current는 moment 객체로, 현재 날짜보다 이전이면 비활성화
+         return current && current.isBefore(dayjs().startOf('day'), 'day');
+      };
 
       return (
         <Flex align="center" style={{height:'1000px'}}>
@@ -257,6 +264,7 @@ function VoteWrite() {
                           }}
                           size="middle"
                           onChange={changeDay}
+                          disabledDate={disabledDate}
                           style={{width:'100%'}}
                         />
                 </div>

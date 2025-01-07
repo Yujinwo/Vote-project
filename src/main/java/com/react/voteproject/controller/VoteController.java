@@ -15,6 +15,8 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.Map;
 import java.util.concurrent.CompletableFuture;
@@ -66,6 +68,21 @@ public class VoteController {
     // 투표 작성
     @PostMapping("/votes")
     public ResponseEntity<Map<Object,Object>> writeVote(@Valid @RequestBody VoteWriteDto voteWriteDto) {
+
+        // 현재 날짜와 시간을 LocalDateTime으로 가져옴
+        LocalDateTime now = LocalDateTime.now();
+
+        // 날짜 포맷에 맞는 DateTimeFormatter
+        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss");
+
+        // 날짜 리스트에서 하나라도 현재 날짜보다 이전인 경우 에러 처리
+        for (String dateString : voteWriteDto.getChoices()) {
+            LocalDateTime date = LocalDateTime.parse(dateString, formatter); // 문자열을 LocalDateTime으로 변환
+
+            if (date.isBefore(now)) {
+                ResponseHelper.createErrorMessage("result","하나 이상의 날짜가 현재 날짜보다 이전입니다: " + dateString);
+            }
+        }
 
         Boolean checkCategory = category_enum.fromCode(voteWriteDto.getCategory());
         // 카테고리 데이터 검증
