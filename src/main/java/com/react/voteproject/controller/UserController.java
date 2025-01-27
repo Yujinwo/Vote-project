@@ -2,8 +2,6 @@ package com.react.voteproject.controller;
 
 
 import com.fasterxml.jackson.core.JsonProcessingException;
-import com.google.gson.JsonObject;
-import com.react.voteproject.category.category_enum;
 import com.react.voteproject.context.AuthContext;
 import com.react.voteproject.dto.*;
 import com.react.voteproject.entity.User;
@@ -51,6 +49,7 @@ public class UserController {
             result.put("result","알파벳, 숫자 조합으로 입력해주세요");
             return ResponseEntity.status(HttpStatus.OK).body(result);
         }
+
         Cookie[] cookies = request.getCookies();
         String refreshToken = null;
 
@@ -62,6 +61,7 @@ public class UserController {
                 }
             }
         }
+
         LoginResponseDTO user = userService.login(userLoginDto,refreshToken);
 
         if(user.getAccessToken() != null)
@@ -101,9 +101,16 @@ public class UserController {
             result.put("errorMsg","토큰이 존재하지 않습니다");
             return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(result);
         }
+        String jwtToken = "";
+        final String token = request.getHeader("Authorization");
+        if(token != null && !token.isEmpty()) {
+           jwtToken = token.substring(7);
+        }
+
 
         if(AuthContext.checkAuth() && jwtProvider.validateToken(refreshToken)) {
-            RefreshTokenResponseDTO refreshTokenResponseDTO = refreshTokenService.refreshToken(refreshToken);
+            RefreshTokenResponseDTO refreshTokenResponseDTO = refreshTokenService.refreshToken(refreshToken,jwtToken);
+
             if (refreshTokenResponseDTO.getAccessToken() == null) {
                 Map<String,Object> result = new HashMap<>();
                 result.put("errorMsg","로그인을 다시 해주세요");

@@ -2,6 +2,7 @@ package com.react.voteproject.dto;
 
 
 import com.react.voteproject.entity.User;
+import com.react.voteproject.role.role_enum;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.Size;
 import lombok.AllArgsConstructor;
@@ -31,6 +32,7 @@ public class UserJoinDto {
                 .userId(user_id)
                 .userPw(user_pw)
                 .userNick(user_nick)
+                .role(role_enum.USER.getRole())
                 .build();
     }
 

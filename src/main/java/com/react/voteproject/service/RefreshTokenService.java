@@ -3,6 +3,7 @@ package com.react.voteproject.service;
 import com.react.voteproject.dto.RefreshTokenResponseDTO;
 import com.react.voteproject.jwt.JwtProvider;
 import com.react.voteproject.jwt.RefreshToken;
+import io.jsonwebtoken.Claims;
 import lombok.RequiredArgsConstructor;
 import org.eclipse.jdt.internal.compiler.parser.Parser;
 import org.springframework.stereotype.Service;
@@ -19,13 +20,15 @@ public class RefreshTokenService {
      * @return RefreshTokenResponseDTO
      */
 
-    public RefreshTokenResponseDTO refreshToken(final String refreshToken) {
+    public RefreshTokenResponseDTO refreshToken(final String refreshToken,String accessToken) {
 
+        Claims allClaimsFromToken = jwtProvider.getAllClaimsFromToken(accessToken);
+        String role = (String) allClaimsFromToken.get("role");
         // refresh token id 조회
         var user_id = refresh.getRefreshToken(refreshToken);
         if(user_id != null) {
             // 새로운 access token 생성
-            String newAccessToken = jwtProvider.generateAccessToken(user_id);
+            String newAccessToken = jwtProvider.generateAccessToken(user_id,role);
            
             // 기존에 가지고 있는 사용자의 refresh token 제거
             refresh.removeRefreshToken(refreshToken);

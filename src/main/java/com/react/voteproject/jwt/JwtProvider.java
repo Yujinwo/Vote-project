@@ -66,7 +66,7 @@ public class JwtProvider {
      * @param token JWT
      * @return All Claims
      */
-    private Claims getAllClaimsFromToken(final String token) {
+    public Claims getAllClaimsFromToken(final String token) {
         return Jwts.parserBuilder()
                 .setSigningKey(key)
                 .build()
@@ -100,8 +100,11 @@ public class JwtProvider {
      * @param id token 생성 id
      * @return access token
      */
-    public String generateAccessToken(final long id) {
-        return generateAccessToken(String.valueOf(id), new HashMap<>());
+    public String generateAccessToken(final long id,String role) {
+        Map<String, Object> claims = new HashMap<>();
+        claims.put("role", role);  // 역할 정보 추가
+
+        return generateAccessToken(String.valueOf(id), claims);
     }
 
     /**

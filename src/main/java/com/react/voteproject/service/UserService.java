@@ -43,7 +43,7 @@ public class UserService {
            User userInfo = user.get();
            AuthContext.setAuth(user.get());
            // jwt 토큰 생성
-           String accessToken = jwtProvider.generateAccessToken(userInfo.getId());
+           String accessToken = jwtProvider.generateAccessToken(userInfo.getId(), userInfo.getRole());
 
            // 기존에 가지고 있는 사용자의 refresh token 제거
            if(refreshToken != null){

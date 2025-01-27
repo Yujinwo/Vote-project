@@ -3,6 +3,8 @@ package com.react.voteproject.category;
 
 import lombok.Getter;
 
+import java.util.concurrent.ThreadLocalRandom;
+
 @Getter
 public enum category_enum {
 
@@ -22,6 +24,12 @@ public enum category_enum {
         }
         return false;
 
+    }
+    // 랜덤 카테고리 반환 함수
+    public static String getRandomCategory() {
+        category_enum[] categories = values();
+        int randomIndex = ThreadLocalRandom.current().nextInt(categories.length);
+        return categories[randomIndex].name();
     }
 
 }

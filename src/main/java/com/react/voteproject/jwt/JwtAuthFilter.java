@@ -3,6 +3,8 @@ package com.react.voteproject.jwt;
 import com.react.voteproject.context.AuthContext;
 import com.react.voteproject.entity.User;
 import com.react.voteproject.repository.UserRepository;
+import com.react.voteproject.role.role_enum;
+import io.jsonwebtoken.Claims;
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.Cookie;
@@ -70,10 +72,10 @@ public class JwtAuthFilter extends OncePerRequestFilter {
                 return;
             }
         }
-
+        String jwtToken = "";
         // Bearer token 검증 후 user name 조회
         if(token != null && !token.isEmpty()) {
-            String jwtToken = token.substring(7);
+            jwtToken = token.substring(7);
             username = jwtProvider.getUserIdFromToken(jwtToken);
         }
 
@@ -82,11 +84,11 @@ public class JwtAuthFilter extends OncePerRequestFilter {
             // Spring Security Context Holder 인증 정보 set
             if(AuthContext.checkAuth())
             {
-                SecurityContextHolder.getContext().setAuthentication(getUserAuth(username));
+                String role = (String) jwtProvider.getAllClaimsFromToken(jwtToken).get("role");
+                SecurityContextHolder.getContext().setAuthentication(getUserAuth(role));
             }
 
         }
-
 
         filterChain.doFilter(request,response);
     }
@@ -101,12 +103,11 @@ public class JwtAuthFilter extends OncePerRequestFilter {
      *
      * @return 사용자 UsernamePasswordAuthenticationToken
      */
-    private UsernamePasswordAuthenticationToken getUserAuth(String userid) {
+    private UsernamePasswordAuthenticationToken getUserAuth(String role) {
         User userInfo = AuthContext.getAuth();
-
         return new UsernamePasswordAuthenticationToken(userInfo.getId(),
                 userInfo.getUserPw(),
-                Collections.singleton(new SimpleGrantedAuthority("Role_USER"))
+                Collections.singleton(new SimpleGrantedAuthority(role))
         );
     }
 
