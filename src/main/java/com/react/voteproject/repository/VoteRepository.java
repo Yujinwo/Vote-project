@@ -3,19 +3,25 @@ package com.react.voteproject.repository;
 import com.react.voteproject.entity.User;
 import com.react.voteproject.entity.Vote;
 import com.react.voteproject.repository.querydsl.VoteRepositoryCustom;
+import jakarta.persistence.LockModeType;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Slice;
 import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.jpa.repository.Lock;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
 
 import java.util.List;
+import java.util.Optional;
 
 
 @Repository
 public interface VoteRepository extends JpaRepository<Vote,Long>, VoteRepositoryCustom {
+
+    @Lock(LockModeType.PESSIMISTIC_WRITE)
+    Optional<Vote> findById(Long id);
 
     // 투표 참여 카테고리별 리스트 조회
     @Query("WITH comment_count " +

@@ -8,13 +8,10 @@ import com.react.voteproject.entity.*;
 import com.react.voteproject.repository.*;
 import jakarta.persistence.EntityManager;
 import lombok.RequiredArgsConstructor;
-import org.springframework.context.annotation.Bean;
-import org.springframework.context.annotation.Configuration;
 import org.springframework.data.domain.*;
 import org.springframework.scheduling.annotation.Async;
-import org.springframework.scheduling.annotation.EnableAsync;
-import org.springframework.scheduling.concurrent.ThreadPoolTaskExecutor;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Isolation;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDateTime;
@@ -22,7 +19,6 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.Optional;
 import java.util.concurrent.CompletableFuture;
-import java.util.concurrent.Executor;
 import java.util.stream.Collectors;
 
 @Service
@@ -132,7 +128,7 @@ public class VoteService {
 
     }
     // 유저 투표 참여 선택지 변경
-    @Transactional
+    @Transactional(isolation = Isolation.READ_COMMITTED)
     public Boolean changeVoteOption(Long id) {
         Optional<VoteOption> voteOption = voteOptionRepository.findById(id);
         if(voteOption.isPresent()){
@@ -177,7 +173,7 @@ public class VoteService {
         return false;
     }
     // 좋아요
-    @Transactional
+    @Transactional(isolation = Isolation.READ_COMMITTED)
     public Boolean changeUp(Long voteId) {
         Optional<Vote> vote = voteRepository.findById(voteId);
         if(vote.isPresent())
@@ -298,5 +294,12 @@ public class VoteService {
         HotVoteandRankDto hotVoteandRankDto = HotVoteandRankDto.createHotVoteandRankDto(hotVoteResponseDto);
         return hotVoteandRankDto;
 
+    }
+
+    @Transactional(isolation = Isolation.READ_COMMITTED)
+    public void testChangeVoteoption(long l) {
+        Optional<VoteOption> voteOption = voteOptionRepository.findById(l);
+        //voteOptionRepository.incrementVote(2L);
+        voteOption.get().upCount();
     }
 }
