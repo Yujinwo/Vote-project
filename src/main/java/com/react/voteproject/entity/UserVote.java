@@ -9,6 +9,7 @@ import lombok.*;
 @AllArgsConstructor
 @Builder
 @Getter
+@Table(name = "user_vote",uniqueConstraints = @UniqueConstraint(columnNames = {"user_id","vote_option_id"}))
 public class UserVote extends BaseTime{
 
     @Id

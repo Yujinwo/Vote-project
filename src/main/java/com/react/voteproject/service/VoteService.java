@@ -8,11 +8,13 @@ import com.react.voteproject.entity.*;
 import com.react.voteproject.repository.*;
 import jakarta.persistence.EntityManager;
 import lombok.RequiredArgsConstructor;
+import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.data.domain.*;
 import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Isolation;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.transaction.interceptor.TransactionAspectSupport;
 
 import java.time.LocalDateTime;
 import java.util.Arrays;
@@ -131,6 +133,7 @@ public class VoteService {
     @Transactional(isolation = Isolation.READ_COMMITTED)
     public Boolean changeVoteOption(Long id) {
         Optional<VoteOption> voteOption = voteOptionRepository.findById(id);
+
         if(voteOption.isPresent()){
             VoteOption option = voteOption.get();
 
@@ -145,13 +148,14 @@ public class VoteService {
             else {
                 option.upCount();
             }
-
-            Optional<UserVote> save = Optional.of(userVoteRepository.save(voteOption.get().createUserVote()));
-            if(save.isEmpty())
-            {
+            try {
+                Optional<UserVote> save = Optional.of(userVoteRepository.save(voteOption.get().createUserVote()));
+                return true;
+            }
+            catch (DataIntegrityViolationException e) {
+                TransactionAspectSupport.currentTransactionStatus().setRollbackOnly();
                 return false;
             }
-            return true;
         }
         return false;
     }
@@ -296,10 +300,4 @@ public class VoteService {
 
     }
 
-    @Transactional(isolation = Isolation.READ_COMMITTED)
-    public void testChangeVoteoption(long l) {
-        Optional<VoteOption> voteOption = voteOptionRepository.findById(l);
-        //voteOptionRepository.incrementVote(2L);
-        voteOption.get().upCount();
-    }
 }
