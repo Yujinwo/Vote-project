@@ -7,6 +7,7 @@ import com.react.voteproject.dto.*;
 import com.react.voteproject.entity.User;
 import com.react.voteproject.jwt.JwtProvider;
 import com.react.voteproject.repository.UserRepository;
+import com.react.voteproject.service.CaffeineFixedWindowRateLimiter;
 import com.react.voteproject.service.RefreshTokenService;
 import com.react.voteproject.service.UserService;
 import com.react.voteproject.utility.ResponseHelper;
@@ -35,6 +36,7 @@ public class UserController {
     private final UserRepository userRepository;
     private final JwtProvider jwtProvider;
     private final RefreshTokenService refreshTokenService;
+    private final CaffeineFixedWindowRateLimiter rateLimiter;
     // 영어와 숫자만 허용하는 정규식
     private static final Pattern alphanumericPattern = Pattern.compile("^[a-zA-Z0-9]*$");
     // 한글 초성을 확인하는 정규식
@@ -42,8 +44,13 @@ public class UserController {
 
     @PostMapping("/login")
     public ResponseEntity<Map<String,Object>> Login(@Valid @RequestBody UserLoginDto userLoginDto, HttpServletResponse response,HttpServletRequest request) {
-
+        String clientIp = request.getRemoteAddr(); // 클라이언트 IP 가져오기
         Map<String,Object> result = new HashMap<>();
+        if (!rateLimiter.isAllowed(clientIp)) {
+            result.put("result","잠시후 다시 시도해주세요");
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(result);
+        }
+
         if(!alphanumericPattern.matcher(userLoginDto.getUser_id()).matches())
         {
             result.put("result","알파벳, 숫자 조합으로 입력해주세요");
@@ -72,7 +79,7 @@ public class UserController {
             // Refresh Token을 쿠키에 저장
             Cookie refreshCookie = new Cookie("refreshToken", user.getRefreshToken());
             refreshCookie.setHttpOnly(true);       // XSS 공격 방지
-            refreshCookie.setSecure(true);        // HTTPS에서만 작동 (개발 시에는 false로 설정 가능)
+            refreshCookie.setSecure(false);        // HTTPS에서만 작동 (개발 시에는 false로 설정 가능)
             refreshCookie.setPath("/");           // 모든 경로에서 사용 가능
             refreshCookie.setMaxAge(24 * 60 * 60); // 24시간 (초 단위)
 
@@ -85,6 +92,13 @@ public class UserController {
 
     @PostMapping("/auth/refresh")
     public ResponseEntity<?> refreshToken(HttpServletRequest request, HttpServletResponse response) {
+        String clientIp = request.getRemoteAddr(); // 클라이언트 IP 가져오기
+
+        if (!rateLimiter.isAllowed(clientIp)) {
+            Map<String,Object> result = new HashMap<>();
+            result.put("result","잠시후 다시 시도해주세요");
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(result);
+        }
         Cookie[] cookies = request.getCookies();
         String refreshToken = null;
 
@@ -126,8 +140,12 @@ public class UserController {
 
     }
     @PostMapping("/logout")
-    public ResponseEntity<Map<Object,Object>> Logout(HttpServletResponse response)
+    public ResponseEntity<Map<Object,Object>> Logout(HttpServletRequest request, HttpServletResponse response)
     {
+        String clientIp = request.getRemoteAddr(); // 클라이언트 IP 가져오기
+        if (!rateLimiter.isAllowed(clientIp)) {
+            return ResponseHelper.createErrorMessage("result","잠시후 다시 시도해주세요");
+        }
         if(AuthContext.checkAuth()) {
             AuthContext.deleteAuth();
             Cookie cookie = new Cookie("refreshToken", null);
@@ -154,7 +172,11 @@ public class UserController {
     }
     // id 조회
     @GetMapping("/users")
-    public ResponseEntity<Map<Object,Object>> findUserId(@RequestParam("user_id") @NotBlank @Size(min = 4, max = 10,message = "최소 4자 이상, 최대 10자 이하로 입력해주세요") String user_id) {
+    public ResponseEntity<Map<Object,Object>> findUserId(@RequestParam("user_id") @NotBlank @Size(min = 4, max = 10,message = "최소 4자 이상, 최대 10자 이하로 입력해주세요") String user_id,HttpServletRequest request) {
+        String clientIp = request.getRemoteAddr(); // 클라이언트 IP 가져오기
+        if (!rateLimiter.isAllowed(clientIp)) {
+            return ResponseHelper.createErrorMessage("result","잠시후 다시 시도해주세요");
+        }
         if(!alphanumericPattern.matcher(user_id).matches())
         {
             return ResponseHelper.createErrorMessage("result","알파벳, 숫자 조합으로 입력해주세요");
@@ -168,7 +190,11 @@ public class UserController {
     }
     // 회원가입
     @PostMapping("/users")
-    public ResponseEntity<Map<Object,Object>> Join(@Valid @RequestBody UserJoinDto userJoinDto) {
+    public ResponseEntity<Map<Object,Object>> Join(@Valid @RequestBody UserJoinDto userJoinDto,HttpServletRequest request) {
+        String clientIp = request.getRemoteAddr(); // 클라이언트 IP 가져오기
+        if (!rateLimiter.isAllowed(clientIp)) {
+            return ResponseHelper.createErrorMessage("result","잠시후 다시 시도해주세요");
+        }
         if(!alphanumericPattern.matcher(userJoinDto.getUser_id()).matches())
         {
             return ResponseHelper.createErrorMessage("result","알파벳, 숫자 조합으로 입력해주세요");
