@@ -35,13 +35,9 @@ public class CommentController {
 
         if(!AuthContext.checkAuth())
         {
-            return ResponseHelper.createErrorMessage("result","로그인을 해주세요");
+            return ResponseHelper.createErrorMessage("result","로그인을 해주세요", HttpStatus.UNAUTHORIZED);
         }
-        Boolean status = commentService.write(commentWriteDto);
-        if(!status)
-        {
-            return ResponseHelper.createErrorMessage("result","댓글 작성 실패");
-        }
+        commentService.write(commentWriteDto);
         return ResponseHelper.createSuccessMessage("result","댓글 작성 성공");
     }
     // 댓글 수정
@@ -50,13 +46,9 @@ public class CommentController {
 
         if(!AuthContext.checkAuth())
         {
-            return ResponseHelper.createErrorMessage("result","로그인을 해주세요");
+            return ResponseHelper.createErrorMessage("result","로그인을 해주세요", HttpStatus.UNAUTHORIZED);
         }
-        Boolean status = commentService.update(commentUpdateDto);
-        if(!status)
-        {
-            return ResponseHelper.createErrorMessage("result","댓글 수정 실패");
-        }
+        commentService.update(commentUpdateDto);
         return ResponseHelper.createSuccessMessage("result","댓글 수정 성공");
     }
     // 댓글 삭제
@@ -65,13 +57,9 @@ public class CommentController {
 
         if(!AuthContext.checkAuth())
         {
-            return ResponseHelper.createErrorMessage("result","로그인을 해주세요");
+            return ResponseHelper.createErrorMessage("result","로그인을 해주세요", HttpStatus.UNAUTHORIZED);
         }
-        Boolean status = commentService.delete(comment_id);
-        if(!status)
-        {
-            return ResponseHelper.createErrorMessage("result","댓글 삭제 실패");
-        }
+        commentService.delete(comment_id);
         return ResponseHelper.createSuccessMessage("result","댓글 삭제 성공");
     }
 

@@ -5,6 +5,8 @@ import com.react.voteproject.category.category_enum;
 import com.react.voteproject.context.AuthContext;
 import com.react.voteproject.dto.*;
 import com.react.voteproject.entity.*;
+import com.react.voteproject.exception.CreationException;
+import com.react.voteproject.exception.UnauthorizedException;
 import com.react.voteproject.repository.*;
 import jakarta.persistence.EntityManager;
 import lombok.RequiredArgsConstructor;
@@ -37,51 +39,33 @@ public class VoteService {
 
      // 투표 작성
      @Transactional
-     public Boolean write(VoteWriteDto voteWriteDto) {
-        Optional<Vote> vote = Optional.of(voteRepository.save(voteWriteDto.createVote()));
-        if(vote.isEmpty())
-        {
-            return false;
-        }
+     public void write(VoteWriteDto voteWriteDto) {
+        Vote vote = Optional.of(voteRepository.save(voteWriteDto.createVote())).orElseThrow(() -> new CreationException("투표가 존재하지 않습니다."));
         em.flush();
         em.clear();
         // 투표 선택지 저장
         for (String option : voteWriteDto.getChoices())
         {
-            Optional<VoteOption> voteOption = Optional.ofNullable(voteOptionRepository.save(VoteOption.builder().content(option).vote(vote.get()).build()));
-            if(voteOption.isEmpty())
-            {
-                return false;
-            }
+            VoteOption voteOption = Optional.of(voteOptionRepository.save(VoteOption.builder().content(option).vote(vote).build())).orElseThrow(() -> new CreationException("투표 선택지 저장을 실패했습니다. 잠시 후 다시 시도해 주세요!"));
         }
-        return true;
-
     }
     // 투표 수정
     @Transactional
-    public Boolean update(VoteUpdateDto voteUpdateDto) {
-
-        Optional<Vote> vote = voteRepository.findById(voteUpdateDto.getVote_id());
-        if(vote.isPresent()){
-                // 댓글 작성자와 일치하지 않다면
-                if(!vote.get().getUser().getUserId().equals(AuthContext.getAuth().getUserId())) {
-                    return false;
-                }
-                List<LocalDateTime> dateTimeList = voteUpdateDto.changeDayFormat();
-                vote.get().changeVoteContent(voteUpdateDto.getTitle(), voteUpdateDto.getCategory(), dateTimeList.get(0),dateTimeList.get(1));
-                List<VoteOption> voteOption = voteOptionRepository.findByvote(vote.get());
-                if(!voteOption.isEmpty()) {
-
-                    for (int i = 0; i < voteOption.size(); i++) {
+    public void update(VoteUpdateDto voteUpdateDto) {
+        Vote vote = voteRepository.findById(voteUpdateDto.getVote_id()).orElseThrow(() -> new CreationException("투표가 존재하지 않습니다."));
+                // 투표 작성자와 일치하지 않다면
+        if(!vote.getUser().getUserId().equals(AuthContext.getAuth().getUserId())) {
+                    throw new UnauthorizedException("투표 작성자와 일치하지 않습니다.");
+        }
+        List<LocalDateTime> dateTimeList = voteUpdateDto.changeDayFormat();
+        vote.changeVoteContent(voteUpdateDto.getTitle(), voteUpdateDto.getCategory(), dateTimeList.get(0),dateTimeList.get(1));
+        List<VoteOption> voteOption = voteOptionRepository.findByvote(vote);
+        for (int i = 0; i < voteOption.size(); i++) {
                         String option = voteOption.get(i).getContent();
                         if(!voteUpdateDto.getChoices().get(i).equals(option)) {
                             voteOption.get(i).changeContent(voteUpdateDto.getChoices().get(i));
                         }
-                    }
-                    return true;
-                }
         }
-        return false;
     }
     // 투표 상세 조회
     @Transactional
@@ -131,99 +115,74 @@ public class VoteService {
     }
     // 유저 투표 참여 선택지 변경
     @Transactional(isolation = Isolation.READ_COMMITTED)
-    public Boolean changeVoteOption(Long id) {
-        Optional<VoteOption> voteOption = voteOptionRepository.findById(id);
-
-        if(voteOption.isPresent()){
-            VoteOption option = voteOption.get();
-
-            // 기존 선택지 삭제 -> 변경한 선택지로 수정
-            Optional<UserVote> userVote = userVoteRepository.findByVoteAndUser(voteOption.get().getVote(),AuthContext.getAuth());
-            if(userVote.isPresent())
-            {
+    public void changeVoteOption(Long id) {
+        VoteOption voteOption = voteOptionRepository.findById(id).orElseThrow(() -> new CreationException("투표 선택지가 존재하지 않습니다."));
+        // 기존 선택지 삭제 -> 변경한 선택지로 수정
+        Optional<UserVote> userVote = userVoteRepository.findByVoteAndUser(voteOption.getVote(),AuthContext.getAuth());
+        if(userVote.isPresent())
+        {
                 userVoteRepository.delete(userVote.get());
                 userVote.get().getVoteOption().downCount();
-                option.upCount();
-            }
-            else {
-                option.upCount();
-            }
-            try {
-                Optional<UserVote> save = Optional.of(userVoteRepository.save(voteOption.get().createUserVote()));
-                return true;
-            }
-            catch (DataIntegrityViolationException e) {
-                TransactionAspectSupport.currentTransactionStatus().setRollbackOnly();
-                return false;
-            }
+                voteOption.upCount();
         }
-        return false;
+        else {
+                voteOption.upCount();
+        }
+        try {
+                Optional<UserVote> save = Optional.of(userVoteRepository.save(voteOption.createUserVote()));
+        }
+        catch (DataIntegrityViolationException e) {
+                TransactionAspectSupport.currentTransactionStatus().setRollbackOnly();
+        }
     }
 
     // 투표 삭제
     @Transactional
-    public Boolean delete(Long voteId) {
+    public void delete(Long voteId) {
         Optional<Vote> vote = voteRepository.findById(voteId);
         if(vote.isPresent())
         {
-            // 댓글 작성자와 일치하지 않다면
+            // 투표 작성자와 일치하지 않다면
             if(!vote.get().getUser().getUserId().equals(AuthContext.getAuth().getUserId())) {
-                return false;
+                throw new UnauthorizedException("투표 작성자와 일치하지 않습니다.");
             }
             // 투표 삭제
             voteRepository.delete(vote.get());
-            return true;
         }
-        return false;
     }
     // 좋아요
     @Transactional(isolation = Isolation.READ_COMMITTED)
-    public Boolean changeUp(Long voteId) {
-        Optional<Vote> vote = voteRepository.findById(voteId);
-        if(vote.isPresent())
-        {
-            Optional<Up> up = upRepository.findByVoteAndUser(vote.get(),AuthContext.getAuth());
-            if(up.isPresent()) {
+    public void changeUp(Long voteId) {
+         Vote vote = voteRepository.findById(voteId).orElseThrow(() -> new CreationException("투표가 존재하지 않습니다."));
+
+         Optional<Up> up = upRepository.findByVoteAndUser(vote,AuthContext.getAuth());
+         if(up.isPresent()) {
                 // 좋아요 -1
                 upRepository.delete(up.get());
-                vote.get().changeUp(-1);
-            }
-            else {
+                vote.changeUp(-1);
+         }
+         else {
                 // 좋아요 +1
-                Up saveUp = Up.builder().user(AuthContext.getAuth()).vote(vote.get()).build();
-                Optional<Up> savedUp = Optional.of(upRepository.save(saveUp));
-                if(savedUp.isEmpty()) {
-                    return false;
-                }
-                vote.get().changeUp(1);
-            }
-            return true;
-        }
-        return false;
+                Up saveUp = Up.builder().user(AuthContext.getAuth()).vote(vote).build();
+                Up savedUp = Optional.of(upRepository.save(saveUp)).orElseThrow(() -> new CreationException("좋아요 실패했습니다. 잠시 후 다시 시도해 주세요!"));
+                vote.changeUp(1);
+         }
     }
     // 북마크
     @Transactional
-    public Boolean changeBookmark(Long voteId) {
+    public void changeBookmark(Long voteId) {
+        Vote vote = voteRepository.findById(voteId).orElseThrow(() -> new CreationException("투표가 존재하지 않습니다."));
 
-        Optional<Vote> vote = voteRepository.findById(voteId);
-        if(vote.isPresent())
-        {
-            Optional<Bookmark> bookmark = bookmarkRepository.findByVoteAndUser(vote.get(),AuthContext.getAuth());
-            if(bookmark.isPresent()) {
+        Optional<Bookmark> bookmark = bookmarkRepository.findByVoteAndUser(vote,AuthContext.getAuth());
+        if(bookmark.isPresent()) {
                 // 북마크 해제
                 bookmarkRepository.delete(bookmark.get());
-            }
-            else {
-                // 북마크 등록
-                Bookmark saveBookmark = Bookmark.builder().user(AuthContext.getAuth()).vote(vote.get()).build();
-                Optional<Bookmark> savedBookmark = Optional.of(bookmarkRepository.save(saveBookmark));
-                if(savedBookmark.isEmpty()) {
-                    return false;
-                }
-            }
-            return true;
         }
-        return false;
+        else {
+                // 북마크 등록
+                Bookmark saveBookmark = Bookmark.builder().user(AuthContext.getAuth()).vote(vote).build();
+                Bookmark savedBookmark = Optional.of(bookmarkRepository.save(saveBookmark)).orElseThrow(() -> new CreationException("북마크 실패했습니다. 잠시 후 다시 시도해 주세요!"));
+        }
     }
     // 투표 참여 리스트 조회
     @Transactional(readOnly = true)

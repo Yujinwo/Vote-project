@@ -229,7 +229,7 @@ function UserJoin() {
                   <Input.Password
                     count={{
                       show: true,
-                      max: 10,
+                      max: 15,
                     }}
                     placeholder="재확인 비밀번호를 입력해주세요"
                     onBlur={confirmPwChange}

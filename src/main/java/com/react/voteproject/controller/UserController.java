@@ -43,18 +43,15 @@ public class UserController {
     private static final Pattern koreanInitialPattern = Pattern.compile("^[ㄱ-ㅎ]*$");
 
     @PostMapping("/login")
-    public ResponseEntity<Map<String,Object>> Login(@Valid @RequestBody UserLoginDto userLoginDto, HttpServletResponse response,HttpServletRequest request) {
+    public ResponseEntity<Map<Object,Object>> Login(@Valid @RequestBody UserLoginDto userLoginDto, HttpServletResponse response,HttpServletRequest request) {
         String clientIp = request.getRemoteAddr(); // 클라이언트 IP 가져오기
-        Map<String,Object> result = new HashMap<>();
         if (!rateLimiter.isAllowed(clientIp)) {
-            result.put("result","잠시후 다시 시도해주세요");
-            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(result);
+            return ResponseHelper.createErrorMessage("result","잠시후 다시 시도해 주세요",HttpStatus.BAD_REQUEST);
         }
 
         if(!alphanumericPattern.matcher(userLoginDto.getUser_id()).matches())
         {
-            result.put("result","알파벳, 숫자 조합으로 입력해주세요");
-            return ResponseEntity.status(HttpStatus.OK).body(result);
+            return ResponseHelper.createSuccessMessage("result","알파벳, 숫자 조합으로 입력해주세요");
         }
 
         Cookie[] cookies = request.getCookies();
@@ -73,6 +70,7 @@ public class UserController {
 
         if(user.getAccessToken() != null)
         {
+            Map<Object,Object> result = new HashMap<>();
             result.put("result","로그인 성공");
             result.put("accessToken",user.getAccessToken());
             result.put("refreshToken",user.getRefreshToken());
@@ -86,8 +84,7 @@ public class UserController {
             response.addCookie(refreshCookie);
             return ResponseEntity.status(HttpStatus.OK).body(result);
         }
-        result.put("result","아이디와 비밀번호를 확인해주세요");
-        return ResponseEntity.status(HttpStatus.NOT_FOUND).body(result);
+        return ResponseHelper.createErrorMessage("result","아이디와 비밀번호를 확인해주세요",HttpStatus.NOT_FOUND);
     }
 
     @PostMapping("/auth/refresh")
@@ -95,9 +92,7 @@ public class UserController {
         String clientIp = request.getRemoteAddr(); // 클라이언트 IP 가져오기
 
         if (!rateLimiter.isAllowed(clientIp)) {
-            Map<String,Object> result = new HashMap<>();
-            result.put("result","잠시후 다시 시도해주세요");
-            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(result);
+            return ResponseHelper.createErrorMessage("result","잠시후 다시 시도해 주세요",HttpStatus.BAD_REQUEST);
         }
         Cookie[] cookies = request.getCookies();
         String refreshToken = null;
@@ -111,9 +106,7 @@ public class UserController {
             }
         }
         if (refreshToken == null) {
-            Map<String,Object> result = new HashMap<>();
-            result.put("errorMsg","토큰이 존재하지 않습니다");
-            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(result);
+            return ResponseHelper.createErrorMessage("errorMsg","토큰이 존재하지 않습니다",HttpStatus.UNAUTHORIZED);
         }
         String jwtToken = "";
         final String token = request.getHeader("Authorization");
@@ -126,17 +119,13 @@ public class UserController {
             RefreshTokenResponseDTO refreshTokenResponseDTO = refreshTokenService.refreshToken(refreshToken,jwtToken);
 
             if (refreshTokenResponseDTO.getAccessToken() == null) {
-                Map<String,Object> result = new HashMap<>();
-                result.put("errorMsg","로그인을 다시 해주세요");
-                return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(result);
+                return ResponseHelper.createErrorMessage("errorMsg","로그인을 다시 해주세요",HttpStatus.UNAUTHORIZED);
             }
             String newAccessToken = refreshTokenResponseDTO.getAccessToken();
-            return ResponseEntity.ok(Map.of("accessToken", newAccessToken));
+            return ResponseHelper.createSuccessMessage("accessToken",newAccessToken);
         }
 
-        Map<String,Object> result = new HashMap<>();
-        result.put("errorMsg","로그인을 해주세요");
-        return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(result);
+        return ResponseHelper.createErrorMessage("errorMsg","로그인을 해주세요",HttpStatus.UNAUTHORIZED);
 
     }
     @PostMapping("/logout")
@@ -144,7 +133,7 @@ public class UserController {
     {
         String clientIp = request.getRemoteAddr(); // 클라이언트 IP 가져오기
         if (!rateLimiter.isAllowed(clientIp)) {
-            return ResponseHelper.createErrorMessage("result","잠시후 다시 시도해주세요");
+            return ResponseHelper.createErrorMessage("result","잠시후 다시 시도해 주세요",HttpStatus.BAD_REQUEST);
         }
         if(AuthContext.checkAuth()) {
             AuthContext.deleteAuth();
@@ -157,7 +146,7 @@ public class UserController {
             response.addCookie(cookie);  // 클라이언트로 쿠키 전달
             return ResponseHelper.createSuccessMessage("result","로그아웃 성공");
         }
-        return ResponseHelper.createErrorMessage("result","로그아웃 실패");
+        return ResponseHelper.createErrorMessage("result","로그아웃 실패",HttpStatus.BAD_REQUEST);
     }
     // 유저 로그인 여부 확인
     @GetMapping("/sessions")
@@ -168,22 +157,22 @@ public class UserController {
             return ResponseHelper.createSuccessMessage("result",AuthContext.getAuth().getUserId());
         }
 
-        return ResponseHelper.createErrorMessage("result","세션 무효");
+        return ResponseHelper.createErrorMessage("result","세션 무효",HttpStatus.UNAUTHORIZED);
     }
     // id 조회
     @GetMapping("/users")
     public ResponseEntity<Map<Object,Object>> findUserId(@RequestParam("user_id") @NotBlank @Size(min = 4, max = 10,message = "최소 4자 이상, 최대 10자 이하로 입력해주세요") String user_id,HttpServletRequest request) {
         String clientIp = request.getRemoteAddr(); // 클라이언트 IP 가져오기
         if (!rateLimiter.isAllowed(clientIp)) {
-            return ResponseHelper.createErrorMessage("result","잠시후 다시 시도해주세요");
+            return ResponseHelper.createErrorMessage("result","잠시후 다시 시도해 주세요",HttpStatus.BAD_REQUEST);
         }
         if(!alphanumericPattern.matcher(user_id).matches())
         {
-            return ResponseHelper.createErrorMessage("result","알파벳, 숫자 조합으로 입력해주세요");
+            return ResponseHelper.createErrorMessage("result","알파벳, 숫자 조합으로 입력해주세요",HttpStatus.BAD_REQUEST);
         }
         Optional<User> user = userService.findUserId(user_id);
         if(user.isPresent()){
-            return ResponseHelper.createErrorMessage("result","존재 하는 id 입니다");
+            return ResponseHelper.createErrorMessage("result","존재 하는 id 입니다",HttpStatus.BAD_REQUEST);
         }
         return ResponseHelper.createSuccessMessage("result","사용할 수 있는 id 입니다");
 
@@ -193,28 +182,27 @@ public class UserController {
     public ResponseEntity<Map<Object,Object>> Join(@Valid @RequestBody UserJoinDto userJoinDto,HttpServletRequest request) {
         String clientIp = request.getRemoteAddr(); // 클라이언트 IP 가져오기
         if (!rateLimiter.isAllowed(clientIp)) {
-            return ResponseHelper.createErrorMessage("result","잠시후 다시 시도해주세요");
+            return ResponseHelper.createErrorMessage("result","잠시후 다시 시도해 주세요",HttpStatus.BAD_REQUEST);
         }
         if(!alphanumericPattern.matcher(userJoinDto.getUser_id()).matches())
         {
-            return ResponseHelper.createErrorMessage("result","알파벳, 숫자 조합으로 입력해주세요");
+            return ResponseHelper.createErrorMessage("result","알파벳, 숫자 조합으로 입력해주세요",HttpStatus.BAD_REQUEST);
         }
         if(koreanInitialPattern.matcher(userJoinDto.getUser_nick()).matches()){
-
-            return ResponseHelper.createErrorMessage("result","한글 초성은 불가능합니다");
+            return ResponseHelper.createErrorMessage("result","한글 초성은 불가능 합니다",HttpStatus.BAD_REQUEST);
         }
 
         // id 중복 확인
         Optional<User> userId = userService.findUserId(userJoinDto.getUser_id());
         if (userId.isPresent())
         {
-            return ResponseHelper.createErrorMessage("result","존재하는 ID가 있습니다");
+            return ResponseHelper.createErrorMessage("result","존재 하는 id 입니다",HttpStatus.BAD_REQUEST);
         }
 
         // 비밀번호와 재확인 비밀번호 일치 확인
         if(!userJoinDto.getUser_pw().equals(userJoinDto.getUser_confirmpw()))
         {
-            return ResponseHelper.createErrorMessage("result","비밀번호를 일치 시켜 주세요");
+            return ResponseHelper.createErrorMessage("result","비밀번호를 일치 시켜 주세요",HttpStatus.BAD_REQUEST);
         }
 
         Optional<User> user = userService.join(userJoinDto);
@@ -224,7 +212,7 @@ public class UserController {
             return ResponseHelper.createSuccessMessage("result","회원가입 성공");
         }
 
-        return ResponseHelper.createErrorMessage("result","회원가입 실패");
+        return ResponseHelper.createErrorMessage("result","회원가입 실패",HttpStatus.BAD_REQUEST);
 
     }
     // My페이지 유저 통계 데이터 조회

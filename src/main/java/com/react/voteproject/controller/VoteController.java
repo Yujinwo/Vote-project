@@ -5,8 +5,10 @@ import com.fasterxml.jackson.core.JsonProcessingException;
 import com.react.voteproject.category.category_enum;
 import com.react.voteproject.context.AuthContext;
 import com.react.voteproject.dto.*;
+import com.react.voteproject.service.CaffeineFixedWindowRateLimiter;
 import com.react.voteproject.service.VoteService;
 import com.react.voteproject.utility.ResponseHelper;
+import jakarta.servlet.http.HttpServletRequest;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Pageable;
@@ -28,6 +30,7 @@ import java.util.concurrent.CompletableFuture;
 public class VoteController {
 
     private final VoteService voteService;
+    private final CaffeineFixedWindowRateLimiter rateLimiter;
     // 투표 상세 조회
     @GetMapping("/votes")
     public ResponseEntity<VoteDetailDataDto> findId(@RequestParam("id") Long vote_id) {
@@ -80,25 +83,21 @@ public class VoteController {
             LocalDateTime date = LocalDateTime.parse(dateString, formatter); // 문자열을 LocalDateTime으로 변환
 
             if (date.isBefore(now)) {
-                ResponseHelper.createErrorMessage("result","하나 이상의 날짜가 현재 날짜보다 이전입니다: " + dateString);
+                ResponseHelper.createErrorMessage("result","하나 이상의 날짜가 현재 날짜보다 이전입니다: " + dateString,HttpStatus.BAD_REQUEST);
             }
         }
 
         Boolean checkCategory = category_enum.fromCode(voteWriteDto.getCategory());
         // 카테고리 데이터 검증
         if(!checkCategory){
-            return ResponseHelper.createErrorMessage("result","카테고리가 일치하지 않습니다");
+            return ResponseHelper.createErrorMessage("result","카테고리가 일치하지 않습니다",HttpStatus.BAD_REQUEST);
         }
         if(!AuthContext.checkAuth())
         {
-            return ResponseHelper.createErrorMessage("result","로그인을 해주세요");
+            return ResponseHelper.createErrorMessage("result","로그인을 해주세요",HttpStatus.UNAUTHORIZED);
         }
-        Boolean status = voteService.write(voteWriteDto);
-        if(!status)
-        {
-            return ResponseHelper.createErrorMessage("result","투표 작성 실패");
-        }
-        return ResponseHelper.createSuccessMessage("result","투표 작성 성공");
+        voteService.write(voteWriteDto);
+        return ResponseHelper.createSuccessMessage("result","투표 작성 완료");
     }
     // 투표 수정
     @PutMapping("/votes")
@@ -107,18 +106,14 @@ public class VoteController {
         Boolean checkCategory = category_enum.fromCode(voteUpdateDto.getCategory());
         // 카테고리 데이터 검증
         if(!checkCategory){
-            return ResponseHelper.createErrorMessage("result","카테고리가 일치하지 않습니다");
+            return ResponseHelper.createErrorMessage("result","카테고리가 일치하지 않습니다",HttpStatus.BAD_REQUEST);
         }
         if(!AuthContext.checkAuth())
         {
-            return ResponseHelper.createErrorMessage("result","로그인을 해주세요");
+            return ResponseHelper.createErrorMessage("result","로그인을 해주세요",HttpStatus.UNAUTHORIZED);
         }
-        Boolean status = voteService.update(voteUpdateDto);
-        if(!status)
-        {
-            return ResponseHelper.createErrorMessage("result","투표 수정 실패");
-        }
-        return ResponseHelper.createSuccessMessage("result","투표 수정 성공");
+        voteService.update(voteUpdateDto);
+        return ResponseHelper.createSuccessMessage("result","투표 수정 완료");
     }
     // 투표 삭제
     @DeleteMapping("/votes")
@@ -126,28 +121,21 @@ public class VoteController {
 
         if(!AuthContext.checkAuth())
         {
-            return ResponseHelper.createErrorMessage("result","로그인을 해주세요");
+            return ResponseHelper.createErrorMessage("result","로그인을 해주세요",HttpStatus.UNAUTHORIZED);
         }
-        Boolean status = voteService.delete(vote_id);
-        if(!status)
-        {
-            return ResponseHelper.createErrorMessage("result","투표 삭제 실패");
-        }
-        return ResponseHelper.createSuccessMessage("result","투표 삭제 성공");
+        voteService.delete(vote_id);
+        return ResponseHelper.createSuccessMessage("result","투표 삭제 완료");
     }
     // 투표 선택지 참여
     @PostMapping("/voteoptions")
-    public ResponseEntity<Map<Object,Object>> changeVoteOption(@RequestParam("id") Long id) {
+    public ResponseEntity<Map<Object,Object>> changeVoteOption( @RequestParam("id") Long id) {
+
         if(!AuthContext.checkAuth())
         {
-            return ResponseHelper.createErrorMessage("result","로그인을 해주세요");
+            return ResponseHelper.createErrorMessage("result","로그인을 해주세요",HttpStatus.UNAUTHORIZED);
         }
-        Boolean status = voteService.changeVoteOption(id);
-        if(!status)
-        {
-            return ResponseHelper.createErrorMessage("result","선택 실패");
-        }
-        return ResponseHelper.createSuccessMessage("result","선택 성공");
+        voteService.changeVoteOption(id);
+        return ResponseHelper.createSuccessMessage("result","선택 완료");
     }
     // 좋아요 기능
     @PostMapping("/ups")
@@ -155,14 +143,10 @@ public class VoteController {
 
         if(!AuthContext.checkAuth())
         {
-            return ResponseHelper.createErrorMessage("result","로그인을 해주세요");
+            return ResponseHelper.createErrorMessage("result","로그인을 해주세요",HttpStatus.UNAUTHORIZED);
         }
-        Boolean status = voteService.changeUp(id);
-        if(!status)
-        {
-            return ResponseHelper.createErrorMessage("result","좋아요 실패");
-        }
-        return ResponseHelper.createSuccessMessage("result","좋아요 성공");
+        voteService.changeUp(id);
+        return ResponseHelper.createSuccessMessage("result","좋아요 완료");
     }
     // 북마크 기능
     @PostMapping("/bookmarks")
@@ -170,14 +154,10 @@ public class VoteController {
 
         if(!AuthContext.checkAuth())
         {
-            return ResponseHelper.createErrorMessage("result","로그인을 해주세요");
+            return ResponseHelper.createErrorMessage("result","로그인을 해주세요",HttpStatus.UNAUTHORIZED);
         }
-        Boolean status = voteService.changeBookmark(id);
-        if(!status)
-        {
-            return ResponseHelper.createErrorMessage("result","북마크 실패");
-        }
-        return ResponseHelper.createSuccessMessage("result","북마크 성공");
+        voteService.changeBookmark(id);
+        return ResponseHelper.createSuccessMessage("result","북마크 완료");
     }
 
 

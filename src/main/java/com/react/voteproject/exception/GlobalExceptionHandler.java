@@ -1,5 +1,6 @@
 package com.react.voteproject.exception;
 
+import com.react.voteproject.utility.ResponseHelper;
 import jakarta.validation.ConstraintViolationException;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -39,4 +40,14 @@ public class GlobalExceptionHandler {
         errorjson.put("result",errorMessages);
         return errorjson;
     }
+
+    @ExceptionHandler(CreationException.class)
+    public ResponseEntity<Map<Object, Object>> handleCreationException(CreationException e) {
+        return ResponseHelper.createErrorMessage("result",e.getMessage(),HttpStatus.BAD_REQUEST);
+    }
+    @ExceptionHandler(UnauthorizedException.class)
+    public ResponseEntity<Map<Object, Object>> handleUnauthorizedException(UnauthorizedException e) {
+        return ResponseHelper.createErrorMessage("result",e.getMessage(),HttpStatus.UNAUTHORIZED);
+    }
+
 }

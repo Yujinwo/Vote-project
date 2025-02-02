@@ -8,9 +8,12 @@ import com.react.voteproject.dto.CommentUpdateDto;
 import com.react.voteproject.dto.CommentWriteDto;
 import com.react.voteproject.entity.Comment;
 import com.react.voteproject.entity.Vote;
+import com.react.voteproject.exception.CreationException;
+import com.react.voteproject.exception.UnauthorizedException;
 import com.react.voteproject.repository.CommentRepository;
 import com.react.voteproject.repository.VoteRepository;
 import lombok.RequiredArgsConstructor;
+import org.slf4j.helpers.CheckReturnValue;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
@@ -29,20 +32,15 @@ public class CommentService {
     private final VoteRepository voteRepository;
     // 댓글 작성
     @Transactional
-    public Boolean write(CommentWriteDto commentWriteDto) {
-        Optional<Vote> vote = voteRepository.findById(commentWriteDto.getVote_id());
-        if(vote.isPresent()){
-            Optional<Comment> savedComent = Optional.of(commentRepository.save(commentWriteDto.createComment(vote.get(), AuthContext.getAuth())));
-            if(savedComent.isPresent())
-            {
-                return true;
-            }
-            return false;
-        }
-        else {
-            return false;
-        }
+    public void write(CommentWriteDto commentWriteDto) {
+        Vote vote = voteRepository.findById(commentWriteDto.getVote_id())
+                .orElseThrow(() -> new CreationException("투표가 존재하지 않습니다."));
+
+        Comment savedComment = Optional.of(
+                    commentRepository.save(commentWriteDto.createComment(vote, AuthContext.getAuth()))
+            ).orElseThrow(() -> new CreationException("댓글 작성을 실패했습니다. 잠시 후 다시 시도해 주세요!"));
     }
+
     // 댓글 조회
     @Transactional(readOnly = true)
     public CommentMoreDto findComment(Long id, Pageable pageable) {
@@ -62,43 +60,29 @@ public class CommentService {
     }
     // 댓글 수정
     @Transactional
-    public Boolean update(CommentUpdateDto commentUpdateDto) {
-        Optional<Vote> vote = voteRepository.findById(commentUpdateDto.getVote_id());
-        if(vote.isPresent()){
-            Optional<Comment> comment = commentRepository.findById(commentUpdateDto.getComment_id());
-            if(comment.isPresent())
-            {
-                // 댓글 작성자와 일치하지 않다면
-                if(!comment.get().getUser().getUserId().equals(AuthContext.getAuth().getUserId())) {
-                    return false;
-                }
-
-                // 댓글 수정
-                comment.get().changeContent(commentUpdateDto.getContent());
-                return true;
-            }
-            return false;
+    public void update(CommentUpdateDto commentUpdateDto) {
+        Vote vote = voteRepository.findById(commentUpdateDto.getVote_id())
+                .orElseThrow(() -> new CreationException("투표가 존재하지 않습니다."));
+        Comment comment = commentRepository.findById(commentUpdateDto.getComment_id())
+                .orElseThrow(() -> new CreationException("댓글이 존재하지 않습니다."));
+        // 댓글 작성자와 일치하지 않다면
+        if(!comment.getUser().getUserId().equals(AuthContext.getAuth().getUserId())) {
+                throw new UnauthorizedException("댓글 작성자와 일치하지 않습니다.");
         }
-        else {
-            return false;
-        }
+        // 댓글 수정
+        comment.changeContent(commentUpdateDto.getContent());
     }
+
     // 댓글 삭제
     @Transactional
-    public Boolean delete(Long commentId) {
-
-            Optional<Comment> comment = commentRepository.findById(commentId);
-            if(comment.isPresent())
-            {
-                // 댓글 작성자와 일치하지 않다면
-                if(!comment.get().getUser().getUserId().equals(AuthContext.getAuth().getUserId())) {
-                    return false;
-                }
-                // 댓글 삭제
-                commentRepository.delete(comment.get());
-                return true;
+    public void delete(Long commentId) {
+            Comment comment = commentRepository.findById(commentId).orElseThrow(() -> new CreationException("댓글이 존재하지 않습니다."));
+            // 댓글 작성자와 일치하지 않다면
+            if(!comment.getUser().getUserId().equals(AuthContext.getAuth().getUserId())) {
+                throw new UnauthorizedException("댓글 작성자와 일치하지 않습니다.");
             }
-            return false;
-
+            // 댓글 삭제
+            commentRepository.delete(comment);
     }
+
 }

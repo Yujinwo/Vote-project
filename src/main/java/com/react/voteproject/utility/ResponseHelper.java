@@ -7,10 +7,10 @@ import java.util.HashMap;
 import java.util.Map;
 public class ResponseHelper {
 
-        public static ResponseEntity<Map<Object, Object>> createErrorMessage(String key, Object message) {
+        public static ResponseEntity<Map<Object, Object>> createErrorMessage(String key, Object message,HttpStatus status) {
             Map<Object, Object> errorResult = new HashMap<>();
             errorResult.put(key, message);
-            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(errorResult);
+            return ResponseEntity.status(status).body(errorResult);
         }
 
         public static ResponseEntity<Map<Object, Object>> createSuccessMessage(String key, Object data) {
