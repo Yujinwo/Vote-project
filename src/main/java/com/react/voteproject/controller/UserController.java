@@ -6,6 +6,7 @@ import com.react.voteproject.context.AuthContext;
 import com.react.voteproject.dto.*;
 import com.react.voteproject.entity.User;
 import com.react.voteproject.jwt.JwtProvider;
+import com.react.voteproject.jwt.RefreshTokenCache;
 import com.react.voteproject.repository.UserRepository;
 import com.react.voteproject.service.CaffeineFixedWindowRateLimiter;
 import com.react.voteproject.service.RefreshTokenService;
@@ -36,6 +37,7 @@ public class UserController {
     private final UserRepository userRepository;
     private final JwtProvider jwtProvider;
     private final RefreshTokenService refreshTokenService;
+    private final RefreshTokenCache refreshTokenCache;
     private final CaffeineFixedWindowRateLimiter rateLimiter;
     // 영어와 숫자만 허용하는 정규식
     private static final Pattern alphanumericPattern = Pattern.compile("^[a-zA-Z0-9]*$");
@@ -127,11 +129,21 @@ public class UserController {
     @PostMapping("/logout")
     public ResponseEntity<Map<Object,Object>> Logout(HttpServletRequest request, HttpServletResponse response)
     {
-        String clientIp = request.getRemoteAddr(); // 클라이언트 IP 가져오기
-        if (!rateLimiter.isAllowed(clientIp)) {
-            return ResponseHelper.createErrorMessage("result","잠시후 다시 시도해 주세요",HttpStatus.BAD_REQUEST);
+        Cookie[] cookies = request.getCookies();
+        String refreshToken = null;
+
+        if (cookies != null) {
+            for (Cookie cookie : cookies) {
+                if ("refreshToken".equals(cookie.getName())) {
+                    refreshToken = cookie.getValue();
+                    break;
+                }
+            }
         }
         if(AuthContext.checkAuth()) {
+            if (refreshToken != null) {
+               refreshTokenCache.removeRefreshToken(AuthContext.getAuth().getId());
+            }
             AuthContext.deleteAuth();
             Cookie cookie = new Cookie("refreshToken", null);
             cookie.setHttpOnly(true);  // JavaScript 접근 불가
