@@ -26,6 +26,10 @@ public class RefreshTokenService {
         Long id = AuthContext.getAuth().getId();
         String role = AuthContext.getAuth().getRole();
         if(id != null) {
+            // 유효하지 않은 RefreshToken이면
+            if(refresh.getRefreshToken(id) == null) {
+                return new RefreshTokenResponseDTO();
+            }
             // 새로운 access token 생성
             String newAccessToken = jwtProvider.generateAccessToken(id,role);
            
