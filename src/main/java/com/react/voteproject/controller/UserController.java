@@ -89,11 +89,7 @@ public class UserController {
 
     @PostMapping("/auth/refresh")
     public ResponseEntity<?> refreshToken(HttpServletRequest request, HttpServletResponse response) {
-        String clientIp = request.getRemoteAddr(); // 클라이언트 IP 가져오기
 
-        if (!rateLimiter.isAllowed(clientIp)) {
-            return ResponseHelper.createErrorMessage("result","잠시후 다시 시도해 주세요",HttpStatus.BAD_REQUEST);
-        }
         Cookie[] cookies = request.getCookies();
         String refreshToken = null;
 
@@ -108,15 +104,15 @@ public class UserController {
         if (refreshToken == null) {
             return ResponseHelper.createErrorMessage("errorMsg","토큰이 존재하지 않습니다",HttpStatus.UNAUTHORIZED);
         }
-        String jwtToken = "";
+        String accessToken = "";
         final String token = request.getHeader("Authorization");
         if(token != null && !token.isEmpty()) {
-           jwtToken = token.substring(7);
+            accessToken = token.substring(7);
         }
 
 
         if(AuthContext.checkAuth() && jwtProvider.validateToken(refreshToken)) {
-            RefreshTokenResponseDTO refreshTokenResponseDTO = refreshTokenService.refreshToken(refreshToken,jwtToken);
+            RefreshTokenResponseDTO refreshTokenResponseDTO = refreshTokenService.refreshToken(refreshToken,accessToken);
 
             if (refreshTokenResponseDTO.getAccessToken() == null) {
                 return ResponseHelper.createErrorMessage("errorMsg","로그인을 다시 해주세요",HttpStatus.UNAUTHORIZED);

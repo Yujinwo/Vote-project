@@ -90,33 +90,13 @@ public class JwtProvider {
      * @param id token 생성 id
      * @return access token
      */
-    public String generateAccessToken(final String id) {
-        return generateAccessToken(id, new HashMap<>());
-    }
-
-    /**
-     * access token 생성
-     *
-     * @param id token 생성 id
-     * @return access token
-     */
     public String generateAccessToken(final long id,String role) {
         Map<String, Object> claims = new HashMap<>();
         claims.put("role", role);  // 역할 정보 추가
 
-        return generateAccessToken(String.valueOf(id), claims);
+        return doGenerateAccessToken(String.valueOf(id), claims);
     }
 
-    /**
-     * access token 생성
-     *
-     * @param id token 생성 id
-     * @param claims token 생성 claims
-     * @return access token
-     */
-    public String generateAccessToken(final String id, final Map<String, Object> claims) {
-        return doGenerateAccessToken(id, claims);
-    }
 
     /**
      * JWT access token 생성
@@ -135,14 +115,18 @@ public class JwtProvider {
                 .compact();
     }
 
+
     /**
      * refresh token 생성
      *
      * @param id token 생성 id
      * @return refresh token
      */
-    public String generateRefreshToken(final String id) {
-        return doGenerateRefreshToken(id);
+    public String generateRefreshToken(final long id,String role) {
+        Map<String, Object> claims = new HashMap<>();
+        claims.put("role", role);  // 역할 정보 추가
+
+        return doGenerateRefreshToken(String.valueOf(id),claims);
     }
 
     /**
@@ -151,18 +135,9 @@ public class JwtProvider {
      * @param id token 생성 id
      * @return refresh token
      */
-    public String generateRefreshToken(final long id) {
-        return doGenerateRefreshToken(String.valueOf(id));
-    }
-
-    /**
-     * refresh token 생성
-     *
-     * @param id token 생성 id
-     * @return refresh token
-     */
-    private String doGenerateRefreshToken(final String id) {
+    private String doGenerateRefreshToken(final String id,final Map<String, Object> claims) {
         return Jwts.builder()
+                .setClaims(claims)
                 .setId(id)
                 .setExpiration(new Date(System.currentTimeMillis() + (JWT_TOKEN_VALID * 2) * 24)) // 24시간
                 .setIssuedAt(new Date(System.currentTimeMillis()))

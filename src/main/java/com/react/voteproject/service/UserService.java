@@ -9,7 +9,7 @@ import com.react.voteproject.context.AuthContext;
 import com.react.voteproject.dto.*;
 import com.react.voteproject.entity.User;
 import com.react.voteproject.jwt.JwtProvider;
-import com.react.voteproject.jwt.RefreshToken;
+import com.react.voteproject.jwt.RefreshTokenCache;
 import com.react.voteproject.repository.UserRepository;
 import com.react.voteproject.service.impl.RedisSingleDataServiceImpl;
 import lombok.RequiredArgsConstructor;
@@ -29,7 +29,7 @@ public class UserService {
 
     private final UserRepository userRepository;
     private final JwtProvider jwtProvider;
-    private final RefreshToken refresh;
+    private final RefreshTokenCache refresh;
     private final RedisSingleDataServiceImpl redisSingleDataService;
 
     @Autowired
@@ -42,17 +42,19 @@ public class UserService {
        if(user.isPresent()) {
            User userInfo = user.get();
            AuthContext.setAuth(user.get());
+           Long id = userInfo.getId();
+           String role = userInfo.getRole();
            // jwt 토큰 생성
-           String accessToken = jwtProvider.generateAccessToken(userInfo.getId(), userInfo.getRole());
+           String accessToken = jwtProvider.generateAccessToken(id, role);
 
            // 기존에 가지고 있는 사용자의 refresh token 제거
            if(refreshToken != null){
-               refresh.removeRefreshToken(refreshToken);
+               refresh.removeRefreshToken(id);
            }
 
            // refresh token 생성 후 저장
-           refreshToken = jwtProvider.generateRefreshToken(userInfo.getId());
-           refresh.putRefreshToken(refreshToken, userInfo.getId());
+           refreshToken = jwtProvider.generateRefreshToken(id,role);
+           refresh.putRefreshToken(id,refreshToken);
 
            return LoginResponseDTO.builder()
                    .accessToken(accessToken)
