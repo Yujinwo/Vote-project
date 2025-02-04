@@ -12,6 +12,7 @@ import com.react.voteproject.jwt.JwtProvider;
 import com.react.voteproject.jwt.RefreshTokenCache;
 import com.react.voteproject.repository.UserRepository;
 import com.react.voteproject.service.impl.RedisSingleDataServiceImpl;
+import jakarta.servlet.http.HttpServletRequest;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -37,13 +38,15 @@ public class UserService {
 
     // 로그인
     @Transactional(readOnly = true)
-    public LoginResponseDTO login(UserLoginDto userLoginDto, String refreshToken) {
+    public LoginResponseDTO login(String ip,String userAgent, UserLoginDto userLoginDto, String refreshToken) {
        Optional<User> user = userRepository.Login(userLoginDto.getUser_id(), userLoginDto.getUser_pw());
        if(user.isPresent()) {
            User userInfo = user.get();
            AuthContext.setAuth(user.get());
            Long id = userInfo.getId();
            String role = userInfo.getRole();
+
+
            // jwt 토큰 생성
            String accessToken = jwtProvider.generateAccessToken(id, role);
 
@@ -54,7 +57,8 @@ public class UserService {
 
            // refresh token 생성 후 저장
            refreshToken = jwtProvider.generateRefreshToken(id,role);
-           refresh.putRefreshToken(id,refreshToken);
+           CacheRefreshTokenDto cacheRefreshTokenDto = CacheRefreshTokenDto.builder().refreshToken(refreshToken).ip(ip).userAgent(userAgent).build();
+           refresh.putRefreshToken(id,cacheRefreshTokenDto);
 
            return LoginResponseDTO.builder()
                    .accessToken(accessToken)

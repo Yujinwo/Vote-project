@@ -1,6 +1,7 @@
 package com.react.voteproject.service;
 
 import com.react.voteproject.context.AuthContext;
+import com.react.voteproject.dto.CacheRefreshTokenDto;
 import com.react.voteproject.dto.RefreshTokenResponseDTO;
 import com.react.voteproject.jwt.JwtProvider;
 import com.react.voteproject.jwt.RefreshTokenCache;
@@ -13,23 +14,27 @@ import org.springframework.stereotype.Service;
 public class RefreshTokenService {
     private final JwtProvider jwtProvider;
     private final RefreshTokenCache refresh;
-    /**
-     * refresh token을 이용하여 access token, refresh token 재발급
-     *
-     * @param refreshToken refresh token
-     * @return RefreshTokenResponseDTO
-     */
 
-    public RefreshTokenResponseDTO refreshToken(final String refreshToken,String accessToken) {
+    // refresh token을 이용하여 access token, refresh token 재발급
 
+    public RefreshTokenResponseDTO refreshToken(String ip,String userAgent,String refreshToken) {
         // refresh token id 조회
         Long id = AuthContext.getAuth().getId();
         String role = AuthContext.getAuth().getRole();
         if(id != null) {
-            // 유효하지 않은 RefreshToken이면
-            if(refresh.getRefreshToken(id) == null) {
-                return new RefreshTokenResponseDTO();
+            CacheRefreshTokenDto store = refresh.getRefreshToken(id);
+            if(store == null) {
+                return new RefreshTokenResponseDTO(); // 유효하지 않은 RefreshToken
             }
+            else {
+                if (!store.getRefreshToken().equals(refreshToken)) {
+                    return new RefreshTokenResponseDTO(); // 토큰 불일치 → 탈취 가능성 있음
+                }
+                if (!store.getIp().equals(ip) || !store.getUserAgent().equals(userAgent)) {
+                    return new RefreshTokenResponseDTO(); // IP나 User-Agent 변경 → 의심스러운 접근
+                }
+            }
+
             // 새로운 access token 생성
             String newAccessToken = jwtProvider.generateAccessToken(id,role);
            
@@ -38,7 +43,8 @@ public class RefreshTokenService {
 
             // 새로운 refresh token 생성 후 저장
             String newRefreshToken = jwtProvider.generateRefreshToken(id,role);
-            refresh.putRefreshToken(id,newRefreshToken);
+            CacheRefreshTokenDto cacheRefreshTokenDto = CacheRefreshTokenDto.builder().refreshToken(newRefreshToken).ip(ip).userAgent(userAgent).build();
+            refresh.putRefreshToken(id,cacheRefreshTokenDto);
 
             return RefreshTokenResponseDTO.builder()
                     .accessToken(newAccessToken)
