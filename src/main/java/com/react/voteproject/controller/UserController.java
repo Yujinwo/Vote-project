@@ -21,6 +21,9 @@ import jakarta.validation.constraints.Size;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
+import org.springframework.security.core.authority.SimpleGrantedAuthority;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 
@@ -47,6 +50,7 @@ public class UserController {
     @PostMapping("/login")
     public ResponseEntity<Map<Object,Object>> Login(@Valid @RequestBody UserLoginDto userLoginDto, HttpServletResponse response,HttpServletRequest request) {
         String clientIp = request.getRemoteAddr(); // 클라이언트 IP 가져오기
+        String userAgent = request.getHeader("User-Agent");
         if (!rateLimiter.isAllowed(clientIp)) {
             return ResponseHelper.createErrorMessage("result","잠시후 다시 시도해 주세요",HttpStatus.BAD_REQUEST);
         }
@@ -68,10 +72,11 @@ public class UserController {
             }
         }
 
-        LoginResponseDTO user = userService.login(userLoginDto,refreshToken);
+        LoginResponseDTO user = userService.login(clientIp,userAgent,userLoginDto,refreshToken);
 
         if(user.getAccessToken() != null)
         {
+
             Map<Object,Object> result = new HashMap<>();
             result.put("result","로그인 성공");
             result.put("accessToken",user.getAccessToken());
@@ -104,7 +109,7 @@ public class UserController {
             }
         }
         if (refreshToken == null) {
-            return ResponseHelper.createErrorMessage("errorMsg","토큰이 존재하지 않습니다",HttpStatus.UNAUTHORIZED);
+            return ResponseHelper.createErrorMessage("errorMsg","로그인을 해주세요.",HttpStatus.UNAUTHORIZED);
         }
         String accessToken = "";
         final String token = request.getHeader("Authorization");
@@ -112,9 +117,15 @@ public class UserController {
             accessToken = token.substring(7);
         }
 
+        if(AuthContext.checkAuth() && jwtProvider.validateToken(accessToken)) {
+            return ResponseHelper.createErrorMessage("errorMsg","재발급이 필요하지 않은 토큰입니다.",HttpStatus.UNAUTHORIZED);
+        }
+
 
         if(AuthContext.checkAuth() && jwtProvider.validateToken(refreshToken)) {
-            RefreshTokenResponseDTO refreshTokenResponseDTO = refreshTokenService.refreshToken(refreshToken,accessToken);
+            String ip = request.getRemoteAddr(); // 기본 IP
+            String userAgent = request.getHeader("User-Agent");
+            RefreshTokenResponseDTO refreshTokenResponseDTO = refreshTokenService.refreshToken(ip,userAgent,refreshToken);
 
             if (refreshTokenResponseDTO.getAccessToken() == null) {
                 return ResponseHelper.createErrorMessage("errorMsg","로그인을 다시 해주세요",HttpStatus.UNAUTHORIZED);
@@ -216,7 +227,6 @@ public class UserController {
         Optional<User> user = userService.join(userJoinDto);
         if(user.isPresent())
         {
-            AuthContext.setAuth(user.get());
             return ResponseHelper.createSuccessMessage("result","회원가입 성공");
         }
 

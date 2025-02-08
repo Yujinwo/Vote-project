@@ -36,6 +36,10 @@ apiClient.interceptors.response.use(
         const originalRequest = error.config;
 
         if (error.response?.status === 401 && !originalRequest._retry) {
+            const accessToken = sessionStorage.getItem('accessToken');
+            if (!accessToken) {
+                return Promise.reject(error);
+            }
             originalRequest._retry = true; // 재시도 플래그 설정
 
             if (!isRefreshing) {

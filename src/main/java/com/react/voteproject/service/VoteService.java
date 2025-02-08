@@ -133,6 +133,7 @@ public class VoteService {
         }
         catch (DataIntegrityViolationException e) {
                 TransactionAspectSupport.currentTransactionStatus().setRollbackOnly();
+                throw new CreationException("중복 투표는 허용되지 않습니다");
         }
     }
 

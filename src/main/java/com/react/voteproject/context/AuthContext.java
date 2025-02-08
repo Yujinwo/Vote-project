@@ -2,23 +2,30 @@ package com.react.voteproject.context;
 
 
 import com.react.voteproject.entity.User;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContextHolder;
 
 public class AuthContext {
 
-    private static User user;
 
     public static User getAuth() {
-        return user;
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+        if (authentication != null && authentication.getPrincipal() instanceof User) {
+            return (User) authentication.getPrincipal(); // 캐스팅하여 User 정보 가져오기
+        }
+        return null;
     }
-    public static void setAuth(User user) {
-        AuthContext.user = user;
-    }
+
     // 유저 로그인 인증 함수
     public static Boolean checkAuth() {
-        return AuthContext.user != null ? true : false;
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+        if (authentication != null && authentication.getPrincipal() instanceof User) {
+            return true;
+        }
+        return false;
     }
     public static void deleteAuth() {
-        AuthContext.user = null;
+        SecurityContextHolder.clearContext();
     }
 
 

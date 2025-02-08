@@ -166,7 +166,7 @@ function UserJoin() {
           })
           .then((res) =>
           {
-                  navigate('/');
+                  navigate('/login');
                   message.success('회원가입 성공');
           })
           .catch((err) =>
